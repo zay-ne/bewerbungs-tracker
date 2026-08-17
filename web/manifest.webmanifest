@@ -1,0 +1,15 @@
+{
+  "name": "Bewerbungen",
+  "short_name": "Bewerbungen",
+  "description": "Bewerbungen verfolgen: Tabelle, Prozess und Sankey-Diagramm.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f7",
+  "theme_color": "#f5f5f7",
+  "lang": "de",
+  "icons": [
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
