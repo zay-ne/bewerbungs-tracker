@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bewerbungen">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Bewerbungen</title>
+<style>
+/* ─────────────────────────────  Tokens  ───────────────────────────── */
+:root{
+  --bg:#f5f5f7;
+  --bg-elevated:#ffffff;
+  --bg-sunken:#ececed;
+  --seg-active:#ffffff;
+  --surface-hover:rgba(0,0,0,.035);
+  --text:#1d1d1f;
+  --text-secondary:#6e6e73;
+  --text-tertiary:#a1a1a6;
+  --separator:rgba(0,0,0,.09);
+  --separator-strong:rgba(0,0,0,.16);
+  --accent:#0071e3;
+  --accent-hover:#0077ed;
+  --accent-soft:rgba(0,113,227,.1);
+  --green:#1d9e4b;
+  --red:#d63a2f;
+  --orange:#c26b00;
+  --purple:#6a4ce0;
+  --gray:#7a7a80;
+  --sand:#8d7333;
+  --shadow-card:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+  --shadow-pop:0 8px 20px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.08);
+  --shadow-sheet:0 30px 90px rgba(0,0,0,.28), 0 4px 12px rgba(0,0,0,.12);
+  --r-lg:20px; --r-md:14px; --r-sm:9px;
+  --ease:cubic-bezier(.32,.72,0,1);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#000000;
+    --bg-elevated:#1c1c1e;
+    --bg-sunken:#2c2c2e;
+    --seg-active:#4c4c50;
+    --surface-hover:rgba(255,255,255,.055);
+    --text:#f5f5f7;
+    --text-secondary:#98989d;
+    --text-tertiary:#6e6e73;
+    --separator:rgba(255,255,255,.1);
+    --separator-strong:rgba(255,255,255,.2);
+    --accent:#0a84ff;
+    --accent-hover:#409cff;
+    --accent-soft:rgba(10,132,255,.16);
+    --green:#30d158;
+    --red:#ff453a;
+    --orange:#ff9f0a;
+    --purple:#bf5af2;
+    --gray:#98989d;
+    --sand:#d0b06a;
+    --shadow-card:0 1px 2px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0,.4);
+    --shadow-pop:0 10px 30px rgba(0,0,0,.6);
+    --shadow-sheet:0 40px 100px rgba(0,0,0,.7);
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+/* Muss über allen Klassenregeln stehen: sonst überstimmt ein display aus einer Klasse
+   das hidden-Attribut, und ausgeblendete Bereiche bleiben sichtbar. */
+[hidden]{display:none !important}
+/* Bedienelemente schrumpfen nie unter ihren Inhalt – sie brechen stattdessen um */
+.btn,.fchip,.chip,.end,.step,.iconbtn,.flagbtn,.dirbtn,.minisel,.close{flex:none}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Inter,system-ui,sans-serif;
+  background:var(--bg); color:var(--text);
+  font-size:15px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-.01em;
+  padding:0 24px 96px;
+  padding-left:max(24px, env(safe-area-inset-left));
+  padding-right:max(24px, env(safe-area-inset-right));
+}
+button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
+button{background:none;border:0;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* ─────────────────────────────  Layout  ───────────────────────────── */
+.wrap{max-width:1440px;margin:0 auto}
+
+header.top{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
+  flex-wrap:wrap; padding:56px 4px 28px;
+}
+h1{
+  font-size:40px;line-height:1.08;font-weight:700;letter-spacing:-.028em;
+}
+.subtitle{color:var(--text-secondary);font-size:15px;margin-top:7px}
+.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;min-width:0}
+.flagbtn{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:19px;
+  background:var(--bg-elevated);box-shadow:0 1px 2px rgba(0,0,0,.08);flex:none;
+  transition:transform .18s var(--ease),box-shadow .18s;line-height:1;
+}
+.flagbtn:hover{box-shadow:0 2px 8px rgba(0,0,0,.14)}
+.flagbtn:active{transform:scale(.93)}
+[dir=rtl] .arrow,[dir=rtl] .extlink{transform:scaleX(-1)}
+[dir=rtl] .pathline{direction:rtl}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  height:38px;padding:0 17px;border-radius:999px;
+  font-size:14.5px;font-weight:500;
+  background:var(--bg-elevated);box-shadow:0 1px 2px rgba(0,0,0,.06);
+  transition:transform .18s var(--ease), background .18s, opacity .18s;
+  white-space:nowrap;
+}
+.btn:hover{background:var(--bg-elevated);filter:brightness(.98)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.btn.primary:hover{background:var(--accent-hover);filter:none}
+.btn.quiet{background:transparent;box-shadow:none;color:var(--text-secondary)}
+.btn.quiet:hover{background:var(--surface-hover);filter:none;color:var(--text)}
+.btn.danger{background:var(--red);color:#fff}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn .ico{font-size:16px;line-height:1}
+
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat{
+  background:var(--bg-elevated);border-radius:var(--r-md);padding:15px 17px 16px;
+  box-shadow:var(--shadow-card);
+}
+.stat .k{font-size:12.5px;font-weight:500;color:var(--text-secondary);letter-spacing:0}
+.stat .v{font-size:29px;font-weight:600;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:14px;font-weight:500;color:var(--text-tertiary);margin-left:4px;letter-spacing:0}
+
+/* Card / table */
+.card{
+  background:var(--bg-elevated);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-card);overflow:hidden;
+}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:16px 16px 14px 22px;border-bottom:1px solid var(--separator);
+}
+.card-head h2{font-size:17px;font-weight:600;letter-spacing:-.015em}
+.table-scroll{overflow-x:auto}
+
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px}
+th{
+  text-align:left;font-size:11.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.055em;color:var(--text-tertiary);
+  padding:12px 12px;white-space:nowrap;background:var(--bg-elevated);
+  border-bottom:1px solid var(--separator);
+  position:sticky;top:0;z-index:2;
+}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--text-secondary)}
+th .arrow{opacity:0;margin-left:4px;font-size:10px}
+th.sorted .arrow{opacity:1}
+td{padding:13px 12px;border-bottom:1px solid var(--separator);vertical-align:middle}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--surface-hover)}
+tbody tr:last-child td{border-bottom:0}
+td:first-child,th:first-child{padding-left:22px}
+td:last-child,th:last-child{padding-right:16px}
+.company{font-weight:600;letter-spacing:-.012em;display:flex;align-items:center;gap:7px;min-width:0}
+.company > :first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td:first-child{max-width:280px}
+.role{color:var(--text-secondary);font-size:13.5px;margin-top:1px}
+.firm{display:flex;align-items:center;gap:11px}
+.names{min-width:0}
+
+/* Logo-Kachel: echtes Logo über dem Monogramm */
+.mark{position:relative;width:28px;height:28px;border-radius:8px;overflow:hidden;flex:none;display:block}
+.mark .mono{position:absolute;inset:0;display:grid;place-items:center;color:#fff;
+  font-size:11.5px;font-weight:650;letter-spacing:.02em}
+.mark img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  background:#fff;padding:3px;opacity:0;transition:opacity .25s}
+.mark.has-logo img{opacity:1}
+
+/* Link zur Ausschreibung */
+.extlink{color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;
+  line-height:1;padding:2px 3px;border-radius:5px;transition:background .16s}
+.extlink:hover{background:var(--accent-soft)}
+.addlink{font-size:11px;font-weight:500;color:var(--text-tertiary);padding:1px 6px;
+  border-radius:999px;background:var(--bg-sunken);opacity:0;transition:opacity .16s,color .16s}
+tr:hover .addlink{opacity:1}
+.addlink:hover{color:var(--accent)}
+
+/* Bewerbungskanal */
+.chip{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;
+  border-radius:7px;background:var(--bg-sunken);overflow:hidden}
+.chip img{width:16px;height:16px;object-fit:contain}
+.chemoji{font-size:14px;line-height:1}
+.chtext{font-size:13px;color:var(--text-secondary);white-space:nowrap}
+
+/* Vorschlagsliste */
+.field{position:relative}
+.suggest{
+  position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:20;
+  background:var(--bg-elevated);border-radius:12px;box-shadow:var(--shadow-pop);
+  border:.5px solid var(--separator);padding:5px;max-height:236px;overflow:auto;
+}
+.sg{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:7px 9px;border-radius:8px;font-size:14px}
+.sg .mark{width:22px;height:22px;border-radius:6px}
+.sg .mark .mono{font-size:9.5px}
+.sg:hover,.sg.on{background:var(--surface-hover)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.muted{color:var(--text-secondary)}
+.sub{font-size:12px;color:var(--text-tertiary);margin-top:1px}
+.dash{color:var(--text-tertiary)}
+.warn{color:var(--orange);font-weight:500}
+.over{color:var(--red);font-weight:500}
+
+/* Status pill */
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  height:26px;padding:0 11px;border-radius:999px;
+  font-size:12.5px;font-weight:550;letter-spacing:0;white-space:nowrap;
+  background:var(--tint,var(--bg-sunken));color:var(--tone,var(--text-secondary));
+}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+.pill.click{cursor:pointer;transition:transform .16s var(--ease),filter .16s}
+.pill.click:hover{filter:brightness(1.06) saturate(1.1)}
+.pill.click:active{transform:scale(.96)}
+.pathline{font-size:11px;color:var(--text-tertiary);margin-top:4px;white-space:nowrap;
+  max-width:165px;overflow:hidden;text-overflow:ellipsis}
+
+/* Row actions */
+.rowacts{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.step{
+  height:31px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:500;
+  background:var(--accent-soft);color:var(--accent);
+  transition:transform .16s var(--ease),background .16s;white-space:nowrap;
+}
+.step:hover{background:var(--accent);color:#fff}
+.step:active{transform:scale(.96)}
+.endbtns{display:flex;gap:6px}
+.end{
+  display:inline-flex;align-items:center;gap:5px;
+  height:31px;padding:0 10px;border-radius:999px;font-size:12.5px;font-weight:550;
+  white-space:nowrap;transition:transform .16s var(--ease),background .16s,color .16s;
+}
+.end .ic{font-size:12px;line-height:1}
+.end.yes{background:color-mix(in srgb, var(--green) 14%, transparent);color:var(--green)}
+.end.yes:hover{background:var(--green);color:#fff}
+.end.no{background:color-mix(in srgb, var(--red) 13%, transparent);color:var(--red)}
+.end.no:hover{background:var(--red);color:#fff}
+.end.none{background:color-mix(in srgb, var(--sand) 16%, transparent);color:var(--sand);padding:0 9px}
+.end.none:hover{background:var(--sand);color:#fff}
+.end:active{transform:scale(.96)}
+.iconbtn{
+  width:31px;height:31px;border-radius:50%;display:grid;place-items:center;
+  color:var(--text-tertiary);transition:background .16s,color .16s,transform .16s var(--ease);
+  font-size:15px;line-height:1;
+}
+.iconbtn:hover{background:var(--surface-hover);color:var(--text)}
+.iconbtn:active{transform:scale(.92)}
+.iconbtn.trash:hover{color:var(--red)}
+
+/* Empty state */
+.empty{padding:70px 24px 78px;text-align:center}
+.empty .glyph{font-size:40px;opacity:.35}
+.empty h3{font-size:17px;font-weight:600;margin-top:14px}
+.empty p{color:var(--text-secondary);font-size:14px;margin-top:6px}
+
+/* ─────────────────────────  Overlay / sheets  ───────────────────────── */
+.overlay{
+  position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+  background:rgba(0,0,0,.32);backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  opacity:0;pointer-events:none;transition:opacity .3s var(--ease);
+}
+.overlay.show{opacity:1;pointer-events:auto}
+.sheet{
+  width:100%;max-width:520px;max-height:calc(100vh - 48px);overflow:auto;
+  background:var(--bg-elevated);border-radius:22px;box-shadow:var(--shadow-sheet);
+  transform:translateY(14px) scale(.97);opacity:.6;
+  transition:transform .34s var(--ease),opacity .24s var(--ease);
+}
+.overlay.show .sheet{transform:none;opacity:1}
+.sheet.wide{max-width:1040px}
+.sheet-head{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:20px 24px 16px;border-bottom:1px solid var(--separator);
+  position:sticky;top:0;background:var(--bg-elevated);z-index:3;border-radius:22px 22px 0 0;
+}
+.sheet-head h2{font-size:19px;font-weight:600;letter-spacing:-.018em}
+.sheet-head .hint{font-size:13px;color:var(--text-secondary);margin-top:2px}
+.sheet-body{padding:22px 24px 24px}
+.sheet-foot{
+  display:flex;justify-content:flex-end;gap:10px;
+  padding:16px 24px 20px;border-top:1px solid var(--separator);
+  position:sticky;bottom:0;background:var(--bg-elevated);
+}
+.close{
+  width:30px;height:30px;border-radius:50%;background:var(--bg-sunken);
+  color:var(--text-secondary);display:grid;place-items:center;font-size:15px;line-height:1;
+  transition:transform .16s var(--ease),color .16s;flex:none;
+}
+.close:hover{color:var(--text)}
+.close:active{transform:scale(.9)}
+
+/* Form */
+.field{margin-bottom:16px}
+.field > label{display:block;font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:10px}
+input[type=text],input[type=number],input[type=date],input[type=email],input[type=password],select{
+  width:100%;height:40px;padding:0 13px;border-radius:11px;
+  background:var(--bg-sunken);border:1px solid transparent;
+  transition:border-color .16s,background .16s,box-shadow .16s;
+}
+select{appearance:none;padding-right:34px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--text-secondary) 50%),linear-gradient(135deg,var(--text-secondary) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 18px,calc(100% - 13px) 18px;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+}
+input:focus,select:focus{
+  outline:none;background:var(--bg-elevated);border-color:var(--accent);
+  box-shadow:0 0 0 3.5px var(--accent-soft);
+}
+input[type=email],input[type=password]{-webkit-appearance:none;appearance:none}
+input.invalid{border-color:var(--red);box-shadow:0 0 0 3.5px rgba(214,58,47,.14)}
+input::placeholder{color:var(--text-tertiary)}
+.seg{display:flex;gap:4px;background:var(--bg-sunken);padding:3px;border-radius:11px}
+.seg label{
+  flex:1;text-align:center;font-size:13.5px;font-weight:500;padding:8px 4px;border-radius:8px;
+  cursor:pointer;color:var(--text-secondary);transition:background .18s var(--ease),color .18s;
+  white-space:nowrap;
+}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label:has(input:checked){background:var(--seg-active);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg label:focus-within{outline:2.5px solid var(--accent);outline-offset:1px}
+
+/* Verlauf (Timeline) */
+.timeline{position:relative}
+.tl{display:flex;align-items:center;gap:11px;padding:7px 0;position:relative}
+.tl .rail{position:absolute;left:5px;top:0;bottom:0;width:2px;background:var(--separator);z-index:0}
+.tl:first-child .rail{top:50%}
+.tl:last-child .rail{bottom:50%}
+.tl .dot{width:12px;height:12px;border-radius:50%;flex:none;position:relative;z-index:1;
+  box-shadow:0 0 0 3px var(--bg-elevated)}
+.tl .nm{flex:1;font-size:14.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl input[type=date]{width:150px;height:32px;font-size:13px;flex:none}
+.tl .iconbtn{width:28px;height:28px;font-size:13px;flex:none}
+.tl.current .nm{font-weight:650}
+
+/* Popover menu */
+.menu{
+  position:fixed;z-index:200;min-width:222px;padding:6px;
+  background:var(--bg-elevated);border-radius:14px;box-shadow:var(--shadow-pop);
+  border:.5px solid var(--separator);
+  transform-origin:top right;transform:scale(.94);opacity:0;pointer-events:none;
+  transition:transform .18s var(--ease),opacity .14s;
+}
+.menu.show{transform:none;opacity:1;pointer-events:auto}
+.menu .grp{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--text-tertiary);padding:8px 10px 5px}
+.menu button{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:8px 10px;border-radius:9px;font-size:14px;transition:background .12s;
+}
+.menu button:hover{background:var(--surface-hover)}
+.menu button .dot{width:7px;height:7px;border-radius:50%;flex:none}
+.menu button .now{margin-left:auto;font-size:11.5px;color:var(--text-tertiary)}
+.menu hr{border:0;border-top:1px solid var(--separator);margin:5px 4px}
+
+/* ───────────────────────────  Sankey  ─────────────────────────── */
+.chart-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+.chart-wrap{position:relative;padding:6px 4px 0}
+svg.sankey{display:block;width:100%;height:440px;overflow:visible}
+.sankey .node rect{transition:opacity .16s}
+.sankey .link{transition:opacity .16s}
+.sankey.hovering .link{opacity:.22}
+.sankey.hovering .link.hot{opacity:.95}
+.sankey text{font-size:11.5px;fill:var(--text-secondary);letter-spacing:0}
+.sankey text.lbl{fill:var(--text);font-weight:600;font-size:12px}
+.sankey text tspan.v{fill:var(--text-secondary);font-weight:500;font-size:11px}
+.sankey g.labels{pointer-events:none}
+.sankey .lblbg{fill:var(--bg-elevated);fill-opacity:.88;pointer-events:none}
+.tip{
+  position:absolute;z-index:5;pointer-events:none;
+  background:var(--text);color:var(--bg-elevated);
+  padding:7px 10px;border-radius:9px;font-size:12.5px;font-weight:500;
+  box-shadow:var(--shadow-pop);opacity:0;transition:opacity .14s;
+  transform:translate(-50%,-118%);white-space:nowrap;
+}
+.tip.show{opacity:1}
+.conv{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:22px}
+.conv .c{background:var(--bg-sunken);border-radius:var(--r-md);padding:13px 15px}
+.conv .c .k{font-size:12px;color:var(--text-secondary);font-weight:500}
+.conv .c .v{font-size:22px;font-weight:600;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.conv .c .n{font-size:11.5px;color:var(--text-tertiary);margin-top:1px}
+
+/* Confetti */
+.confetti{position:fixed;inset:0;z-index:400;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;will-change:transform,opacity;
+  animation:fall linear forwards}
+@keyframes fall{
+  0%{transform:translate3d(0,0,0) rotate(0deg);opacity:1}
+  100%{transform:translate3d(var(--dx),102vh,0) rotate(var(--rot));opacity:.85}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+/* Schmales Fenster: nachrangige Spalten weichen der Reihe nach.
+   Reihenfolge der Wichtigkeit: Firma → Status → Prozess → Abschluss → Beworben
+   → Ort → Kanal → Gehalt → Schluss → Arbeitszeit */
+/* Staffelung: was zuerst weichen darf, verschwindet zuerst.
+   Reihenfolge: Arbeitszeit → Schluss → Pfad und Knopftexte → Gehalt → Kanal → Ort → Karten */
+@media (max-width:1600px){ .c-employment{display:none} }
+@media (max-width:1480px){ .c-deadline{display:none} }
+@media (max-width:1400px){
+  .pathline{display:none}
+  .end .lbl{display:none}
+  .end{padding:0 9px}
+}
+@media (max-width:1300px){ .c-salary{display:none} }
+@media (max-width:1160px){ .c-channel{display:none} }
+@media (max-width:1040px){ .c-location{display:none} }
+
+/* Handy: aus jeder Zeile wird eine Karte, Spaltenname steht davor */
+@media (max-width:960px){
+  .card{background:transparent;box-shadow:none;border-radius:0;overflow:visible}
+  .card-head{padding:14px 0 10px;border-bottom:0}
+  .table-scroll{overflow:visible}
+  table,tbody,tr,td{display:block;width:auto}
+  thead{display:none}
+  tbody tr{
+    background:var(--bg-elevated);border-radius:var(--r-md);box-shadow:var(--shadow-card);
+    padding:14px 16px 12px;margin-bottom:12px;
+  }
+  tbody tr:hover{background:var(--bg-elevated)}
+  td,td:first-child,td:last-child{padding:0;border-bottom:0}
+  td[data-label]{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:7px 0;border-top:1px solid var(--separator);min-height:34px}
+  td[data-label]::before{
+    content:attr(data-label);font-size:11.5px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--text-tertiary);flex:none;
+  }
+  td:first-child{padding-bottom:4px}
+  .pathline{max-width:none;white-space:normal;display:block}
+  .end .lbl{display:inline}
+  /* Inhalt darf unter die Spaltenbezeichnung rutschen statt über den Rand zu laufen */
+  td[data-label]{flex-wrap:wrap;row-gap:8px}
+  td[data-label]::before{flex:0 0 auto}
+  .endbtns{flex-wrap:wrap;justify-content:flex-end;row-gap:8px;margin-left:auto}
+  .toolbar{padding:12px 0 14px}
+  .rowacts{justify-content:flex-start;padding-top:10px}
+  .end,.step{height:36px;font-size:13.5px}
+  .iconbtn{width:36px;height:36px}
+  .endbtns{gap:8px}
+  .addlink{opacity:1}
+  /* Auf dem Handy zählen alle Angaben – nichts ausblenden, dafür untereinander */
+  .c-location,.c-channel,.c-salary,.c-employment,.c-applied,.c-deadline{display:flex}
+}
+
+@media (max-width:440px){
+  /* Sehr schmale Geräte: Schalter und Listenzeilen brechen um */
+  .seg{flex-wrap:wrap}
+  .seg label{flex:1 1 calc(50% - 4px)}
+  .inv{flex-wrap:wrap;row-gap:8px}
+  .inv .spacer{display:none}
+  .inv code{flex:1 1 100%}
+  .overlay{padding:14px}
+  .sheet-body,.sheet-head,.sheet-foot{padding-left:16px;padding-right:16px}
+}
+
+@media (max-width:600px){
+  .toolbar{flex-direction:column;align-items:stretch;gap:10px}
+  .sortbox{width:100%}
+  .minisel{flex:1 1 auto;min-width:0}
+  .endbtns{width:100%}
+}
+
+@media (max-width:760px){
+  body{padding:0 14px 80px}
+  h1{font-size:31px}
+  header.top{padding:34px 2px 22px;gap:16px}
+  .top-actions{flex-wrap:wrap;width:100%;gap:8px}
+  .top-actions .btn.primary{margin-left:auto}
+  /* Beschriftungen bleiben lesbar, die Reihe bricht stattdessen um */
+  .top-actions .btn{font-size:13.5px;height:34px;padding:0 12px}
+  .stat .v small{display:block;margin-left:0;margin-top:2px}
+  .conflictbar{flex-direction:column;align-items:stretch}
+  .cb-acts{flex-wrap:wrap}
+  .cb-acts .btn{flex:1}
+  .row2,.row3{grid-template-columns:1fr}
+  svg.sankey{height:520px}
+  .top-actions .btn.quiet{padding:0 11px}
+  .addlink{opacity:1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Bewerbungen</h1>
+      <div class="subtitle" id="subtitle">Alles im Blick – von geplant bis Zusage.</div>
+    </div>
+    <div class="top-actions">
+      <button class="btn quiet" id="btnExport"><span class="ico">↓</span><span>Export</span></button>
+      <button class="btn quiet" id="btnImport"><span class="ico">↑</span><span>Import</span></button>
+      <button class="btn" id="btnChart"><span class="ico">◫</span><span>Analyse</span></button>
+      <button class="btn primary" id="btnNew"><span class="ico">+</span><span>Neue Bewerbung</span></button>
+    </div>
+  </header>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Übersicht</h2>
+      <span class="muted" id="count" style="font-size:13.5px"></span>
+    </div>
+    <div class="table-scroll" id="tableHost"></div>
+  </section>
+</div>
+
+<!-- ── Form sheet ───────────────────────────────────────────── -->
+<div class="overlay" id="ovForm">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="sheet-head">
+      <div>
+        <h2 id="formTitle">Neue Bewerbung</h2>
+        <div class="hint">Firma und Rolle genügen – alles andere ist optional.</div>
+      </div>
+      <button class="close" data-close>✕</button>
+    </div>
+    <form id="form" novalidate>
+      <div class="sheet-body">
+        <div class="row2">
+          <div class="field">
+            <label for="f-company">Firma</label>
+            <input type="text" id="f-company" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="f-role">Rolle / Stelle</label>
+            <input type="text" id="f-role" autocomplete="off" required>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="f-location"><span>Ort</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+            <input type="text" id="f-location" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="f-status">Status</label>
+            <select id="f-status"></select>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label for="f-channel"><span>Beworben über</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+            <select id="f-channel"></select>
+            <input type="text" id="f-channel-other" autocomplete="off" style="margin-top:8px;display:none">
+          </div>
+          <div class="field">
+            <label for="f-url"><span>Link zur Ausschreibung</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+            <input type="text" id="f-url" placeholder="https://…" autocomplete="off" inputmode="url">
+          </div>
+        </div>
+
+        <div class="field">
+          <label><span>Gehalt</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+          <div class="row3">
+            <input type="number" id="f-salary" min="0" step="any" inputmode="decimal">
+            <select id="f-salaryType"></select>
+            <select id="f-salaryPeriod"></select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label><span>Arbeitszeit</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+          <div class="seg" id="f-employment">
+            <label><input type="radio" name="employment" value="" checked><span>–</span></label>
+            <label><input type="radio" name="employment" value="full"><span>Vollzeit</span></label>
+            <label><input type="radio" name="employment" value="part"><span>Teilzeit</span></label>
+            <label><input type="radio" name="employment" value="mini"><span>Minijob</span></label>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field" id="appliedField">
+            <label for="f-applied">Bewerbungsdatum</label>
+            <input type="date" id="f-applied">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label for="f-deadline"><span>Bewerbungsschluss</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+            <input type="date" id="f-deadline">
+          </div>
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button type="button" class="btn quiet" data-close>Abbrechen</button>
+        <button type="submit" class="btn primary">Hinzufügen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── Chart sheet ──────────────────────────────────────────── -->
+<div class="overlay" id="ovChart">
+  <div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="chartTitle">
+    <div class="sheet-head">
+      <div>
+        <h2 id="chartTitle">Bewerbungs-Fluss</h2>
+        <div class="hint">Ab dem Status „Beworben". Breite der Ströme = Anzahl der Bewerbungen.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex:none">
+        <div class="seg" id="chartScope">
+          <label><input type="radio" name="scope" value="all" checked><span>Alle</span></label>
+          <label><input type="radio" name="scope" value="done"><span>Nur abgeschlossene</span></label>
+        </div>
+        <button class="close" data-close>✕</button>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div class="chart-wrap">
+        <svg class="sankey" id="sankey"></svg>
+        <div class="tip" id="tip"></div>
+      </div>
+      <div class="conv" id="conv"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── History sheet ────────────────────────────────────────── -->
+<div class="overlay" id="ovHistory">
+  <div class="sheet" style="max-width:460px" role="dialog" aria-modal="true" aria-labelledby="histTitle">
+    <div class="sheet-head">
+      <div>
+        <h2 id="histTitle">Verlauf</h2>
+        <div class="hint" id="histWho"></div>
+      </div>
+      <button class="close" data-close>✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="timeline" id="histList"></div>
+      <div class="field" style="margin:18px 0 0">
+        <label for="histAdd">Station ergänzen</label>
+        <select id="histAdd"></select>
+      </div>
+      <p class="sub" style="margin-top:10px">Die letzte Station bestimmt den aktuellen Status. Das Diagramm zeigt genau diesen Weg.</p>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn primary" data-close>Fertig</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Anmeldung ────────────────────────────────────────────── -->
+<!-- ── Einladungen ──────────────────────────────────────────── -->
+<!-- ── Confirm sheet ────────────────────────────────────────── -->
+<div class="overlay" id="ovConfirm">
+  <div class="sheet" style="max-width:400px" role="dialog" aria-modal="true">
+    <div class="sheet-body" style="text-align:center;padding:30px 26px 22px">
+      <div style="font-size:32px">🗑️</div>
+      <h2 style="font-size:18px;font-weight:600;margin-top:12px" id="confirmTitle">Bewerbung löschen?</h2>
+      <p class="muted" style="font-size:14px;margin-top:6px" id="confirmText"></p>
+    </div>
+    <div class="sheet-foot" style="justify-content:center">
+      <button class="btn quiet" data-close>Abbrechen</button>
+      <button class="btn danger" id="confirmOk">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<div class="menu" id="menu" role="menu"></div>
+<input type="file" id="filePick" accept="application/json,.json" hidden>
+
+<script>
+/* Nachschlagewerk für die Eingabehilfe: bekannte Arbeitgeber (Schwerpunkt Deutschland)
+   mit Domain für das Logo, dazu Orte. Format: "Name|domain.tld" – ohne Domain kein Logo,
+   dann zeichnet die App eine Monogramm-Kachel. Frei getippte Namen sind immer erlaubt. */
+
+const COMPANY_DIR = `
+SAP|sap.com
+Siemens|siemens.com
+Siemens Energy|siemens-energy.com
+Siemens Healthineers|siemens-healthineers.com
+Bosch|bosch.de
+ZF Friedrichshafen|zf.com
+Schaeffler|schaeffler.com
+Mahle|mahle.com
+Continental|continental.com
+Vitesco Technologies|vitesco-technologies.com
+Hella|hella.com
+Brose|brose.com
+Webasto|webasto.com
+Eberspächer|eberspaecher.com
+Volkswagen|volkswagen.de
+Audi|audi.de
+Porsche|porsche.com
+BMW|bmw.de
+Mercedes-Benz|mercedes-benz.com
+Daimler Truck|daimlertruck.com
+MAN|man.eu
+Rheinmetall|rheinmetall.com
+Airbus|airbus.com
+MTU Aero Engines|mtu.de
+Liebherr|liebherr.com
+Trumpf|trumpf.com
+Festo|festo.com
+SEW-Eurodrive|sew-eurodrive.de
+Phoenix Contact|phoenixcontact.com
+Weidmüller|weidmueller.com
+Wago|wago.com
+Pilz|pilz.com
+Sick|sick.com
+Endress+Hauser|endress.com
+Krones|krones.com
+Dürr|durr.com
+Voith|voith.com
+Knorr-Bremse|knorr-bremse.com
+Thyssenkrupp|thyssenkrupp.com
+Salzgitter|salzgitter-ag.com
+Heraeus|heraeus.com
+Freudenberg|freudenberg.com
+Zeiss|zeiss.de
+Infineon|infineon.com
+Osram|ams-osram.com
+Nexperia|nexperia.com
+Bayer|bayer.com
+BASF|basf.com
+Evonik|evonik.com
+Covestro|covestro.com
+Lanxess|lanxess.com
+Wacker Chemie|wacker.com
+Henkel|henkel.de
+Beiersdorf|beiersdorf.de
+Symrise|symrise.com
+Brenntag|brenntag.com
+Merck|merckgroup.com
+Boehringer Ingelheim|boehringer-ingelheim.com
+Roche|roche.com
+Novartis|novartis.com
+Pfizer|pfizer.de
+AstraZeneca|astrazeneca.de
+GSK|gsk.de
+Sanofi|sanofi.de
+Johnson & Johnson|jnj.com
+AbbVie|abbvie.de
+Amgen|amgen.de
+Biontech|biontech.de
+CureVac|curevac.com
+Fresenius|fresenius.com
+Fresenius Medical Care|freseniusmedicalcare.com
+Fresenius Kabi|fresenius-kabi.com
+B. Braun|bbraun.de
+Dräger|draeger.com
+Ottobock|ottobock.com
+Karl Storz|karlstorz.com
+Richard Wolf|richard-wolf.com
+Olympus|olympus.de
+Stryker|stryker.com
+Medtronic|medtronic.com
+Danaher|danaher.com
+Beckman Coulter|beckmancoulter.com
+Abbott|abbott.com
+Becton Dickinson|bd.com
+Thermo Fisher Scientific|thermofisher.com
+Agilent|agilent.com
+Waters|waters.com
+PerkinElmer|perkinelmer.com
+Bio-Rad|bio-rad.com
+Sartorius|sartorius.com
+Eppendorf|eppendorf.com
+Sarstedt|sarstedt.com
+Greiner Bio-One|gbo.com
+Miltenyi Biotec|miltenyibiotec.com
+Qiagen|qiagen.com
+Zimmer Biomet|zimmerbiomet.com
+Philips|philips.de
+GE HealthCare|gehealthcare.com
+Dedalus|dedalus.com
+CompuGroup Medical|cgm.com
+Nexus AG|nexus-ag.de
+Cerner|oracle.com
+BfArM|bfarm.de
+Paul-Ehrlich-Institut|pei.de
+Robert Koch-Institut|rki.de
+DZNE|dzne.de
+Universitätsklinikum Bonn|ukbonn.de
+UKB|ukbonn.de
+Uni Bonn|uni-bonn.de
+Asclepios|asklepios.com
+Charité|charite.de
+Universitätsklinikum Köln|uk-koeln.de
+Universitätsklinikum Düsseldorf|uniklinik-duesseldorf.de
+Universität Bonn|uni-bonn.de
+Forschungszentrum Jülich|fz-juelich.de
+Fraunhofer|fraunhofer.de
+Max-Planck-Gesellschaft|mpg.de
+Helmholtz|helmholtz.de
+Leibniz-Gemeinschaft|leibniz-gemeinschaft.de
+DLR|dlr.de
+Asklepios|asklepios.com
+Helios Kliniken|helios-gesundheit.de
+Sana Kliniken|sana.de
+Vivantes|vivantes.de
+Rhön-Klinikum|rhoen-klinikum-ag.com
+Johanniter|johanniter.de
+Malteser|malteser.de
+Deutsches Rotes Kreuz|drk.de
+Caritas|caritas.de
+Diakonie|diakonie.de
+TÜV Rheinland|tuv.com
+TÜV Süd|tuvsud.com
+TÜV Nord|tuev-nord.de
+Dekra|dekra.de
+Wisag|wisag.de
+Apleona|apleona.com
+Sodexo|sodexo.de
+Deutsche Telekom|telekom.de
+T-Systems|t-systems.com
+Vodafone|vodafone.de
+Telefónica O2|o2online.de
+1&1|1und1.de
+United Internet|united-internet.de
+Deutsche Post DHL|dhl.de
+DB Schenker|dbschenker.com
+Deutsche Bahn|bahn.de
+Lufthansa|lufthansa.com
+Fraport|fraport.de
+Hapag-Lloyd|hapag-lloyd.com
+Kühne+Nagel|kuehne-nagel.com
+Dachser|dachser.com
+Hermes|hermesworld.com
+DPD|dpd.de
+GLS|gls-group.com
+UPS|ups.com
+FedEx|fedex.com
+Allianz|allianz.de
+Munich Re|munichre.com
+Hannover Rück|hannover-rueck.de
+Talanx|talanx.com
+Ergo|ergo.de
+AXA|axa.de
+Zurich|zurich.de
+Generali|generali.de
+R+V Versicherung|ruv.de
+Debeka|debeka.de
+HUK-Coburg|huk.de
+Signal Iduna|signal-iduna.de
+Barmenia|barmenia.de
+Deutsche Bank|db.com
+Commerzbank|commerzbank.de
+DZ Bank|dzbank.de
+KfW|kfw.de
+ING|ing.de
+LBBW|lbbw.de
+Helaba|helaba.de
+Sparkasse|sparkasse.de
+Volksbank Raiffeisenbank|vr.de
+Deutsche Börse|deutsche-boerse.com
+N26|n26.com
+Trade Republic|traderepublic.com
+Scalable Capital|scalable.capital
+Check24|check24.de
+Idealo|idealo.de
+Trivago|trivago.de
+Zalando|zalando.de
+About You|aboutyou.de
+Otto|otto.de
+Douglas|douglas.de
+dm-drogerie markt|dm.de
+Rossmann|rossmann.de
+Lidl|lidl.de
+Kaufland|kaufland.de
+Aldi Süd|aldi-sued.de
+Aldi Nord|aldi-nord.de
+Edeka|edeka.de
+Rewe|rewe.de
+Metro|metro.de
+Obi|obi.de
+Bauhaus|bauhaus.info
+Hornbach|hornbach.de
+Ikea|ikea.com
+Decathlon|decathlon.de
+H&M|hm.com
+C&A|c-and-a.com
+Tchibo|tchibo.de
+Adidas|adidas.de
+Puma|puma.com
+Nestlé|nestle.de
+Unilever|unilever.de
+Procter & Gamble|pg.com
+Dr. Oetker|oetker.de
+Ferrero|ferrero.de
+Haribo|haribo.com
+Mondelez|mondelezinternational.com
+Coca-Cola|coca-cola.de
+Red Bull|redbull.com
+Bitburger|bitburger.de
+Krombacher|krombacher.de
+RWE|rwe.com
+E.ON|eon.com
+EnBW|enbw.com
+Vattenfall|vattenfall.de
+Uniper|uniper.energy
+Stadtwerke München|swm.de
+Stadtwerke Köln|stadtwerkekoeln.de
+Vonovia|vonovia.de
+Hochtief|hochtief.de
+Strabag|strabag.de
+Züblin|zueblin.de
+Goldbeck|goldbeck.de
+Heidelberg Materials|heidelbergmaterials.com
+Knauf|knauf.de
+Viessmann|viessmann.de
+Vaillant|vaillant.de
+Stiebel Eltron|stiebel-eltron.de
+Miele|miele.de
+Vorwerk|vorwerk.de
+Braun|braun.com
+Grohe|grohe.de
+Hansgrohe|hansgrohe.de
+Duravit|duravit.de
+Villeroy & Boch|villeroyboch.com
+Accenture|accenture.com
+Capgemini|capgemini.com
+Deloitte|deloitte.de
+PwC|pwc.de
+KPMG|kpmg.de
+EY|ey.com
+McKinsey|mckinsey.de
+Boston Consulting Group|bcg.com
+Bain & Company|bain.com
+Roland Berger|rolandberger.com
+IBM|ibm.com
+Microsoft|microsoft.com
+Google|google.com
+Amazon|amazon.de
+Apple|apple.com
+Meta|meta.com
+Oracle|oracle.com
+Salesforce|salesforce.com
+Adobe|adobe.com
+Intel|intel.com
+Nvidia|nvidia.com
+AMD|amd.com
+Dell|dell.com
+HP|hp.com
+Cisco|cisco.com
+Siemens Mobility|mobility.siemens.com
+Bechtle|bechtle.com
+Cancom|cancom.de
+Computacenter|computacenter.com
+Atos|atos.net
+Materna|materna.de
+Adesso|adesso.de
+msg group|msg.group
+Datev|datev.de
+Software AG|softwareag.com
+Nagarro|nagarro.com
+Zühlke|zuehlke.com
+Personio|personio.de
+Celonis|celonis.com
+Flixbus|flixbus.de
+Delivery Hero|deliveryhero.com
+HelloFresh|hellofresh.de
+GetYourGuide|getyourguide.de
+Sennder|sennder.com
+Axel Springer|axelspringer.com
+Bertelsmann|bertelsmann.de
+Springer Nature|springernature.com
+ProSiebenSat.1|prosiebensat1.com
+RTL|rtl.de
+Bundesagentur für Arbeit|arbeitsagentur.de
+Bundeswehr|bundeswehr.de
+Deutsche Rentenversicherung|deutsche-rentenversicherung.de
+Stadt Bonn|bonn.de
+Stadt Köln|stadt-koeln.de
+Stadt München|muenchen.de
+`.trim().split('\n').map(l => {
+  const [name, domain] = l.split('|');
+  return {name, domain: domain || ''};
+});
+
+const CITY_DIR = `
+Remote
+Homeoffice
+Berlin
+Hamburg
+München
+Köln
+Frankfurt am Main
+Stuttgart
+Düsseldorf
+Leipzig
+Dortmund
+Essen
+Bremen
+Dresden
+Hannover
+Nürnberg
+Duisburg
+Bochum
+Wuppertal
+Bielefeld
+Bonn
+Münster
+Karlsruhe
+Mannheim
+Augsburg
+Wiesbaden
+Mönchengladbach
+Gelsenkirchen
+Braunschweig
+Chemnitz
+Kiel
+Aachen
+Halle (Saale)
+Magdeburg
+Freiburg im Breisgau
+Krefeld
+Lübeck
+Oberhausen
+Erfurt
+Mainz
+Rostock
+Kassel
+Hagen
+Potsdam
+Saarbrücken
+Hamm
+Ludwigshafen
+Mülheim an der Ruhr
+Oldenburg
+Osnabrück
+Leverkusen
+Heidelberg
+Darmstadt
+Solingen
+Regensburg
+Herne
+Paderborn
+Neuss
+Ingolstadt
+Offenbach am Main
+Fürth
+Würzburg
+Ulm
+Heilbronn
+Pforzheim
+Wolfsburg
+Göttingen
+Bottrop
+Reutlingen
+Koblenz
+Bremerhaven
+Recklinghausen
+Bergisch Gladbach
+Erlangen
+Jena
+Trier
+Salzgitter
+Siegen
+Hildesheim
+Moers
+Cottbus
+Kaiserslautern
+Gütersloh
+Schwerin
+Witten
+Gera
+Iserlohn
+Ludwigsburg
+Hanau
+Esslingen am Neckar
+Zwickau
+Düren
+Ratingen
+Lüneburg
+Marburg
+Flensburg
+Gießen
+Konstanz
+Villingen-Schwenningen
+Worms
+Minden
+Dessau-Roßlau
+Neumünster
+Norderstedt
+Delmenhorst
+Wilhelmshaven
+Lüdenscheid
+Bamberg
+Bayreuth
+Aschaffenburg
+Landshut
+Brandenburg an der Havel
+Bocholt
+Celle
+Aalen
+Fulda
+Lippstadt
+Dorsten
+Detmold
+Troisdorf
+Castrop-Rauxel
+Rüsselsheim
+Neuwied
+Euskirchen
+Sankt Augustin
+Siegburg
+Königswinter
+Bad Godesberg
+Leipzig-Grünau
+Wien
+Graz
+Linz
+Salzburg
+Innsbruck
+Zürich
+Basel
+Bern
+Genf
+Lausanne
+Amsterdam
+Rotterdam
+Brüssel
+Luxemburg
+Paris
+Lyon
+London
+Manchester
+Dublin
+Kopenhagen
+Stockholm
+Oslo
+Helsinki
+Warschau
+Krakau
+Prag
+Budapest
+Mailand
+Rom
+Madrid
+Barcelona
+Lissabon
+Istanbul
+New York
+Boston
+Chicago
+San Francisco
+Seattle
+Austin
+Toronto
+Singapur
+Dubai
+Tokio
+Shanghai
+Sydney
+`.trim().split('\n');
+</script>
+<script>
+'use strict';
+
+/* ═══════════════════════════  Model  ═══════════════════════════ */
+
+const STAGES = [
+  {id:'planned',   label:'Geplant', short:'Geplant',   emoji:'🗒️', col:0, color:'--gray'},
+  {id:'applied',   label:'Beworben', short:'Beworben',  emoji:'📮', col:1, color:'--accent'},
+  {id:'iv1',       label:'1. Gespräch', short:'1. Gespr.', emoji:'💬', col:2, color:'--purple'},
+  {id:'iv2',       label:'2. Gespräch', short:'2. Gespr.', emoji:'💬', col:3, color:'--purple'},
+  {id:'iv3',       label:'3. Gespräch', short:'3. Gespr.', emoji:'💬', col:4, color:'--purple'},
+  {id:'ivN',       label:'Weiteres Gespräch', short:'Weiteres',  emoji:'💬', col:5, color:'--purple'},
+  {id:'offer',     label:'Angebot erhalten', short:'Angebot',   emoji:'📄', col:6, color:'--orange'},
+  {id:'accepted',  label:'Zusage', short:'Zusage',    emoji:'🎉', col:7, color:'--green', terminal:true},
+  {id:'rejected',  label:'Absage', short:'Absage',    emoji:'❌', col:7, color:'--red',   terminal:true},
+  {id:'noreply',   label:'Keine Antwort', short:'Keine Antw.',emoji:'🕓', col:7, color:'--sand', terminal:true},
+  {id:'withdrawn', label:'Zurückgezogen', short:'Zurückgez.',emoji:'↩️', col:7, color:'--gray',  terminal:true},
+];
+const STAGE = Object.fromEntries(STAGES.map(s => [s.id, s]));
+const ORDER = Object.fromEntries(STAGES.map((s,i) => [s.id, i]));
+const INTERVIEWS = ['iv1','iv2','iv3','ivN'];
+
+/** Welches Gespräch wäre das nächste? Zählt die bereits erfassten Gespräche. */
+function nextInterview(it){
+  const had = it.history.filter(h => INTERVIEWS.includes(h.status)).length;
+  return INTERVIEWS[Math.min(had, INTERVIEWS.length - 1)];
+}
+
+/** Wer beim 2. Gespräch war, hatte auch ein erstes und hat sich beworben.
+ *  Diese impliziten Stationen werden beim Anlegen ergänzt, damit der Verlauf
+ *  vollständig ist – im Verlaufs-Fenster lässt sich jede davon anpassen. */
+function impliedHistory(status, date){
+  if(status === 'planned') return [{status:'planned', date}];
+  const chain = ['applied'];
+  const iv = INTERVIEWS.indexOf(status);
+  if(iv >= 0) chain.push(...INTERVIEWS.slice(0, iv + 1));
+  else if(status !== 'applied') chain.push(status);
+  return chain.map(s => ({status:s, date}));
+}
+
+const EMPLOYMENT = {full:'Vollzeit', part:'Teilzeit', mini:'Minijob'};
+const SAL_TYPE   = {expected:'Vorstellung', listed:'Ausschreibung'};
+const SAL_PERIOD = {year:'p. a.', month:'/Monat', hour:'/Std.'};
+
+const KEY = 'bewerbungen.v1';
+let items = [];
+let sort = {key:'applied', dir:-1};
+let localOk = true;
+
+function loadLocal(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(KEY) || '[]');
+    if(!Array.isArray(raw)) return [];
+    return raw.filter(o => o && typeof o === 'object').map(normalize);
+  }catch{ return []; }
+}
+function normalize(o){
+  const status = STAGE[o.status] ? o.status : 'applied';
+  let history = Array.isArray(o.history) ? o.history.filter(h => h && STAGE[h.status]) : [];
+  if(!history.length) history = [{status, date: isDate(o.applied) ? o.applied : today()}];
+  if(history[history.length-1].status !== status) history.push({status, date:today()});
+  return {
+    id: o.id || uid(),
+    company: String(o.company ?? '').trim(),
+    role: String(o.role ?? '').trim(),
+    salary: (o.salary === 0 || o.salary) && isFinite(o.salary) ? Number(o.salary) : null,
+    salaryType: SAL_TYPE[o.salaryType] ? o.salaryType : 'expected',
+    salaryPeriod: SAL_PERIOD[o.salaryPeriod] ? o.salaryPeriod : 'year',
+    employment: EMPLOYMENT[o.employment] ? o.employment : '',
+    location: String(o.location ?? '').trim(),
+    channel: String(o.channel ?? '').trim(),
+    url: /^https?:\/\//i.test(String(o.url ?? '').trim()) ? String(o.url).trim() : '',
+    applied: isDate(o.applied) ? o.applied : '',
+    deadline: isDate(o.deadline) ? o.deadline : '',
+    status, history,
+  };
+}
+/* Zwei Betriebsarten aus einer Datei:
+   • In Bewerbungen.app schreibt der native Wrapper in eine echte Datei.
+   • Im Browser übernimmt es der Browser-Speicher. */
+const native = !!window.webkit?.messageHandlers?.bewerbungen;
+const toApp = msg => { try{ window.webkit.messageHandlers.bewerbungen.postMessage(msg); }catch{ localOk = false; } };
+const fromB64 = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)));
+
+function boot(){
+  if(native){
+    // Der Wrapper reicht die gespeicherten Daten direkt nach dem Laden herein.
+    window.__hydrate = b64 => { items = parseList(fromB64(b64)); paintSync(); render(); };
+    window.__imported = b64 => { merge(parseList(fromB64(b64))); };
+  }else{
+    items = loadLocal();
+    navigator.storage?.persist?.().catch(() => {});
+  }
+  paintSync();
+  render();
+}
+
+function parseList(raw){
+  try{
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data.map(normalize) : [];
+  }catch{ return []; }
+}
+
+/** Wird nach jeder Änderung aufgerufen – speichert sofort. */
+function save(){
+  const roh = JSON.stringify(items);
+  if(native){ toApp({type:'save', data:roh}); }
+  else{
+    try{ localStorage.setItem(KEY, roh); localOk = true; }
+    catch{ localOk = false; }
+  }
+  paintSync();
+}
+
+/** Zeile unter der Überschrift. */
+function paintSync(){
+  const sub = $('#subtitle');
+  if(!localOk && !native){
+    sub.textContent = '⚠️ Dieser Browser speichert hier nichts – bitte per Export sichern.';
+    sub.style.color = 'var(--orange)';
+    return;
+  }
+  sub.textContent = native ? 'Alles im Blick – automatisch gespeichert.' : 'Alles im Blick – von geplant bis Zusage.';
+  sub.style.color = '';
+}
+
+function uid(){ return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function today(){
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function isDate(v){ return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v); }
+
+
+/* ═══════════════════════════  Helpers  ═══════════════════════════ */
+
+const $  = (s, r=document) => r.querySelector(s);
+const el = (tag, cls, txt) => { const n = document.createElement(tag); if(cls) n.className = cls; if(txt != null) n.textContent = txt; return n; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const nfEur = () => new Intl.NumberFormat('de-DE', {maximumFractionDigits:0});
+const nfEur2 = () => new Intl.NumberFormat('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+function fmtDate(iso){
+  if(!isDate(iso)) return '';
+  return new Date(iso + 'T00:00:00').toLocaleDateString('de-DE',
+    {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function daysUntil(iso){
+  const t = new Date(today() + 'T00:00:00'), d = new Date(iso + 'T00:00:00');
+  return Math.round((d - t) / 86400000);
+}
+/** Wann ging die Bewerbung raus? Steht in der Station „Beworben" des Verlaufs.
+ *  Solange nur geplant ist, gibt es kein Datum. */
+function appliedDate(it){
+  const station = it.history.find(h => h.status === 'applied');
+  if(station) return isDate(station.date) ? station.date : (isDate(it.applied) ? it.applied : '');
+  return it.status === 'planned' ? '' : (isDate(it.applied) ? it.applied : '');
+}
+
+function fmtSalary(it){
+  if(it.salary == null) return null;
+  const n = it.salaryPeriod === 'hour' ? nfEur2().format(it.salary) : nfEur().format(it.salary);
+  const suffix = SAL_PERIOD[it.salaryPeriod];
+  return it.salaryPeriod === 'year' ? `${n} € ${suffix}` : `${n} €${suffix}`;
+}
+/* ─────────────  Firmen, Logos, Kanäle  ───────────── */
+
+const CHANNELS = [
+  {id:'linkedin',  label:'LinkedIn',            domain:'linkedin.com'},
+  {id:'indeed',    label:'Indeed',              domain:'indeed.com'},
+  {id:'stepstone', label:'StepStone',           domain:'stepstone.de'},
+  {id:'xing',      label:'Xing',                domain:'xing.com'},
+  {id:'website',   label:'Unternehmenswebseite', emoji:'🌐'},
+  {id:'email',     label:'E-Mail / Initiativ',   emoji:'✉️'},
+];
+const CHANNEL = Object.fromEntries(CHANNELS.map(c => [c.id, c]));
+const channelLabel = v => !v ? '' : (CHANNEL[v]?.label || v);
+
+const dirKey = s => String(s).toLowerCase().replace(/[^a-z0-9äöüß]+/g, '');
+const COMPANY_BY_KEY = new Map((typeof COMPANY_DIR !== 'undefined' ? COMPANY_DIR : [])
+  .map(c => [dirKey(c.name), c]));
+
+/** Firma im Verzeichnis suchen: exakt, sonst als Namensbestandteil
+ *  („Jülich" findet „Forschungszentrum Jülich"). */
+function lookupCompany(name){
+  const k = dirKey(name);
+  if(!k) return null;
+  const exact = COMPANY_BY_KEY.get(k);
+  if(exact) return exact;
+  if(k.length < 4) return null;
+  for(const [dk, entry] of COMPANY_BY_KEY) if(dk.includes(k)) return entry;
+  return null;
+}
+
+/** Logo-Adresse eines öffentlichen Favicon-Dienstes (nur für bekannte Firmen). */
+const logoSrc = domain => `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+
+function initials(name){
+  const words = String(name).trim().split(/[\s\-–&]+/).filter(Boolean);
+  if(!words.length) return '?';
+  return (words.length > 1 ? words[0][0] + words[1][0] : words[0].slice(0,2)).toUpperCase();
+}
+function hueOf(name){
+  let h = 0;
+  for(const ch of String(name)) h = (h * 31 + ch.codePointAt(0)) % 360;
+  return h;
+}
+
+/** Kachel vor dem Firmennamen: echtes Logo, sonst Monogramm. */
+function companyMark(name){
+  const box = el('span','mark');
+  const mono = el('span','mono', initials(name));
+  mono.style.background = `hsl(${hueOf(name)} 48% 42%)`;
+  box.append(mono);
+  const entry = lookupCompany(name);
+  if(entry?.domain){
+    const img = el('img');
+    img.src = logoSrc(entry.domain);
+    img.alt = '';
+    img.loading = 'lazy';
+    img.onload = () => { if(img.naturalWidth > 1) box.classList.add('has-logo'); };
+    img.onerror = () => img.remove();
+    box.append(img);
+  }
+  return box;
+}
+
+/** Kanal in der Tabelle: Icon bei bekannten Portalen, sonst der eingetippte Text. */
+function channelMark(value){
+  if(!value) return el('span','dash','–');
+  const c = CHANNEL[value];
+  if(!c) return el('span','chtext', value);
+  const box = el('span','chip');
+  box.title = c.label;
+  if(c.domain){
+    const img = el('img');
+    img.src = logoSrc(c.domain);
+    img.alt = c.label;
+    img.onerror = () => { img.remove(); box.append(el('span','chtext', c.label)); };
+    box.append(img);
+  }else{
+    box.append(el('span','chemoji', c.emoji));
+  }
+  return box;
+}
+
+/* ─────────────  Eingabehilfe (Firmen, Orte)  ───────────── */
+
+/** Hängt an ein Textfeld eine Vorschlagsliste. `find` liefert Treffer zur Eingabe. */
+function attachSuggest(input, find, withMark){
+  let list = null, idx = -1, hits = [];
+  const close = () => { list?.remove(); list = null; idx = -1; };
+
+  const paint = () => {
+    if(!hits.length) return close();
+    if(!list){
+      document.querySelectorAll('.suggest').forEach(n => n.remove());   // immer nur eine Liste
+      list = el('div','suggest');
+      input.parentElement.append(list);
+    }
+    list.innerHTML = '';
+    hits.forEach((h, i) => {
+      const row = el('button','sg' + (i === idx ? ' on' : ''));
+      row.type = 'button';
+      if(withMark) row.append(companyMark(h));
+      row.append(el('span', null, h));
+      row.onmousedown = e => { e.preventDefault(); pick(h); };
+      list.append(row);
+    });
+  };
+  const pick = value => { input.value = value; close(); input.dispatchEvent(new Event('picked')); };
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    hits = q.length < 2 ? [] : find(q).slice(0, 7);
+    idx = -1;
+    paint();
+  });
+  input.addEventListener('keydown', e => {
+    if(!list) return;
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      e.preventDefault();
+      idx = (idx + (e.key === 'ArrowDown' ? 1 : hits.length - 1)) % hits.length;
+      paint();
+    }else if(e.key === 'Enter' && idx >= 0){
+      e.preventDefault();
+      pick(hits[idx]);
+    }else if(e.key === 'Escape'){
+      e.stopPropagation();
+      close();
+    }
+  });
+  input.addEventListener('blur', () => setTimeout(close, 120));
+}
+
+/** Treffer zuerst nach Wortanfang, dann nach Vorkommen im Namen. */
+function matchList(names, q){
+  const s = q.toLowerCase();
+  const starts = [], contains = [];
+  for(const n of names){
+    const l = n.toLowerCase();
+    if(l.startsWith(s)) starts.push(n);
+    else if(l.includes(s)) contains.push(n);
+  }
+  return starts.concat(contains);
+}
+
+/** Kurzform des Wegs für die Tabelle: gleiche Stationen bündeln, Mitte kürzen. */
+function pathLabel(history){
+  const packed = [];
+  for(const h of history){
+    const name = STAGE[h.status].short;
+    const last = packed[packed.length - 1];
+    if(last && last.name === name) last.n++;
+    else packed.push({name, n:1});
+  }
+  const parts = packed.map(p => p.n > 1 ? `${p.name} ×${p.n}` : p.name);
+  return parts.length > 4
+    ? [parts[0], '…', parts[parts.length - 2], parts[parts.length - 1]].join(' › ')
+    : parts.join(' › ');
+}
+
+function pillStyle(id){
+  const s = STAGE[id], c = cssVar(s.color);
+  return `--tone:${c}; --tint:color-mix(in srgb, ${c} 13%, transparent)`;
+}
+
+/* ═══════════════════════════  Render  ═══════════════════════════ */
+
+function render(){
+  renderStats();
+  renderTable();
+  if($('#ovChart').classList.contains('show')) renderChart();
+}
+
+function renderStats(){
+  const total = items.length;
+  const inInterview = items.filter(i => INTERVIEWS.includes(i.status)).length;
+  const active = items.filter(i => !STAGE[i.status].terminal).length;
+  const accepted = items.filter(i => i.status === 'accepted').length;
+  const decided = items.filter(i => STAGE[i.status].terminal).length;
+  const everInterview = items.filter(i => i.history.some(h => INTERVIEWS.includes(h.status))).length;
+  const rate = total ? Math.round(everInterview / total * 100) : 0;
+
+  const cards = [
+    ['Bewerbungen', total, ''],
+    ['Laufend', active, decided ? `${decided} ${'entschieden'}` : ''],
+    ['Im Gespräch', inInterview, everInterview ? `${everInterview} ${'insgesamt'}` : ''],
+    ['Gesprächsquote', total ? rate + '%' : '–', ''],
+    ['Zusagen', accepted, accepted ? '🎉' : ''],
+  ];
+  const host = $('#stats');
+  host.innerHTML = '';
+  for(const [k,v,note] of cards){
+    const c = el('div','stat');
+    c.append(el('div','k',k));
+    const val = el('div','v', String(v));
+    if(note){ const s = el('small', null, note); val.append(s); }
+    c.append(val);
+    host.append(c);
+  }
+}
+
+const COLS = [
+  {key:'company',   tk:'table.company',    sortable:true},
+  {key:'location',  tk:'table.location',   sortable:true,  cls:'c-location'},
+  {key:'channel',   tk:'table.channel',    sortable:true,  cls:'c-channel'},
+  {key:'salary',    tk:'table.salary',     sortable:true,  cls:'c-salary'},
+  {key:'employment',tk:'table.employment', sortable:true,  cls:'c-employment'},
+  {key:'applied',   tk:'table.applied',    sortable:true,  cls:'c-applied'},
+  {key:'deadline',  tk:'table.deadline',   sortable:true,  cls:'c-deadline'},
+  {key:'status',    tk:'table.status',     sortable:true},
+  {key:'_proc',     tk:'table.process',    sortable:false},
+  {key:'_end',      tk:'table.close',      sortable:false},
+  {key:'_act',      tk:null,               sortable:false, right:true},
+];
+
+/** Zähler im Kartenkopf. */
+function zeigeAnzahl(){
+  const gesamt = items.length;
+  $('#count').textContent = gesamt ? `${gesamt} ${gesamt === 1 ? 'Eintrag' : 'Einträge'}` : '';
+}
+
+function sorted(){
+  const dir = sort.dir;
+  return items.slice().sort((a,b) => {
+    let r = 0;
+    switch(sort.key){
+      case 'company':    r = a.company.localeCompare(b.company,'de') || a.role.localeCompare(b.role,'de'); break;
+      case 'location':   r = (a.location||'zzz').localeCompare(b.location||'zzz','de'); break;
+      case 'channel':    r = channelLabel(a.channel).localeCompare(channelLabel(b.channel),'de'); break;
+      case 'salary':     r = norm(a) - norm(b); break;
+      case 'employment': r = (a.employment||'zz').localeCompare(b.employment||'zz'); break;
+      case 'applied':    r = (appliedDate(a) || '0000').localeCompare(appliedDate(b) || '0000'); break;
+      case 'deadline':   r = (a.deadline||'9999').localeCompare(b.deadline||'9999'); break;
+      case 'status':     r = ORDER[a.status] - ORDER[b.status]; break;
+    }
+    return r * dir || a.company.localeCompare(b.company,'de');
+  });
+  // Jahresäquivalent, damit Monat/Stunde vergleichbar sortieren
+  function norm(x){
+    if(x.salary == null) return -1;
+    return x.salary * (x.salaryPeriod === 'month' ? 12 : x.salaryPeriod === 'hour' ? 1720 : 1);
+  }
+}
+
+function renderTable(){
+  const host = $('#tableHost');
+  host.innerHTML = '';
+  zeigeAnzahl();
+  $('#toolbarWrap')?.classList.toggle('hide', !items.length);
+
+  if(!items.length){
+    const e = el('div','empty');
+    e.innerHTML = `<div class="glyph">📮</div><h3>${esc('Noch keine Bewerbung erfasst')}</h3><p>${esc('Lege deine erste Bewerbung an – Tabelle und Diagramm bauen sich dann automatisch auf.')}</p>`;
+    const b = el('button','btn primary', 'Neue Bewerbung');
+    b.style.marginTop = '18px';
+    b.onclick = openForm;
+    e.append(b);
+    host.append(e);
+    return;
+  }
+
+  const table = el('table');
+  const thead = el('thead'), trh = el('tr');
+  for(const c of COLS){
+    const th = el('th', c.cls || null);
+    th.textContent = c.tk ? t(c.tk) : '';
+    if(c.right) th.style.textAlign = 'right';
+    if(c.sortable){
+      th.classList.add('sortable');
+      if(sort.key === c.key) th.classList.add('sorted');
+      const a = el('span','arrow', sort.key === c.key ? (sort.dir === 1 ? '▲' : '▼') : '▲');
+      th.append(a);
+      th.onclick = () => {
+        if(sort.key === c.key) sort.dir *= -1;
+        else sort = {key:c.key, dir: c.key === 'company' || c.key === 'employment' ? 1 : -1};
+        renderTable();
+      };
+    }
+    trh.append(th);
+  }
+  thead.append(trh);
+  table.append(thead);
+
+  const tb = el('tbody');
+  for(const it of sorted()){
+    const tr = el('tr');
+    tr.dataset.id = it.id;
+    const label = (cell, key) => {
+      const col = COLS.find(c => c.key === key);
+      if(col?.tk) cell.dataset.label = t(col.tk);
+      return cell;
+    };
+
+    // Firma / Rolle – mit Logo und, falls vorhanden, Link zur Ausschreibung
+    const c1 = el('td');
+    const head = el('div','firm');
+    head.append(companyMark(it.company));
+    const names = el('div','names');
+    const line = el('div','company');
+    line.append(document.createTextNode(it.company || '—'));
+    if(it.url){
+      const a = el('a','extlink','↗');
+      a.href = it.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.title = 'Stellenanzeige öffnen';
+      line.append(a);
+    }else{
+      const add = el('button','addlink', '+ Link');
+      add.title = 'Link zur Stellenanzeige hinterlegen';
+      add.onclick = () => openForm(it, 'f-url');
+      line.append(add);
+    }
+    names.append(line);
+    if(it.role) names.append(el('div','role', it.role));
+    head.append(names);
+    c1.append(head);
+    tr.append(c1);
+
+    // Ort
+    const cLoc = el('td','muted c-location');
+    cLoc.append(it.location ? el('span', null, it.location) : el('span','dash','–'));
+    tr.append(label(cLoc, 'location'));
+
+    // Bewerbungskanal
+    const cCh = el('td','c-channel');
+    cCh.append(channelMark(it.channel));
+    tr.append(label(cCh, 'channel'));
+
+    // Gehalt
+    const c2 = el('td','num c-salary');
+    const sal = fmtSalary(it);
+    if(sal){
+      c2.append(el('div', null, sal));
+      c2.append(el('div','sub', SAL_TYPE[it.salaryType]));
+    } else c2.append(el('span','dash','–'));
+    tr.append(label(c2, 'salary'));
+
+    // Arbeitszeit
+    const c3 = el('td','muted c-employment');
+    c3.append(it.employment ? el('span',null,EMPLOYMENT[it.employment]) : el('span','dash','–'));
+    tr.append(label(c3, 'employment'));
+
+    // Beworben – erst ab dem Verschicken
+    const raus = appliedDate(it);
+    const cApp = el('td','num muted c-applied');
+    cApp.append(raus ? document.createTextNode(fmtDate(raus)) : el('span','dash','–'));
+    tr.append(label(cApp, 'applied'));
+
+    // Schluss
+    const c5 = el('td','num c-deadline');
+    if(it.deadline){
+      const d = daysUntil(it.deadline);
+      const done = STAGE[it.status].terminal || ORDER[it.status] > ORDER.applied;
+      const span = el('span', done ? 'muted' : d < 0 ? 'over' : d <= 7 ? 'warn' : 'muted', fmtDate(it.deadline));
+      c5.append(span);
+      if(!done && d >= 0 && d <= 7) c5.append(el('div','sub', d === 0 ? 'heute!' : d === 1 ? 'in 1 Tag' : `in ${d} Tagen`));
+    } else c5.append(el('span','dash','–'));
+    tr.append(label(c5, 'deadline'));
+
+    // Status – klickbar, öffnet den Verlauf
+    const c6 = el('td');
+    const p = el('button','pill click');
+    p.setAttribute('style', pillStyle(it.status));
+    p.title = 'Verlauf ansehen und bearbeiten';
+    p.append(el('span','dot'));
+    p.append(document.createTextNode(`${STAGE[it.status].label} ${STAGE[it.status].emoji}`));
+    p.onclick = () => openHistory(it);
+    c6.append(p);
+    if(it.history.length > 1){
+      const line = el('div','pathline', pathLabel(it.history));
+      line.title = it.history.map(h => `${STAGE[h.status].label}${h.date ? ' – ' + fmtDate(h.date) : ''}`).join('\n');
+      c6.append(line);
+    }
+    tr.append(label(c6, 'status'));
+
+    // Prozess: Bewerbung abschicken bzw. Gespräche ansetzen
+    const c7 = el('td');
+    const done = STAGE[it.status].terminal;
+    if(it.status === 'planned'){
+      const b = el('button','step', '→ Beworben');
+      b.title = 'Bewerbung als verschickt markieren';
+      b.onclick = () => setStatus(it.id, 'applied');
+      c7.append(b);
+    }else if(!done){
+      const nxt = nextInterview(it);
+      const b = el('button','step', `+ ${STAGE[nxt].short}`);
+      b.title = 'Bewerbungsgespräch hinzufügen';
+      b.onclick = () => addInterview(it.id);
+      c7.append(b);
+    }else{
+      c7.append(el('span','dash','–'));
+    }
+    tr.append(label(c7, '_proc'));
+
+    // Abschluss: Prozess mit Zusage oder Absage beenden
+    const c8 = el('td');
+    if(done){
+      const p = el('span','pill');
+      p.setAttribute('style', pillStyle(it.status));
+      p.append(document.createTextNode(`${STAGE[it.status].emoji} ${STAGE[it.status].short}`));
+      c8.append(p);
+    }else{
+      const box = el('div','endbtns');
+      const endBtn = (cls, stageId, tip) => {
+        const b = el('button', 'end ' + cls);
+        b.append(el('span','ic', STAGE[stageId].emoji), el('span','lbl', STAGE[stageId].label));
+        b.title = tip;
+        b.setAttribute('aria-label', STAGE[stageId].label);
+        b.onclick = () => setStatus(it.id, stageId);
+        return b;
+      };
+      box.append(
+        endBtn('yes', 'accepted', 'Prozess mit Zusage abschließen'),
+        endBtn('no', 'rejected', 'Prozess mit Absage abschließen'),
+        endBtn('none', 'noreply', 'Keine Antwort erhalten – Prozess so abschließen'),
+      );
+      c8.append(box);
+    }
+    tr.append(label(c8, '_end'));
+
+    // Weitere Aktionen
+    const c9 = el('td');
+    const acts = el('div','rowacts');
+    const more = el('button','iconbtn','⋯');
+    more.title = 'Anderen Status wählen';
+    more.setAttribute('aria-label', 'Anderen Status wählen');
+    more.onclick = e => { e.stopPropagation(); openMenu(more, it); };
+    acts.append(more);
+
+    const del = el('button','iconbtn trash','🗑');
+    del.title = 'Bewerbung löschen';
+    del.setAttribute('aria-label', 'Löschen');
+    del.onclick = () => askDelete(it);
+    acts.append(del);
+
+    c9.append(acts);
+    tr.append(c9);
+    tb.append(tr);
+  }
+  table.append(tb);
+  host.append(table);
+}
+
+/* ═══════════════════════════  Status  ═══════════════════════════ */
+
+function setStatus(id, status){
+  const it = items.find(x => x.id === id);
+  if(!it || !STAGE[status]) return;
+  it.status = status;
+  it.history.push({status, date: today()});
+  if(status === 'applied' && !isDate(it.applied)) it.applied = today();
+  save();
+  render();
+  if(status === 'accepted') celebrate();
+}
+
+/** Ein weiteres Bewerbungsgespräch ansetzen – beliebig oft möglich.
+ *  Bei bereits abgeschlossenen Prozessen wird es vor den Endstatus einsortiert. */
+function addInterview(id){
+  const it = items.find(x => x.id === id);
+  if(!it) return;
+  const stage = nextInterview(it);
+  const at = it.history.findIndex(h => STAGE[h.status].terminal);
+  const entry = {status:stage, date: today()};
+  if(at === -1) it.history.push(entry);
+  else it.history.splice(at, 0, entry);
+  it.status = it.history[it.history.length - 1].status;
+  save();
+  render();
+}
+
+/* ═══════════════════════════  Verlauf  ═══════════════════════════ */
+
+let histId = null;
+
+function openHistory(it){
+  histId = it.id;
+  $('#histWho').textContent = `${it.company}${it.role ? ' – ' + it.role : ''}`;
+  renderHistory();
+  openOverlay('#ovHistory');
+}
+
+function renderHistory(){
+  const it = items.find(x => x.id === histId);
+  const host = $('#histList');
+  host.innerHTML = '';
+  if(!it) return;
+
+  it.history.forEach((h, i) => {
+    const s = STAGE[h.status];
+    const row = el('div', 'tl' + (i === it.history.length - 1 ? ' current' : ''));
+    row.append(el('div','rail'));
+    const dot = el('div','dot');
+    dot.style.background = cssVar(s.color);
+    row.append(dot);
+    row.append(el('div','nm', `${s.label} ${s.emoji}`));
+
+    const date = el('input');
+    date.type = 'date';
+    date.value = isDate(h.date) ? h.date : '';
+    date.title = 'Datum dieser Station';
+    date.onchange = () => { h.date = date.value || today(); commitHistory(); };
+    row.append(date);
+
+    const del = el('button','iconbtn trash','✕');
+    del.title = 'Station entfernen';
+    del.setAttribute('aria-label', 'Station entfernen');
+    del.disabled = it.history.length < 2;
+    del.style.opacity = it.history.length < 2 ? '.3' : '';
+    del.onclick = () => {
+      if(it.history.length < 2) return;
+      it.history.splice(i, 1);
+      commitHistory();
+    };
+    row.append(del);
+    host.append(row);
+  });
+
+  // Auswahl der noch sinnvollen Stationen
+  const sel = $('#histAdd');
+  sel.innerHTML = '';
+  const first = el('option', null, 'Station wählen …');
+  first.value = '';
+  sel.append(first);
+  for(const s of STAGES){
+    const o = el('option', null, `${s.label} ${s.emoji}`);
+    o.value = s.id;
+    sel.append(o);
+  }
+  sel.value = '';
+  sel.onchange = () => {
+    const sid = sel.value;
+    if(!sid) return;
+    insertStage(it, sid);
+    commitHistory();
+  };
+}
+
+/** Station an der Stelle einsortieren, die zur Reihenfolge der Kette passt. */
+function insertStage(it, sid){
+  const entry = {status:sid, date: today()};
+  if(STAGE[sid].terminal){ it.history.push(entry); return; }
+  const at = it.history.findIndex(h => ORDER[h.status] > ORDER[sid]);
+  if(at === -1) it.history.push(entry);
+  else it.history.splice(at, 0, entry);
+}
+
+function commitHistory(){
+  const it = items.find(x => x.id === histId);
+  if(!it) return;
+  it.status = it.history[it.history.length - 1].status;
+  save();
+  render();
+  renderHistory();
+}
+
+function openMenu(anchor, it){
+  const menu = $('#menu');
+  menu.innerHTML = '';
+
+  const edit = el('button');
+  edit.append(el('span','dot'), el('span', null, 'Bearbeiten …'));
+  edit.querySelector('.dot').style.background = 'var(--text-tertiary)';
+  edit.onclick = () => { closeMenu(); openForm(it); };
+  menu.append(edit);
+
+  const hist = el('button');
+  hist.append(el('span','dot'), el('span', null, 'Verlauf bearbeiten …'));
+  hist.querySelector('.dot').style.background = 'var(--text-tertiary)';
+  hist.onclick = () => { closeMenu(); openHistory(it); };
+  menu.append(hist);
+  menu.append(el('hr'));
+
+  const add = sid => {
+    const b = el('button');
+    const d = el('span','dot');
+    d.style.background = cssVar(STAGE[sid].color);
+    b.append(d, el('span', null, `${STAGE[sid].label} ${STAGE[sid].emoji}`));
+    if(it.status === sid) b.append(el('span','now', 'aktuell'));
+    b.onclick = () => { closeMenu(); if(it.status !== sid) setStatus(it.id, sid); };
+    menu.append(b);
+  };
+
+  menu.append(el('div','grp', 'Verlauf'));
+  ['planned','applied','iv1','iv2','iv3','ivN','offer'].forEach(add);
+  menu.append(el('hr'));
+  menu.append(el('div','grp', 'Ergebnis'));
+  ['accepted','rejected','noreply','withdrawn'].forEach(add);
+
+  const r = anchor.getBoundingClientRect();
+  menu.style.visibility = 'hidden';
+  menu.classList.add('show');
+  const h = menu.offsetHeight, w = menu.offsetWidth;
+  let top = r.bottom + 8;
+  if(top + h > innerHeight - 12) top = Math.max(12, r.top - h - 8);
+  let left = Math.min(r.right - w, innerWidth - w - 12);
+  menu.style.top = top + 'px';
+  menu.style.left = Math.max(12, left) + 'px';
+  menu.style.visibility = '';
+  setTimeout(() => document.addEventListener('pointerdown', onDocDown, {once:true}));
+}
+function onDocDown(e){ if(!$('#menu').contains(e.target)) closeMenu(); else setTimeout(() => document.addEventListener('pointerdown', onDocDown, {once:true})); }
+function closeMenu(){ $('#menu').classList.remove('show'); }
+
+/* ═══════════════════════════  Sheets  ═══════════════════════════ */
+
+function openOverlay(sel){
+  const ov = $(sel);
+  ov.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  return ov;
+}
+function closeOverlay(ov){
+  ov.classList.remove('show');
+  if(!document.querySelector('.overlay.show')) document.body.style.overflow = '';
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-close]');
+  if(c) closeOverlay(c.closest('.overlay'));
+  else if(e.target.classList.contains('overlay')) closeOverlay(e.target);
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    if($('#menu').classList.contains('show')) return closeMenu();
+    const ov = [...document.querySelectorAll('.overlay.show')].pop();
+    if(ov) closeOverlay(ov);
+  }
+  if((e.key === 'n' || e.key === 'N') && !e.metaKey && !e.ctrlKey &&
+     !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName) &&
+     !document.querySelector('.overlay.show')){
+    e.preventDefault(); openForm();
+  }
+});
+
+/* Formular */
+function buildStatusSelect(){
+  const st = $('#f-status');
+  const keep = st.value;
+  st.innerHTML = '';
+  for(const stage of STAGES){
+    const o = el('option', null, `${stage.label} ${stage.emoji}`);
+    o.value = stage.id;
+    st.append(o);
+  }
+  st.value = keep || 'applied';
+}
+
+function buildChannelSelect(){
+  const ch = $('#f-channel');
+  const keep = ch.value;
+  ch.innerHTML = '';
+  const none = el('option', null, '–');
+  none.value = '';
+  ch.append(none);
+  for(const c of CHANNELS){
+    const o = el('option', null, c.label);
+    o.value = c.id;
+    ch.append(o);
+  }
+  const other = el('option', null, 'Andere …');
+  other.value = '__other';
+  ch.append(other);
+  ch.value = keep;
+
+  const per = $('#f-salaryPeriod');
+  const keepPer = per.value;
+  per.innerHTML = '';
+  for(const [v,k] of [['year','per.yearOpt'],['month','per.monthOpt'],['hour','per.hourOpt']]){
+    const o = el('option', null, t(k)); o.value = v; per.append(o);
+  }
+  per.value = keepPer || 'year';
+
+  const type = $('#f-salaryType');
+  const keepType = type.value;
+  type.innerHTML = '';
+  for(const [v,k] of [['expected','sal.expected'],['listed','sal.listed']]){
+    const o = el('option', null, t(k)); o.value = v; type.append(o);
+  }
+  type.value = keepType || 'expected';
+}
+
+$('#f-channel').onchange = () => {
+  $('#f-channel-other').style.display = $('#f-channel').value === '__other' ? '' : 'none';
+  if($('#f-channel').value === '__other') $('#f-channel-other').focus();
+};
+attachSuggest($('#f-company'), q => matchList(COMPANY_DIR.map(c => c.name), q), true);
+attachSuggest($('#f-location'), q => matchList(CITY_DIR, q), false);
+
+let editId = null;
+
+/** Geplante Bewerbungen haben noch kein Bewerbungsdatum – Feld dann ausblenden. */
+function zeigeDatumsfeld(){
+  const geplant = $('#f-status').value === 'planned';
+  $('#appliedField').style.display = geplant ? 'none' : '';
+  if(geplant) $('#f-applied').value = '';
+  else if(!$('#f-applied').value) $('#f-applied').value = today();
+}
+$('#f-status').addEventListener('change', zeigeDatumsfeld);
+
+function openForm(item = null, focus = 'f-company'){
+  const f = $('#form');
+  f.reset();
+  editId = item?.id || null;
+  $('#formTitle').textContent = item ? 'Bewerbung bearbeiten' : 'Neue Bewerbung';
+  $('#form button[type=submit]').textContent = item ? 'Sichern' : 'Hinzufügen';
+
+  const src = item || {status:'applied', applied:today(), salaryType:'expected', salaryPeriod:'year'};
+  $('#f-company').value = src.company || '';
+  $('#f-role').value = src.role || '';
+  $('#f-location').value = src.location || '';
+  $('#f-status').value = src.status || 'applied';
+  $('#f-salary').value = src.salary ?? '';
+  $('#f-salaryType').value = src.salaryType || 'expected';
+  $('#f-salaryPeriod').value = src.salaryPeriod || 'year';
+  $('#f-applied').value = src.applied || today();
+  $('#f-deadline').value = src.deadline || '';
+  $('#f-url').value = src.url || '';
+  const known = !src.channel || CHANNEL[src.channel];
+  $('#f-channel').value = known ? (src.channel || '') : '__other';
+  $('#f-channel-other').value = known ? '' : src.channel;
+  $('#f-channel-other').style.display = known ? 'none' : '';
+  for(const r of $('#f-employment').querySelectorAll('input')) r.checked = r.value === (src.employment || '');
+
+  zeigeDatumsfeld();
+
+  // Beim Bearbeiten bleibt der Verlauf unangetastet – dafür gibt es den Verlaufs-Editor
+  $('#f-status').disabled = !!item;
+  $('#f-status').title = item ? 'Status über die Zeile oder den Verlauf ändern' : '';
+
+  $('#f-company').classList.remove('invalid');
+  $('#f-role').classList.remove('invalid');
+  openOverlay('#ovForm');
+  setTimeout(() => $('#' + focus).focus(), 260);
+}
+$('#btnNew').onclick = () => openForm();
+
+$('#form').addEventListener('submit', e => {
+  e.preventDefault();
+  const company = $('#f-company').value.trim();
+  const role = $('#f-role').value.trim();
+  let bad = false;
+  for(const [inp, val] of [[$('#f-company'), company], [$('#f-role'), role]]){
+    inp.classList.toggle('invalid', !val);
+    if(!val) bad = true;
+  }
+  if(bad){ (company ? $('#f-role') : $('#f-company')).focus(); return; }
+
+  const salRaw = $('#f-salary').value.trim();
+  const status = $('#f-status').value;
+  const geplant = status === 'planned';
+  const applied = geplant ? '' : (isDate($('#f-applied').value) ? $('#f-applied').value : today());
+  const chSel = $('#f-channel').value;
+  const url = $('#f-url').value.trim();
+
+  const fields = {
+    company, role,
+    location: $('#f-location').value.trim(),
+    channel: chSel === '__other' ? $('#f-channel-other').value.trim() : chSel,
+    url: url && !/^https?:\/\//i.test(url) ? 'https://' + url : url,
+    salary: salRaw === '' ? null : Number(salRaw.replace(',', '.')),
+    salaryType: $('#f-salaryType').value,
+    salaryPeriod: $('#f-salaryPeriod').value,
+    employment: $('#f-employment').querySelector('input:checked').value,
+    applied,
+    deadline: $('#f-deadline').value,
+  };
+
+  const old = editId ? items.find(x => x.id === editId) : null;
+  if(old){
+    Object.assign(old, normalize({...old, ...fields}));   // Verlauf und Status bleiben
+  }else{
+    items.push(normalize({...fields, status, history: impliedHistory(status, applied || today())}));
+  }
+  editId = null;
+  save();
+  render();
+  closeOverlay($('#ovForm'));
+  if(!old && status === 'accepted') celebrate();
+});
+
+/* Löschen */
+let pendingDelete = null;
+function askDelete(it){
+  pendingDelete = it.id;
+  $('#confirmText').textContent = `${it.company + (it.role ? ' – ' + it.role : '')} wird endgültig entfernt.`;
+  openOverlay('#ovConfirm');
+}
+$('#confirmOk').onclick = () => {
+  items = items.filter(x => x.id !== pendingDelete);
+  pendingDelete = null;
+  save(); render();
+  closeOverlay($('#ovConfirm'));
+};
+
+/* Export / Import */
+$('#btnExport').onclick = () => {
+  const raw = JSON.stringify(items, null, 2);
+  const name = `bewerbungen-${today()}.json`;
+  if(native) return toApp({type:'export', data:raw, name});
+  const blob = new Blob([raw], {type:'application/json'});
+  const a = el('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('#btnImport').onclick = () => native ? toApp({type:'import'}) : $('#filePick').click();
+$('#filePick').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if(file){
+    const incoming = parseList(await file.text());
+    if(incoming.length) merge(incoming);
+    else alert('Diese Datei konnte nicht gelesen werden – erwartet wird ein JSON-Export dieser App.');
+  }
+  e.target.value = '';
+});
+
+/** Import ergänzt nur, was noch nicht da ist – nichts wird überschrieben. */
+function merge(incoming){
+  const known = new Set(items.map(i => i.id));
+  items = items.concat(incoming.filter(i => !known.has(i.id)));
+  save();
+  render();
+}
+
+/* ═══════════════════════════  Sankey  ═══════════════════════════ */
+
+/** Datenbasis der Analyse: nur tatsächlich verschickte Bewerbungen,
+ *  auf Wunsch nur die abgeschlossenen Prozesse. */
+let chartScope = 'all';
+function chartItems(){
+  const sent = items.filter(i => i.history.some(h => h.status !== 'planned'));
+  return chartScope === 'done' ? sent.filter(i => STAGE[i.status].terminal) : sent;
+}
+$('#chartScope').addEventListener('change', e => { chartScope = e.target.value; renderChart(); });
+
+$('#btnChart').onclick = () => {
+  openOverlay('#ovChart');
+  // Zweigleisig: im Hintergrund gedrosselte Tabs führen requestAnimationFrame nicht aus
+  requestAnimationFrame(renderChart);
+  setTimeout(renderChart, 120);
+};
+addEventListener('resize', () => { if($('#ovChart').classList.contains('show')) renderChart(); });
+
+/** Verlauf → Knoten- und Kantengewichte.
+ *  Endstatus bekommen je Abzweigstelle einen eigenen Knoten: eine Absage nach dem
+ *  1. Gespräch steht damit neben dem 1. Gespräch und nicht im selben Topf wie eine
+ *  Absage direkt nach der Bewerbung. So sieht man, wo jede Bewerbung geendet ist. */
+function buildFlow(){
+  const nodes = new Map();
+  const links = new Map();
+  const touch = n => {
+    if(!nodes.has(n.id)) nodes.set(n.id, {...n, ever:0, here:0});
+    return nodes.get(n.id);
+  };
+
+  for(const it of chartItems()){
+    // Das Diagramm beginnt bei „Beworben" – geplante Bewerbungen bleiben außen vor
+    const raw = it.history.map(h => h.status).filter(s => STAGE[s] && s !== 'planned');
+    const seq = raw.filter((s,i) => i === 0 || s !== raw[i-1]);   // Selbst-Wiederholungen zusammenfassen
+    if(!seq.length) continue;
+
+    const path = seq.map((s,i) => {
+      if(!STAGE[s].terminal) return {id:s, stage:s, col:STAGE[s].col, from:null};
+      const prev = i > 0 ? seq[i-1] : null;
+      return prev
+        ? {id:`${s}@${prev}`, stage:s, col:STAGE[prev].col + 1, from:prev}
+        : {id:`${s}@start`, stage:s, col:STAGE[s].col, from:null};
+    });
+
+    path.forEach(n => touch(n).ever++);
+    for(let i = 0; i < path.length - 1; i++){
+      const k = path[i].id + '>' + path[i+1].id;
+      links.set(k, (links.get(k) || 0) + 1);
+    }
+    nodes.get(path[path.length-1].id).here++;
+  }
+  return {nodes, links};
+}
+
+function renderChart(){
+  const svg = $('#sankey');
+  const {nodes, links} = buildFlow();
+  svg.innerHTML = '';
+  svg.style.height = '';
+  renderConversions();
+
+  if(!nodes.size){
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x','50%'); txt.setAttribute('y','48%');
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('font-size','14');
+    txt.textContent = chartScope === 'done' ? 'Noch kein Prozess abgeschlossen – schließe eine Bewerbung mit Zusage oder Absage ab.' : 'Noch keine Bewerbung verschickt – das Diagramm startet beim Status „Beworben".';
+    svg.append(txt);
+    return;
+  }
+
+  const host = svg.parentElement;
+  const W = Math.max(520, host.clientWidth - 8);
+  const MAXH = matchMedia('(max-width:720px)').matches ? 520 : 430;
+
+  const NW = 11;                       // Knotenbreite
+  const GAP = 22;                      // vertikaler Abstand zwischen Knoten einer Spalte
+  const MINH = 5;                      // Mindesthöhe eines Knotens
+  const MAXUNIT = 26;                  // px pro Bewerbung – hält Ströme bei wenig Daten elegant
+
+  // Spalten verdichten (leere Stufen überspringen)
+  const usedCols = [...new Set([...nodes.values()].map(n => n.col))].sort((a,b) => a-b);
+  const colIdx = new Map(usedCols.map((c,i) => [c,i]));
+  const nCols = usedCols.length;
+
+  // Rechts Platz für die Beschriftung der letzten Spalte reservieren
+  const LABEL_W = Math.min(132, Math.max(76, W * .17));
+  const PAD = {t:26, b:20, l:2, r: nCols > 1 ? LABEL_W : 2};
+
+  // In jeder Spalte zuerst die laufenden Stufen, darunter die Abzweige ins Aus
+  const byCol = usedCols.map(() => []);
+  [...nodes.values()]
+    .sort((a,b) => (STAGE[a.stage].terminal ? 1 : 0) - (STAGE[b.stage].terminal ? 1 : 0)
+                || ORDER[a.stage] - ORDER[b.stage])
+    .forEach(n => byCol[colIdx.get(n.col)].push(n));
+
+  // Maßstab: höchste Spaltensumme bestimmt die Skalierung
+  const colSum = byCol.map(col => col.reduce((s,n) => s + n.ever, 0));
+  const maxSum = Math.max(...colSum);
+  const maxGaps = Math.max(...byCol.map(c => (c.length - 1) * GAP));
+  const scale = Math.min(MAXUNIT, Math.max(1, (MAXH - PAD.t - PAD.b - maxGaps) / maxSum));
+
+  // Höhe an den Inhalt anpassen, damit keine toten Flächen entstehen
+  const avail = maxSum * scale + maxGaps;
+  const H = avail + PAD.t + PAD.b;
+  svg.style.height = H + 'px';
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+
+  // Positionen
+  const colW = nCols > 1 ? (W - PAD.l - PAD.r - NW) / (nCols - 1) : 0;
+  byCol.forEach((col, ci) => {
+    const heights = col.map(n => Math.max(MINH, n.ever * scale));
+    const total = heights.reduce((a,b) => a+b, 0) + (col.length - 1) * GAP;
+    let y = PAD.t + (avail - total) / 2;
+    col.forEach((n,i) => {
+      n.x = PAD.l + ci * colW;
+      n.y = y;
+      n.h = heights[i];
+      n.ci = ci;                        // Spaltenindex in der Darstellung
+      y += heights[i] + GAP;
+    });
+  });
+
+  // Kanten mit Geometrie
+  const list = [...links.entries()].map(([k,v]) => {
+    const [s,t] = k.split('>');
+    return {s, t, v, sn: nodes.get(s), tn: nodes.get(t)};
+  }).filter(l => l.sn && l.tn);
+
+  // Stapelung an Quelle (nach Ziel-y) und Ziel (nach Quell-y)
+  const outAt = new Map(), inAt = new Map();
+  list.slice().sort((a,b) => a.tn.y - b.tn.y || a.tn.ci - b.tn.ci).forEach(l => {
+    const o = outAt.get(l.s) || 0;
+    l.sy = l.sn.y + o;
+    outAt.set(l.s, o + l.v * scale);
+  });
+  list.slice().sort((a,b) => a.sn.ci - b.sn.ci || a.sn.y - b.sn.y).forEach(l => {
+    const o = inAt.get(l.t) || 0;
+    l.ty = l.tn.y + o;
+    inAt.set(l.t, o + l.v * scale);
+  });
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for(const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+  const gLinks = mk('g', {class:'links'});
+  const gNodes = mk('g', {class:'nodes'});
+  const gLabelBg = mk('g', {class:'labelbg'});
+  const gLabels = mk('g', {class:'labels'});
+  const labels = [];
+
+  for(const l of list){
+    const th = Math.max(1.5, l.v * scale);
+    const x0 = l.sn.x + NW, x1 = l.tn.x;
+    const cx = (x1 - x0) * .5;
+    const d = [
+      `M${x0},${l.sy}`,
+      `C${x0+cx},${l.sy} ${x1-cx},${l.ty} ${x1},${l.ty}`,
+      `L${x1},${l.ty+th}`,
+      `C${x1-cx},${l.ty+th} ${x0+cx},${l.sy+th} ${x0},${l.sy+th}`,
+      'Z'
+    ].join(' ');
+    const p = mk('path', {
+      class:'link', d,
+      fill: cssVar(STAGE[l.tn.stage].terminal ? STAGE[l.tn.stage].color : STAGE[l.sn.stage].color),
+      'fill-opacity': .42,
+    });
+    p.addEventListener('pointerenter', ev => {
+      svg.classList.add('hovering'); p.classList.add('hot');
+      showTip(ev, `${STAGE[l.sn.stage].label} → ${STAGE[l.tn.stage].label}: <b>${l.v}</b>`);
+    });
+    p.addEventListener('pointermove', ev => showTip(ev));
+    p.addEventListener('pointerleave', () => { svg.classList.remove('hovering'); p.classList.remove('hot'); hideTip(); });
+    gLinks.append(p);
+  }
+
+  for(const n of nodes.values()){
+    const s = STAGE[n.stage];
+    const c = cssVar(s.color);
+    const woher = n.from ? ` ${'nach'} „${STAGE[n.from].label}"` : '';
+    const rect = mk('rect', {x:n.x, y:n.y, width:NW, height:n.h, rx:Math.min(4, NW/2), fill:c, 'fill-opacity':.95});
+    rect.addEventListener('pointerenter', ev => {
+      svg.classList.add('hovering');
+      [...gLinks.children].forEach((p,i) => p.classList.toggle('hot', list[i].s === n.id || list[i].t === n.id));
+      showTip(ev, `<b>${s.label}${woher}</b> · ${n.ever} ${n.ever===1?'Bewerbung':'Bewerbungen'}${n.here && !s.terminal ? ` · ${n.here} ${'offen'}` : ''}`);
+    });
+    rect.addEventListener('pointermove', ev => showTip(ev));
+    rect.addEventListener('pointerleave', () => {
+      svg.classList.remove('hovering');
+      [...gLinks.children].forEach(p => p.classList.remove('hot'));
+      hideTip();
+    });
+    gNodes.append(rect);
+
+    // Beschriftung rechts neben dem Knoten, mit dezenter Hinterlegung über den Strömen
+    const tx = n.x + NW + 9;
+    const text = mk('text', {x:tx, y:n.y + n.h / 2 - 3, class:'lbl'});
+    const line1 = mk('tspan', {x:tx});
+    line1.textContent = `${s.emoji} ${s.short}`;
+    const line2 = mk('tspan', {x:tx, dy:14, class:'v'});
+    line2.textContent = n.here && n.here !== n.ever && !s.terminal
+      ? `${n.ever} · ${n.here} ${'offen'}`
+      : `${n.ever}`;
+    text.append(line1, line2);
+    gLabels.append(text);
+    labels.push(text);
+  }
+
+  svg.append(gLinks, gNodes, gLabelBg, gLabels);
+
+  // Hinterlegung erst nach dem Einfügen messen
+  for(const t of labels){
+    const b = t.getBBox();
+    gLabelBg.append(mk('rect', {
+      x:b.x - 5, y:b.y - 3, width:b.width + 10, height:b.height + 6, rx:6, class:'lblbg',
+    }));
+  }
+}
+
+function showTip(ev, html){
+  const tip = $('#tip'), wrap = tip.parentElement.getBoundingClientRect();
+  if(html) tip.innerHTML = html;
+  tip.style.left = (ev.clientX - wrap.left) + 'px';
+  tip.style.top  = (ev.clientY - wrap.top) + 'px';
+  tip.classList.add('show');
+}
+function hideTip(){ $('#tip').classList.remove('show'); }
+
+function renderConversions(){
+  const host = $('#conv');
+  host.innerHTML = '';
+  const data = chartItems();
+  const n = data.length;
+  const reached = id => data.filter(i => i.history.some(h => h.status === id)).length;
+  const anyIv = data.filter(i => i.history.some(h => INTERVIEWS.includes(h.status))).length;
+  const applied = data.filter(i => i.history.some(h => h.status === 'applied')).length;
+  const acc = reached('accepted'), rej = reached('rejected'), wd = reached('withdrawn'), nr = reached('noreply');
+
+  const pct = (a,b) => b ? Math.round(a/b*100) + '%' : '–';
+  const cards = [
+    ['Beworben → Gespräch', pct(anyIv, applied), `${anyIv} ${'von'} ${applied}`],
+    ['Gespräch → Zusage', pct(acc, anyIv),    `${acc} ${'von'} ${anyIv}`],
+    ['Zusagequote gesamt',   pct(acc, n),         `${acc} ${'von'} ${n}`],
+    ['Absagen',  String(rej),         [nr ? `${nr} ${'ohne Antwort'}` : '', wd ? `${wd} ${'zurückgezogen'}` : '']
+                                                     .filter(Boolean).map((t,i) => (i ? '· ' : '+ ') + t).join(' ')],
+  ];
+  for(const [k,v,note] of cards){
+    const c = el('div','c');
+    c.append(el('div','k',k), el('div','v',v));
+    if(note) c.append(el('div','n',note));
+    host.append(c);
+  }
+}
+
+/* ═══════════════════════════  Konfetti  ═══════════════════════════ */
+
+function celebrate(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const host = el('div','confetti');
+  const colors = ['--green','--accent','--orange','--purple','--red'].map(cssVar);
+  for(let i = 0; i < 90; i++){
+    const p = el('i');
+    p.style.left = (Math.random() * 100) + 'vw';
+    p.style.background = colors[i % colors.length];
+    p.style.setProperty('--dx', (Math.random() * 260 - 130) + 'px');
+    p.style.setProperty('--rot', (Math.random() * 1080 - 540) + 'deg');
+    p.style.animationDuration = (2 + Math.random() * 1.6) + 's';
+    p.style.animationDelay = (Math.random() * .35) + 's';
+    p.style.opacity = .75 + Math.random() * .25;
+    if(Math.random() < .4) p.style.borderRadius = '50%';
+    host.append(p);
+  }
+  document.body.append(host);
+  setTimeout(() => host.remove(), 4200);
+}
+
+/* ═══════════════════════════  Start  ═══════════════════════════ */
+buildStatusSelect();
+buildChannelSelect();
+boot();
+</script>
+</body>
+</html>

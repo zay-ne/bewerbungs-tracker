@@ -1,0 +1,8 @@
+# Ergebnisse des Bauvorgangs
+Bewerbungen.app/
+.build/
+# Lokale Cloudflare-Artefakte und Geheimnisse
+.wrangler/
+.dev.vars
+node_modules/
+.DS_Store
