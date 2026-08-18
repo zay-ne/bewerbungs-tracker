@@ -560,30 +560,31 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 
   <header class="top">
     <div>
-      <h1>Bewerbungen</h1>
+      <h1 data-i18n="app.title">Bewerbungen</h1>
       <div class="subtitle" id="subtitle">Alles im Blick – von geplant bis Zusage.</div>
     </div>
     <div class="top-actions">
-      <button class="btn quiet" id="btnExport"><span class="ico">↓</span><span>Export</span></button>
-      <button class="btn quiet" id="btnImport"><span class="ico">↑</span><span>Import</span></button>
-      <button class="btn quiet" id="btnInvite" style="display:none"><span class="ico">✉</span><span>Einladen</span></button>
+      <button class="btn quiet" id="btnExport" data-i18n-title="nav.exportTip"><span class="ico">↓</span><span data-i18n="nav.export">Export</span></button>
+      <button class="btn quiet" id="btnImport" data-i18n-title="nav.importTip"><span class="ico">↑</span><span data-i18n="nav.import">Import</span></button>
+      <button class="btn quiet" id="btnInvite" style="display:none" data-i18n-title="inv.title"><span class="ico">✉</span><span data-i18n="inv.short">Einladen</span></button>
       <span class="account" id="account" style="display:none">
         <span class="mail" id="accountMail"></span>
-        <button class="btn quiet" id="btnLogout"><span class="ico">⇥</span><span>Abmelden</span></button>
+        <button class="btn quiet" id="btnLogout" data-i18n-title="nav.logout"><span class="ico">⇥</span><span data-i18n="nav.logout">Abmelden</span></button>
       </span>
-      <button class="btn" id="btnChart"><span class="ico">◫</span><span>Analyse</span></button>
-      <button class="btn primary" id="btnNew"><span class="ico">+</span><span>Neue Bewerbung</span></button>
+      <button class="btn" id="btnChart"><span class="ico">◫</span><span data-i18n="nav.analysis">Analyse</span></button>
+      <button class="flagbtn" id="btnLang" data-i18n-title="nav.lang" aria-label="Sprache"><span id="langFlag">🇩🇪</span></button>
+      <button class="btn primary" id="btnNew"><span class="ico">+</span><span data-i18n="nav.new">Neue Bewerbung</span></button>
     </div>
   </header>
 
   <section class="conflictbar" id="conflict" style="display:none">
     <div class="cb-text">
-      <b>Zwei Stände treffen aufeinander.</b>
-      <span>Auf einem anderen Gerät wurde geändert, während hier ebenfalls etwas geändert wurde. Nichts wurde überschrieben – wähle, was gelten soll.</span>
+      <b data-i18n="conflict.title">Zwei Stände treffen aufeinander.</b>
+      <span data-i18n="conflict.text">Auf einem anderen Gerät wurde geändert, während hier ebenfalls etwas geändert wurde. Nichts wurde überschrieben – wähle, was gelten soll.</span>
     </div>
     <div class="cb-acts">
-      <button class="btn" id="cbServer">Anderen Stand laden</button>
-      <button class="btn primary" id="cbMine">Diesen Stand hochladen</button>
+      <button class="btn" id="cbServer" data-i18n="conflict.server">Anderen Stand laden</button>
+      <button class="btn primary" id="cbMine" data-i18n="conflict.mine">Diesen Stand hochladen</button>
     </div>
   </section>
 
@@ -591,7 +592,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 
   <section class="card">
     <div class="card-head">
-      <h2>Übersicht</h2>
+      <h2 data-i18n="table.head">Übersicht</h2>
       <span class="muted" id="count" style="font-size:13.5px"></span>
     </div>
     <div class="table-scroll" id="tableHost"></div>
@@ -604,78 +605,78 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     <div class="sheet-head">
       <div>
         <h2 id="formTitle">Neue Bewerbung</h2>
-        <div class="hint">Firma und Rolle genügen – alles andere ist optional.</div>
+        <div class="hint" data-i18n="form.hint">Firma und Rolle genügen – alles andere ist optional.</div>
       </div>
-      <button class="close" data-close>✕</button>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
     </div>
     <form id="form" novalidate>
       <div class="sheet-body">
         <div class="row2">
           <div class="field">
-            <label for="f-company">Firma</label>
-            <input type="text" id="f-company" autocomplete="off" required>
+            <label for="f-company" data-i18n="form.company">Firma</label>
+            <input type="text" id="f-company" data-i18n-ph="form.phCompany" autocomplete="off" required>
           </div>
           <div class="field">
-            <label for="f-role">Rolle / Stelle</label>
-            <input type="text" id="f-role" autocomplete="off" required>
+            <label for="f-role" data-i18n="form.role">Rolle / Stelle</label>
+            <input type="text" id="f-role" data-i18n-ph="form.phRole" autocomplete="off" required>
           </div>
         </div>
 
         <div class="row2">
           <div class="field">
-            <label for="f-location"><span>Ort</span> <span class="muted" style="font-weight:400">(optional)</span></label>
-            <input type="text" id="f-location" autocomplete="off">
+            <label for="f-location"><span data-i18n="form.location">Ort</span> <span class="muted" style="font-weight:400" data-i18n="form.optional">(optional)</span></label>
+            <input type="text" id="f-location" data-i18n-ph="form.phLocation" autocomplete="off">
           </div>
           <div class="field">
-            <label for="f-status">Status</label>
+            <label for="f-status" data-i18n="form.status">Status</label>
             <select id="f-status"></select>
           </div>
         </div>
 
         <div class="row2">
           <div class="field">
-            <label for="f-channel"><span>Beworben über</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+            <label for="f-channel"><span data-i18n="form.channel">Beworben über</span> <span class="muted" style="font-weight:400" data-i18n="form.optional">(optional)</span></label>
             <select id="f-channel"></select>
-            <input type="text" id="f-channel-other" autocomplete="off" style="margin-top:8px;display:none">
+            <input type="text" id="f-channel-other" data-i18n-ph="form.phChannel" autocomplete="off" style="margin-top:8px;display:none">
           </div>
           <div class="field">
-            <label for="f-url"><span>Link zur Ausschreibung</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+            <label for="f-url"><span data-i18n="form.url">Link zur Ausschreibung</span> <span class="muted" style="font-weight:400" data-i18n="form.optional">(optional)</span></label>
             <input type="text" id="f-url" placeholder="https://…" autocomplete="off" inputmode="url">
           </div>
         </div>
 
         <div class="field">
-          <label><span>Gehalt</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+          <label><span data-i18n="form.salary">Gehalt</span> <span class="muted" style="font-weight:400" data-i18n="form.optional">(optional)</span></label>
           <div class="row3">
-            <input type="number" id="f-salary" min="0" step="any" inputmode="decimal">
-            <select id="f-salaryType"></select>
+            <input type="number" id="f-salary" data-i18n-ph="form.phSalary" min="0" step="any" inputmode="decimal">
+            <select id="f-salaryType" data-i18n-title="form.salaryTip"></select>
             <select id="f-salaryPeriod"></select>
           </div>
         </div>
 
         <div class="field">
-          <label><span>Arbeitszeit</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+          <label><span data-i18n="form.employment">Arbeitszeit</span> <span class="muted" style="font-weight:400" data-i18n="form.optional">(optional)</span></label>
           <div class="seg" id="f-employment">
             <label><input type="radio" name="employment" value="" checked><span>–</span></label>
-            <label><input type="radio" name="employment" value="full"><span>Vollzeit</span></label>
-            <label><input type="radio" name="employment" value="part"><span>Teilzeit</span></label>
-            <label><input type="radio" name="employment" value="mini"><span>Minijob</span></label>
+            <label><input type="radio" name="employment" value="full"><span data-i18n="emp.full">Vollzeit</span></label>
+            <label><input type="radio" name="employment" value="part"><span data-i18n="emp.part">Teilzeit</span></label>
+            <label><input type="radio" name="employment" value="mini"><span data-i18n="emp.mini">Minijob</span></label>
           </div>
         </div>
 
         <div class="row2">
           <div class="field" id="appliedField">
-            <label for="f-applied">Bewerbungsdatum</label>
+            <label for="f-applied" data-i18n="form.applied">Bewerbungsdatum</label>
             <input type="date" id="f-applied">
           </div>
           <div class="field" style="margin-bottom:0">
-            <label for="f-deadline"><span>Bewerbungsschluss</span> <span class="muted" style="font-weight:400">(optional)</span></label>
+            <label for="f-deadline"><span data-i18n="form.deadline">Bewerbungsschluss</span> <span class="muted" style="font-weight:400" data-i18n="form.optional">(optional)</span></label>
             <input type="date" id="f-deadline">
           </div>
         </div>
       </div>
       <div class="sheet-foot">
-        <button type="button" class="btn quiet" data-close>Abbrechen</button>
+        <button type="button" class="btn quiet" data-close data-i18n="form.cancel">Abbrechen</button>
         <button type="submit" class="btn primary">Hinzufügen</button>
       </div>
     </form>
@@ -687,20 +688,20 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   <div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="chartTitle">
     <div class="sheet-head">
       <div>
-        <h2 id="chartTitle">Bewerbungs-Fluss</h2>
-        <div class="hint">Ab dem Status „Beworben". Breite der Ströme = Anzahl der Bewerbungen.</div>
+        <h2 id="chartTitle" data-i18n="chart.title">Bewerbungs-Fluss</h2>
+        <div class="hint" data-i18n="chart.hint">Ab dem Status „Beworben". Breite der Ströme = Anzahl der Bewerbungen.</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px;flex:none">
         <div class="seg" id="chartScope">
-          <label><input type="radio" name="scope" value="all" checked><span>Alle</span></label>
-          <label><input type="radio" name="scope" value="done"><span>Nur abgeschlossene</span></label>
+          <label><input type="radio" name="scope" value="all" checked><span data-i18n="chart.all">Alle</span></label>
+          <label><input type="radio" name="scope" value="done"><span data-i18n="chart.done">Nur abgeschlossene</span></label>
         </div>
-        <button class="close" data-close>✕</button>
+        <button class="close" data-close data-i18n-aria="misc.close">✕</button>
       </div>
     </div>
     <div class="sheet-body">
       <div class="chart-wrap">
-        <svg class="sankey" id="sankey"></svg>
+        <svg class="sankey" id="sankey" data-i18n-aria="chart.alt"></svg>
         <div class="tip" id="tip"></div>
       </div>
       <div class="conv" id="conv"></div>
@@ -713,21 +714,21 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   <div class="sheet" style="max-width:460px" role="dialog" aria-modal="true" aria-labelledby="histTitle">
     <div class="sheet-head">
       <div>
-        <h2 id="histTitle">Verlauf</h2>
+        <h2 id="histTitle" data-i18n="hist.title">Verlauf</h2>
         <div class="hint" id="histWho"></div>
       </div>
-      <button class="close" data-close>✕</button>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
     </div>
     <div class="sheet-body">
       <div class="timeline" id="histList"></div>
       <div class="field" style="margin:18px 0 0">
-        <label for="histAdd">Station ergänzen</label>
+        <label for="histAdd" data-i18n="hist.add">Station ergänzen</label>
         <select id="histAdd"></select>
       </div>
-      <p class="sub" style="margin-top:10px">Die letzte Station bestimmt den aktuellen Status. Das Diagramm zeigt genau diesen Weg.</p>
+      <p class="sub" style="margin-top:10px" data-i18n="hist.note">Die letzte Station bestimmt den aktuellen Status. Das Diagramm zeigt genau diesen Weg.</p>
     </div>
     <div class="sheet-foot">
-      <button class="btn primary" data-close>Fertig</button>
+      <button class="btn primary" data-close data-i18n="hist.done">Fertig</button>
     </div>
   </div>
 </div>
@@ -749,16 +750,16 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 
     <form id="authForm" novalidate>
       <div class="field">
-        <label for="a-mail">E-Mail</label>
+        <label for="a-mail" data-i18n="gate.mail">E-Mail</label>
         <input type="email" id="a-mail" autocomplete="username" autocapitalize="off" spellcheck="false" required>
       </div>
       <div class="field">
-        <label for="a-pass">Passwort</label>
+        <label for="a-pass" data-i18n="gate.pass">Passwort</label>
         <input type="password" id="a-pass" autocomplete="current-password" required>
       </div>
       <div class="field" id="inviteField" style="display:none">
-        <label for="a-invite">Einladungscode</label>
-        <input type="text" id="a-invite" autocomplete="off" spellcheck="false">
+        <label for="a-invite" data-i18n="gate.invite">Einladungscode</label>
+        <input type="text" id="a-invite" autocomplete="off" spellcheck="false" data-i18n-ph="gate.phInvite">
       </div>
       <div class="gateerr" id="gateErr" hidden></div>
       <button type="submit" class="btn primary gatebtn" id="gateGo">Anmelden</button>
@@ -773,17 +774,17 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   <div class="sheet" style="max-width:520px" role="dialog" aria-modal="true">
     <div class="sheet-head">
       <div>
-        <h2>Einladungen</h2>
-        <div class="hint">Jeder Code gilt genau einmal. Neue Konten starten leer.</div>
+        <h2 data-i18n="inv.title">Einladungen</h2>
+        <div class="hint" data-i18n="inv.hint">Jeder Code gilt genau einmal. Neue Konten starten leer.</div>
       </div>
-      <button class="close" data-close>✕</button>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
     </div>
     <div class="sheet-body">
       <div id="inviteList" class="invlist"></div>
     </div>
     <div class="sheet-foot" style="justify-content:space-between">
       <span class="sub" id="inviteNote"></span>
-      <button class="btn primary" id="inviteNew">Neuen Code erzeugen</button>
+      <button class="btn primary" id="inviteNew" data-i18n="inv.new">Neuen Code erzeugen</button>
     </div>
   </div>
 </div>
@@ -793,12 +794,12 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   <div class="sheet" style="max-width:400px" role="dialog" aria-modal="true">
     <div class="sheet-body" style="text-align:center;padding:30px 26px 22px">
       <div style="font-size:32px">🗑️</div>
-      <h2 style="font-size:18px;font-weight:600;margin-top:12px" id="confirmTitle">Bewerbung löschen?</h2>
+      <h2 style="font-size:18px;font-weight:600;margin-top:12px" id="confirmTitle" data-i18n="del.title">Bewerbung löschen?</h2>
       <p class="muted" style="font-size:14px;margin-top:6px" id="confirmText"></p>
     </div>
     <div class="sheet-foot" style="justify-content:center">
-      <button class="btn quiet" data-close>Abbrechen</button>
-      <button class="btn danger" id="confirmOk">Löschen</button>
+      <button class="btn quiet" data-close data-i18n="form.cancel">Abbrechen</button>
+      <button class="btn danger" id="confirmOk" data-i18n="del.confirm">Löschen</button>
     </div>
   </div>
 </div>
@@ -1298,17 +1299,17 @@ Sydney
 /* ═══════════════════════════  Model  ═══════════════════════════ */
 
 const STAGES = [
-  {id:'planned',   label:'Geplant', short:'Geplant',   emoji:'🗒️', col:0, color:'--gray'},
-  {id:'applied',   label:'Beworben', short:'Beworben',  emoji:'📮', col:1, color:'--accent'},
-  {id:'iv1',       label:'1. Gespräch', short:'1. Gespr.', emoji:'💬', col:2, color:'--purple'},
-  {id:'iv2',       label:'2. Gespräch', short:'2. Gespr.', emoji:'💬', col:3, color:'--purple'},
-  {id:'iv3',       label:'3. Gespräch', short:'3. Gespr.', emoji:'💬', col:4, color:'--purple'},
-  {id:'ivN',       label:'Weiteres Gespräch', short:'Weiteres',  emoji:'💬', col:5, color:'--purple'},
-  {id:'offer',     label:'Angebot erhalten', short:'Angebot',   emoji:'📄', col:6, color:'--orange'},
-  {id:'accepted',  label:'Zusage', short:'Zusage',    emoji:'🎉', col:7, color:'--green', terminal:true},
-  {id:'rejected',  label:'Absage', short:'Absage',    emoji:'❌', col:7, color:'--red',   terminal:true},
-  {id:'noreply',   label:'Keine Antwort', short:'Keine Antw.',emoji:'🕓', col:7, color:'--sand', terminal:true},
-  {id:'withdrawn', label:'Zurückgezogen', short:'Zurückgez.',emoji:'↩️', col:7, color:'--gray',  terminal:true},
+  {id:'planned',   label:'', short:'',   emoji:'🗒️', col:0, color:'--gray'},
+  {id:'applied',   label:'', short:'',  emoji:'📮', col:1, color:'--accent'},
+  {id:'iv1',       label:'', short:'', emoji:'💬', col:2, color:'--purple'},
+  {id:'iv2',       label:'', short:'', emoji:'💬', col:3, color:'--purple'},
+  {id:'iv3',       label:'', short:'', emoji:'💬', col:4, color:'--purple'},
+  {id:'ivN',       label:'', short:'',  emoji:'💬', col:5, color:'--purple'},
+  {id:'offer',     label:'', short:'',   emoji:'📄', col:6, color:'--orange'},
+  {id:'accepted',  label:'', short:'',    emoji:'🎉', col:7, color:'--green', terminal:true},
+  {id:'rejected',  label:'', short:'',    emoji:'❌', col:7, color:'--red',   terminal:true},
+  {id:'noreply',   label:'', short:'',emoji:'🕓', col:7, color:'--sand', terminal:true},
+  {id:'withdrawn', label:'', short:'',emoji:'↩️', col:7, color:'--gray',  terminal:true},
 ];
 const STAGE = Object.fromEntries(STAGES.map(s => [s.id, s]));
 const ORDER = Object.fromEntries(STAGES.map((s,i) => [s.id, i]));
@@ -1578,23 +1579,23 @@ function paintSync(){
   const bar = $('#conflict');
   bar.style.display = syncState === 'conflict' ? '' : 'none';
 
-  let text = 'Alles im Blick – von geplant bis Zusage.', color = '';
+  let text = t('app.tagline'), color = '';
   if(syncState === 'conflict'){
-    text = 'Auf einem anderen Gerät wurde geändert – bitte unten entscheiden.';
+    text = t('conflict.line');
     color = 'var(--orange)';
   }else if(hosted && syncState === 'offline' && !account){
-    text = 'Ohne Verbindung – zeigt den letzten Stand dieses Geräts.';
+    text = t('sync.noConn');
     color = 'var(--orange)';
   }else if(syncing() && syncState === 'offline'){
-    text = dirty ? '⚠️ Offline – Änderungen liegen nur auf diesem Gerät und gehen später raus.' : 'Offline – zeigt den letzten bekannten Stand.';
+    text = dirty ? t('sync.offlineDirty') : t('sync.offline');
     color = 'var(--orange)';
   }else if(syncing() && syncState === 'ok'){
-    text = dirty ? 'Wird synchronisiert …' : `${'Synchronisiert'}${lastSync ? ' · ' + fmtStamp(lastSync) : ''}`;
+    text = dirty ? t('sync.working') : `${t('sync.ok')}${lastSync ? ' · ' + fmtStamp(lastSync) : ''}`;
   }else if(!localOk && !native){
-    text = '⚠️ Dieser Browser speichert hier nichts – bitte per Export sichern.';
+    text = t('sync.noStore');
     color = 'var(--orange)';
   }else if(native){
-    text = 'Alles im Blick – automatisch gespeichert.';
+    text = t('app.saved');
   }
   sub.textContent = text;
   sub.style.color = color;
@@ -1605,8 +1606,8 @@ function fmtStamp(iso){
   const d = new Date(iso);
   if(isNaN(d)) return '';
   const heute = new Date().toDateString() === d.toDateString();
-  const zeit = d.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-  return heute ? `${'heute'} ${zeit}` : `${d.toLocaleDateString('de-DE')} ${zeit}`;
+  const zeit = d.toLocaleTimeString(locale(), {hour:'2-digit', minute:'2-digit'});
+  return heute ? `${t('sync.today')} ${zeit}` : `${d.toLocaleDateString(locale())} ${zeit}`;
 }
 
 function uid(){ return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -1617,6 +1618,392 @@ function today(){
 function isDate(v){ return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v); }
 
 
+/* ═══════════════════════════  Sprachen  ═══════════════════════════ */
+
+const LANGS = [
+  {code:'de', flag:'🇩🇪', name:'Deutsch'},
+  {code:'en', flag:'🇬🇧', name:'English'},
+  {code:'fr', flag:'🇫🇷', name:'Français'},
+  {code:'ar', flag:'🇸🇦', name:'العربية'},
+];
+const LOCALES = {de:'de-DE', en:'en-GB', fr:'fr-FR', ar:'ar-u-nu-latn'};
+
+const DICT = {
+de:{
+ 'app.title':'Bewerbungen','app.tagline':'Alles im Blick – von geplant bis Zusage.',
+ 'app.saved':'Alles im Blick – automatisch gespeichert.',
+ 'nav.export':'Export','nav.import':'Import','nav.analysis':'Analyse','nav.new':'Neue Bewerbung',
+ 'nav.logout':'Abmelden','nav.lang':'Sprache','nav.exportTip':'Als JSON-Datei sichern','nav.importTip':'JSON-Backup laden',
+ 'stats.total':'Bewerbungen','stats.running':'Laufend','stats.decided':'entschieden',
+ 'stats.inTalks':'Im Gespräch','stats.ofTotal':'insgesamt','stats.rate':'Gesprächsquote','stats.offers':'Zusagen',
+ 'table.head':'Übersicht','table.company':'Firma / Rolle','table.location':'Ort','table.channel':'Kanal',
+ 'table.salary':'Gehalt','table.employment':'Arbeitszeit','table.applied':'Beworben','table.deadline':'Schluss',
+ 'table.status':'Status','table.process':'Prozess','table.close':'Abschluss',
+ 'table.entryOne':'Eintrag','table.entryMany':'Einträge',
+ 'empty.title':'Noch keine Bewerbung erfasst','empty.text':'Lege deine erste Bewerbung an – Tabelle und Diagramm bauen sich dann automatisch auf.',
+ 'stage.planned':'Geplant','stage.applied':'Beworben','stage.iv1':'1. Gespräch','stage.iv2':'2. Gespräch',
+ 'stage.iv3':'3. Gespräch','stage.ivN':'Weiteres Gespräch','stage.offer':'Angebot erhalten',
+ 'stage.accepted':'Zusage','stage.rejected':'Absage','stage.noreply':'Keine Antwort','stage.withdrawn':'Zurückgezogen',
+ 'short.planned':'Geplant','short.applied':'Beworben','short.iv1':'1. Gespr.','short.iv2':'2. Gespr.',
+ 'short.iv3':'3. Gespr.','short.ivN':'Weiteres','short.offer':'Angebot','short.accepted':'Zusage',
+ 'short.rejected':'Absage','short.noreply':'Keine Antw.','short.withdrawn':'Zurückgez.',
+ 'emp.full':'Vollzeit','emp.part':'Teilzeit','emp.mini':'Minijob',
+ 'sal.expected':'Vorstellung','sal.listed':'Ausschreibung','sal.expectedLong':'meine Gehaltsvorstellung','sal.listedLong':'ausgeschriebenes Gehalt',
+ 'per.year':'p. a.','per.month':'/Monat','per.hour':'/Std.',
+ 'per.yearOpt':'pro Jahr','per.monthOpt':'pro Monat','per.hourOpt':'pro Stunde',
+ 'ch.linkedin':'LinkedIn','ch.indeed':'Indeed','ch.stepstone':'StepStone','ch.xing':'Xing',
+ 'ch.website':'Unternehmenswebseite','ch.email':'E-Mail / Initiativ','ch.other':'Andere …',
+ 'form.new':'Neue Bewerbung','form.edit':'Bewerbung bearbeiten','form.hint':'Firma und Rolle genügen – alles andere ist optional.',
+ 'form.company':'Firma','form.role':'Rolle / Stelle','form.location':'Ort','form.status':'Status',
+ 'form.salary':'Gehalt','form.employment':'Arbeitszeit','form.channel':'Beworben über',
+ 'form.url':'Link zur Ausschreibung','form.applied':'Bewerbungsdatum','form.deadline':'Bewerbungsschluss',
+ 'form.optional':'(optional)','form.add':'Hinzufügen','form.save':'Sichern','form.cancel':'Abbrechen',
+ 'form.phCompany':'z. B. Siemens','form.phRole':'z. B. Projektmanager','form.phLocation':'z. B. Bonn',
+ 'form.phSalary':'Betrag in €','form.phChannel':'Kanal eintragen','form.salaryTip':'Handelt es sich um deine Gehaltsvorstellung oder um das ausgeschriebene Gehalt?',
+ 'form.statusLocked':'Status über die Zeile oder den Verlauf ändern',
+ 'row.toApplied':'→ Beworben','row.toAppliedTip':'Bewerbung als verschickt markieren',
+ 'row.addTalk':'Bewerbungsgespräch hinzufügen','row.accept':'🎉 Zusage','row.reject':'❌ Absage',
+ 'row.acceptTip':'Prozess mit Zusage abschließen','row.rejectTip':'Prozess mit Absage abschließen',
+ 'row.noreplyTip':'Keine Antwort erhalten – Prozess so abschließen',
+ 'row.more':'Anderen Status wählen','row.delete':'Bewerbung löschen','row.addLink':'+ Link',
+ 'row.addLinkTip':'Link zur Stellenanzeige hinterlegen','row.openLink':'Stellenanzeige öffnen',
+ 'row.historyTip':'Verlauf ansehen und bearbeiten',
+ 'menu.edit':'Bearbeiten …','menu.history':'Verlauf bearbeiten …','menu.course':'Verlauf','menu.result':'Ergebnis','menu.current':'aktuell',
+ 'hist.title':'Verlauf','hist.add':'Station ergänzen','hist.choose':'Station wählen …',
+ 'hist.note':'Die letzte Station bestimmt den aktuellen Status. Das Diagramm zeigt genau diesen Weg.',
+ 'hist.dateTip':'Datum dieser Station','hist.removeTip':'Station entfernen','hist.done':'Fertig',
+ 'del.title':'Bewerbung löschen?','del.text':'{name} wird endgültig entfernt.','del.confirm':'Löschen',
+ 'chart.title':'Bewerbungs-Fluss','chart.hint':'Ab dem Status „Beworben". Breite der Ströme = Anzahl der Bewerbungen.',
+ 'chart.all':'Alle','chart.done':'Nur abgeschlossene','chart.alt':'Sankey-Diagramm des Bewerbungsverlaufs',
+ 'chart.emptyAll':'Noch keine Bewerbung verschickt – das Diagramm startet beim Status „Beworben".',
+ 'chart.emptyDone':'Noch kein Prozess abgeschlossen – schließe eine Bewerbung mit Zusage oder Absage ab.',
+ 'chart.open':'offen','chart.after':'nach','chart.one':'Bewerbung','chart.many':'Bewerbungen',
+ 'conv.toTalk':'Beworben → Gespräch','conv.toOffer':'Gespräch → Zusage','conv.rate':'Zusagequote gesamt',
+ 'conv.rejections':'Absagen','conv.noreply':'ohne Antwort','conv.withdrawn':'zurückgezogen','conv.of':'von',
+ 'sync.ok':'Synchronisiert','sync.today':'heute','sync.working':'Wird synchronisiert …',
+ 'sync.offlineDirty':'⚠️ Offline – Änderungen liegen nur auf diesem Gerät und gehen später raus.',
+ 'sync.offline':'Offline – zeigt den letzten bekannten Stand.',
+ 'sync.noConn':'Ohne Verbindung – zeigt den letzten Stand dieses Geräts.',
+ 'sync.noStore':'⚠️ Dieser Browser speichert hier nichts – bitte per Export sichern.',
+ 'conflict.title':'Zwei Stände treffen aufeinander.',
+ 'conflict.text':'Auf einem anderen Gerät wurde geändert, während hier ebenfalls etwas geändert wurde. Nichts wurde überschrieben – wähle, was gelten soll.',
+ 'conflict.line':'Auf einem anderen Gerät wurde geändert – bitte unten entscheiden.',
+ 'conflict.server':'Anderen Stand laden','conflict.mine':'Diesen Stand hochladen',
+ 'gate.login':'Anmelden','gate.register':'Konto anlegen','gate.hintLogin':'Deine Bewerbungen, auf allen Geräten.',
+ 'gate.hintReg':'Mit Einladungscode. Deine Bewerbungen bleiben nur für dich sichtbar.',
+ 'gate.mail':'E-Mail','gate.pass':'Passwort','gate.invite':'Einladungscode','gate.phInvite':'Code eintragen',
+ 'gate.toReg':'Noch kein Konto? Mit Einladung registrieren','gate.toLogin':'Zurück zur Anmeldung',
+ 'gate.working':'Einen Moment …','gate.needBoth':'Bitte E-Mail und Passwort angeben.',
+ 'gate.shortPass':'Bitte ein Passwort mit mindestens 10 Zeichen wählen.',
+ 'gate.needInvite':'Ohne Einladungscode geht es nicht.','gate.failed':'Das hat nicht funktioniert.',
+ 'gate.noServer':'Keine Verbindung zum Server.',
+ 'gate.alreadyThere':'Dieses Konto gibt es schon – bitte mit dem Passwort anmelden.',
+  'inv.title':'Einladungen','inv.short':'Einladen','inv.hint':'Jeder Code gilt genau einmal. Neue Konten starten leer.','inv.new':'Neuen Code erzeugen','inv.none':'Noch keine Codes vorhanden.','inv.loading':'Wird geladen …','inv.failed':'Codes konnten nicht geladen werden.','inv.copyCode':'Code','inv.copyLink':'Link','inv.copied':'kopiert ✓','inv.copyManual':'Zum Kopieren markieren:','inv.revoke':'zurücknehmen','inv.usedBy':'eingelöst von {who}','inv.count':'{free} frei · {used} eingelöst',
+  'flt.all':'Alle','flt.planned':'Geplant','flt.applied':'Beworben','flt.talking':'Im Gespräch','flt.accepted':'Zusage','flt.rejected':'Absage','flt.noreply':'Keine Antwort','flt.emptyTitle':'Keine Einträge in dieser Auswahl','flt.emptyText':'Wähle einen anderen Filter oder zeige alle Einträge.','sort.by':'Sortieren','sort.date':'Datum','sort.status':'Status','sort.company':'Firma','sort.salary':'Gehalt','sort.toggle':'Richtung umschalten',
+  'demo.tag':'Demo','demo.open':'Ohne Konto ansehen – Demo mit Beispieldaten','demo.note':'Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.','demo.reset':'Zurücksetzen','demo.leave':'Zur Anmeldung','demo.subtitle':'Demo mit Beispieldaten – nichts wird gespeichert.',
+  'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
+ 'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
+ 'misc.finished':'abgeschlossen','misc.badFile':'Diese Datei konnte nicht gelesen werden – erwartet wird ein JSON-Export dieser App.',
+},
+en:{
+ 'app.title':'Applications','app.tagline':'Every application at a glance – from planned to offer.',
+ 'app.saved':'Every application at a glance – saved automatically.',
+ 'nav.export':'Export','nav.import':'Import','nav.analysis':'Analysis','nav.new':'New application',
+ 'nav.logout':'Sign out','nav.lang':'Language','nav.exportTip':'Save as a JSON file','nav.importTip':'Load a JSON backup',
+ 'stats.total':'Applications','stats.running':'Open','stats.decided':'decided',
+ 'stats.inTalks':'Interviewing','stats.ofTotal':'in total','stats.rate':'Interview rate','stats.offers':'Offers',
+ 'table.head':'Overview','table.company':'Company / Role','table.location':'Location','table.channel':'Channel',
+ 'table.salary':'Salary','table.employment':'Hours','table.applied':'Applied','table.deadline':'Deadline',
+ 'table.status':'Status','table.process':'Process','table.close':'Outcome',
+ 'table.entryOne':'entry','table.entryMany':'entries',
+ 'empty.title':'No applications yet','empty.text':'Add your first application – the table and the diagram build themselves from there.',
+ 'stage.planned':'Planned','stage.applied':'Applied','stage.iv1':'1st interview','stage.iv2':'2nd interview',
+ 'stage.iv3':'3rd interview','stage.ivN':'Further interview','stage.offer':'Offer received',
+ 'stage.accepted':'Accepted','stage.rejected':'Rejected','stage.noreply':'No reply','stage.withdrawn':'Withdrawn',
+ 'short.planned':'Planned','short.applied':'Applied','short.iv1':'1st int.','short.iv2':'2nd int.',
+ 'short.iv3':'3rd int.','short.ivN':'Further','short.offer':'Offer','short.accepted':'Accepted',
+ 'short.rejected':'Rejected','short.noreply':'No reply','short.withdrawn':'Withdrawn',
+ 'emp.full':'Full-time','emp.part':'Part-time','emp.mini':'Mini-job',
+ 'sal.expected':'my target','sal.listed':'as advertised','sal.expectedLong':'my salary expectation','sal.listedLong':'salary as advertised',
+ 'per.year':'p.a.','per.month':'/month','per.hour':'/hour',
+ 'per.yearOpt':'per year','per.monthOpt':'per month','per.hourOpt':'per hour',
+ 'ch.linkedin':'LinkedIn','ch.indeed':'Indeed','ch.stepstone':'StepStone','ch.xing':'Xing',
+ 'ch.website':'Company website','ch.email':'Email / speculative','ch.other':'Other …',
+ 'form.new':'New application','form.edit':'Edit application','form.hint':'Company and role are enough – everything else is optional.',
+ 'form.company':'Company','form.role':'Role / Position','form.location':'Location','form.status':'Status',
+ 'form.salary':'Salary','form.employment':'Hours','form.channel':'Applied via',
+ 'form.url':'Link to the posting','form.applied':'Date applied','form.deadline':'Closing date',
+ 'form.optional':'(optional)','form.add':'Add','form.save':'Save','form.cancel':'Cancel',
+ 'form.phCompany':'e.g. Siemens','form.phRole':'e.g. Project manager','form.phLocation':'e.g. Bonn',
+ 'form.phSalary':'Amount in €','form.phChannel':'Enter channel','form.salaryTip':'Is this your own expectation or the advertised salary?',
+ 'form.statusLocked':'Change the status from the row or the history',
+ 'row.toApplied':'→ Applied','row.toAppliedTip':'Mark the application as sent',
+ 'row.addTalk':'Add an interview','row.accept':'🎉 Accepted','row.reject':'❌ Rejected',
+ 'row.acceptTip':'Close this process as accepted','row.rejectTip':'Close this process as rejected',
+ 'row.noreplyTip':'No reply received – close it that way',
+ 'row.more':'Choose another status','row.delete':'Delete application','row.addLink':'+ Link',
+ 'row.addLinkTip':'Store a link to the posting','row.openLink':'Open the posting',
+ 'row.historyTip':'View and edit the history',
+ 'menu.edit':'Edit …','menu.history':'Edit history …','menu.course':'Course','menu.result':'Outcome','menu.current':'current',
+ 'hist.title':'History','hist.add':'Add a step','hist.choose':'Choose a step …',
+ 'hist.note':'The last step sets the current status. The diagram follows exactly this path.',
+ 'hist.dateTip':'Date of this step','hist.removeTip':'Remove this step','hist.done':'Done',
+ 'del.title':'Delete this application?','del.text':'{name} will be removed for good.','del.confirm':'Delete',
+ 'chart.title':'Application flow','chart.hint':'Starting at “Applied”. Stream width = number of applications.',
+ 'chart.all':'All','chart.done':'Closed only','chart.alt':'Sankey diagram of the application flow',
+ 'chart.emptyAll':'No application sent yet – the diagram starts at “Applied”.',
+ 'chart.emptyDone':'No process closed yet – close one as accepted or rejected.',
+ 'chart.open':'open','chart.after':'after','chart.one':'application','chart.many':'applications',
+ 'conv.toTalk':'Applied → interview','conv.toOffer':'Interview → offer','conv.rate':'Overall success rate',
+ 'conv.rejections':'Rejections','conv.noreply':'without reply','conv.withdrawn':'withdrawn','conv.of':'of',
+ 'sync.ok':'In sync','sync.today':'today','sync.working':'Syncing …',
+ 'sync.offlineDirty':'⚠️ Offline – changes stay on this device and go up later.',
+ 'sync.offline':'Offline – showing the last known state.',
+ 'sync.noConn':'No connection – showing this device’s last state.',
+ 'sync.noStore':'⚠️ This browser stores nothing here – please save via Export.',
+ 'conflict.title':'Two versions have met.',
+ 'conflict.text':'Another device changed something while this one did too. Nothing was overwritten – choose which version counts.',
+ 'conflict.line':'Another device made changes – please decide below.',
+ 'conflict.server':'Load the other version','conflict.mine':'Upload this version',
+ 'gate.login':'Sign in','gate.register':'Create account','gate.hintLogin':'Your applications, on every device.',
+ 'gate.hintReg':'With an invitation code. Your applications stay visible to you alone.',
+ 'gate.mail':'Email','gate.pass':'Password','gate.invite':'Invitation code','gate.phInvite':'enter your code',
+ 'gate.toReg':'No account yet? Register with an invitation','gate.toLogin':'Back to sign in',
+ 'gate.working':'One moment …','gate.needBoth':'Please enter email and password.',
+ 'gate.shortPass':'Please choose a password with at least 10 characters.',
+ 'gate.needInvite':'An invitation code is required.','gate.failed':'That did not work.',
+ 'gate.noServer':'No connection to the server.',
+ 'gate.alreadyThere':'This account already exists – please sign in with your password.',
+  'inv.title':'Invitations','inv.short':'Invite','inv.hint':'Each code works once. New accounts start empty.','inv.new':'Create a code','inv.none':'No codes yet.','inv.loading':'Loading …','inv.failed':'Codes could not be loaded.','inv.copyCode':'Code','inv.copyLink':'Link','inv.copied':'copied ✓','inv.copyManual':'Select to copy:','inv.revoke':'revoke','inv.usedBy':'used by {who}','inv.count':'{free} free · {used} used',
+  'flt.all':'All','flt.planned':'Planned','flt.applied':'Applied','flt.talking':'Interviewing','flt.accepted':'Accepted','flt.rejected':'Rejected','flt.noreply':'No reply','flt.emptyTitle':'Nothing in this selection','flt.emptyText':'Pick another filter or show all entries.','sort.by':'Sort by','sort.date':'Date','sort.status':'Status','sort.company':'Company','sort.salary':'Salary','sort.toggle':'Switch direction',
+  'demo.tag':'Demo','demo.open':'Try it without an account – demo with sample data','demo.note':'Sample data to play with. Changes stay in this tab and are never saved.','demo.reset':'Reset','demo.leave':'To sign-in','demo.subtitle':'Demo with sample data – nothing is saved.',
+  'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
+ 'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
+ 'misc.finished':'closed','misc.badFile':'This file could not be read – a JSON export from this app is expected.',
+},
+fr:{
+ 'app.title':'Candidatures','app.tagline':'Toutes vos candidatures en vue – du projet à la promesse.',
+ 'app.saved':'Toutes vos candidatures en vue – enregistré automatiquement.',
+ 'nav.export':'Exporter','nav.import':'Importer','nav.analysis':'Analyse','nav.new':'Nouvelle candidature',
+ 'nav.logout':'Se déconnecter','nav.lang':'Langue','nav.exportTip':'Enregistrer en fichier JSON','nav.importTip':'Charger une sauvegarde JSON',
+ 'stats.total':'Candidatures','stats.running':'En cours','stats.decided':'décidées',
+ 'stats.inTalks':'En entretien','stats.ofTotal':'au total','stats.rate':'Taux d’entretien','stats.offers':'Promesses',
+ 'table.head':'Vue d’ensemble','table.company':'Entreprise / Poste','table.location':'Lieu','table.channel':'Canal',
+ 'table.salary':'Salaire','table.employment':'Temps','table.applied':'Envoyée','table.deadline':'Échéance',
+ 'table.status':'Statut','table.process':'Processus','table.close':'Issue',
+ 'table.entryOne':'entrée','table.entryMany':'entrées',
+ 'empty.title':'Aucune candidature enregistrée','empty.text':'Ajoutez votre première candidature – le tableau et le diagramme se construisent ensuite d’eux-mêmes.',
+ 'stage.planned':'Prévue','stage.applied':'Envoyée','stage.iv1':'1er entretien','stage.iv2':'2e entretien',
+ 'stage.iv3':'3e entretien','stage.ivN':'Entretien supplémentaire','stage.offer':'Promesse reçue',
+ 'stage.accepted':'Acceptée','stage.rejected':'Refus','stage.noreply':'Sans réponse','stage.withdrawn':'Retirée',
+ 'short.planned':'Prévue','short.applied':'Envoyée','short.iv1':'1er entr.','short.iv2':'2e entr.',
+ 'short.iv3':'3e entr.','short.ivN':'Autre entr.','short.offer':'Promesse','short.accepted':'Acceptée',
+ 'short.rejected':'Refus','short.noreply':'Sans rép.','short.withdrawn':'Retirée',
+ 'emp.full':'Temps plein','emp.part':'Temps partiel','emp.mini':'Petit contrat',
+ 'sal.expected':'ma prétention','sal.listed':'selon l’annonce','sal.expectedLong':'ma prétention salariale','sal.listedLong':'salaire annoncé',
+ 'per.year':'/an','per.month':'/mois','per.hour':'/heure',
+ 'per.yearOpt':'par an','per.monthOpt':'par mois','per.hourOpt':'par heure',
+ 'ch.linkedin':'LinkedIn','ch.indeed':'Indeed','ch.stepstone':'StepStone','ch.xing':'Xing',
+ 'ch.website':'Site de l’entreprise','ch.email':'E-mail / spontanée','ch.other':'Autre …',
+ 'form.new':'Nouvelle candidature','form.edit':'Modifier la candidature','form.hint':'L’entreprise et le poste suffisent – le reste est facultatif.',
+ 'form.company':'Entreprise','form.role':'Poste','form.location':'Lieu','form.status':'Statut',
+ 'form.salary':'Salaire','form.employment':'Temps de travail','form.channel':'Candidature via',
+ 'form.url':'Lien vers l’annonce','form.applied':'Date d’envoi','form.deadline':'Date limite',
+ 'form.optional':'(facultatif)','form.add':'Ajouter','form.save':'Enregistrer','form.cancel':'Annuler',
+ 'form.phCompany':'p. ex. Siemens','form.phRole':'p. ex. chef de projet','form.phLocation':'p. ex. Bonn',
+ 'form.phSalary':'Montant en €','form.phChannel':'Indiquer le canal','form.salaryTip':'S’agit-il de votre prétention ou du salaire annoncé ?',
+ 'form.statusLocked':'Modifiez le statut depuis la ligne ou l’historique',
+ 'row.toApplied':'→ Envoyée','row.toAppliedTip':'Marquer la candidature comme envoyée',
+ 'row.addTalk':'Ajouter un entretien','row.accept':'🎉 Acceptée','row.reject':'❌ Refus',
+ 'row.acceptTip':'Clore le processus par une acceptation','row.rejectTip':'Clore le processus par un refus',
+ 'row.noreplyTip':'Aucune réponse reçue – clore ainsi',
+ 'row.more':'Choisir un autre statut','row.delete':'Supprimer la candidature','row.addLink':'+ Lien',
+ 'row.addLinkTip':'Enregistrer un lien vers l’annonce','row.openLink':'Ouvrir l’annonce',
+ 'row.historyTip':'Voir et modifier l’historique',
+ 'menu.edit':'Modifier …','menu.history':'Modifier l’historique …','menu.course':'Parcours','menu.result':'Issue','menu.current':'actuel',
+ 'hist.title':'Historique','hist.add':'Ajouter une étape','hist.choose':'Choisir une étape …',
+ 'hist.note':'La dernière étape définit le statut actuel. Le diagramme suit exactement ce chemin.',
+ 'hist.dateTip':'Date de cette étape','hist.removeTip':'Retirer cette étape','hist.done':'Terminé',
+ 'del.title':'Supprimer cette candidature ?','del.text':'{name} sera définitivement retirée.','del.confirm':'Supprimer',
+ 'chart.title':'Flux des candidatures','chart.hint':'À partir du statut « Envoyée ». Largeur des flux = nombre de candidatures.',
+ 'chart.all':'Toutes','chart.done':'Closes uniquement','chart.alt':'Diagramme de Sankey du parcours des candidatures',
+ 'chart.emptyAll':'Aucune candidature envoyée – le diagramme démarre au statut « Envoyée ».',
+ 'chart.emptyDone':'Aucun processus clos – concluez une candidature par une acceptation ou un refus.',
+ 'chart.open':'en cours','chart.after':'après','chart.one':'candidature','chart.many':'candidatures',
+ 'conv.toTalk':'Envoyée → entretien','conv.toOffer':'Entretien → promesse','conv.rate':'Taux de réussite',
+ 'conv.rejections':'Refus','conv.noreply':'sans réponse','conv.withdrawn':'retirées','conv.of':'sur',
+ 'sync.ok':'Synchronisé','sync.today':'aujourd’hui','sync.working':'Synchronisation …',
+ 'sync.offlineDirty':'⚠️ Hors ligne – les modifications restent sur cet appareil et partiront plus tard.',
+ 'sync.offline':'Hors ligne – dernier état connu.',
+ 'sync.noConn':'Sans connexion – dernier état de cet appareil.',
+ 'sync.noStore':'⚠️ Ce navigateur n’enregistre rien ici – sauvegardez via Exporter.',
+ 'conflict.title':'Deux versions se rencontrent.',
+ 'conflict.text':'Un autre appareil a modifié des données pendant que celui-ci en modifiait aussi. Rien n’a été écrasé – choisissez la version qui compte.',
+ 'conflict.line':'Un autre appareil a fait des modifications – décidez ci-dessous.',
+ 'conflict.server':'Charger l’autre version','conflict.mine':'Envoyer cette version',
+ 'gate.login':'Se connecter','gate.register':'Créer un compte','gate.hintLogin':'Vos candidatures, sur tous vos appareils.',
+ 'gate.hintReg':'Avec un code d’invitation. Vos candidatures ne sont visibles que par vous.',
+ 'gate.mail':'E-mail','gate.pass':'Mot de passe','gate.invite':'Code d’invitation','gate.phInvite':'saisir le code',
+ 'gate.toReg':'Pas de compte ? S’inscrire avec une invitation','gate.toLogin':'Retour à la connexion',
+ 'gate.working':'Un instant …','gate.needBoth':'Veuillez saisir e-mail et mot de passe.',
+ 'gate.shortPass':'Choisissez un mot de passe d’au moins 10 caractères.',
+ 'gate.needInvite':'Un code d’invitation est nécessaire.','gate.failed':'Cela n’a pas fonctionné.',
+ 'gate.noServer':'Pas de connexion au serveur.',
+ 'gate.alreadyThere':'Ce compte existe déjà – connectez-vous avec votre mot de passe.',
+  'inv.title':'Invitations','inv.short':'Inviter','inv.hint':'Chaque code ne sert qu’une fois. Les nouveaux comptes démarrent vides.','inv.new':'Créer un code','inv.none':'Aucun code pour l’instant.','inv.loading':'Chargement …','inv.failed':'Impossible de charger les codes.','inv.copyCode':'Code','inv.copyLink':'Lien','inv.copied':'copié ✓','inv.copyManual':'Sélectionner pour copier :','inv.revoke':'retirer','inv.usedBy':'utilisé par {who}','inv.count':'{free} libres · {used} utilisés',
+  'flt.all':'Toutes','flt.planned':'Prévues','flt.applied':'Envoyées','flt.talking':'En entretien','flt.accepted':'Acceptées','flt.rejected':'Refus','flt.noreply':'Sans réponse','flt.emptyTitle':'Rien dans cette sélection','flt.emptyText':'Choisissez un autre filtre ou affichez tout.','sort.by':'Trier par','sort.date':'Date','sort.status':'Statut','sort.company':'Entreprise','sort.salary':'Salaire','sort.toggle':'Inverser le sens',
+  'demo.tag':'Démo','demo.open':'Essayer sans compte – démo avec des données d’exemple','demo.note':'Données d’exemple pour essayer. Les modifications restent dans cet onglet et ne sont jamais enregistrées.','demo.reset':'Réinitialiser','demo.leave':'Vers la connexion','demo.subtitle':'Démo avec données d’exemple – rien n’est enregistré.',
+  'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
+ 'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
+ 'misc.finished':'clos','misc.badFile':'Ce fichier n’a pas pu être lu – un export JSON de cette application est attendu.',
+},
+ar:{
+ 'app.title':'الطلبات','app.tagline':'كل طلباتك في لمحة – من التخطيط حتى القبول.',
+ 'app.saved':'كل طلباتك في لمحة – يُحفظ تلقائيًا.',
+ 'nav.export':'تصدير','nav.import':'استيراد','nav.analysis':'التحليل','nav.new':'طلب جديد',
+ 'nav.logout':'خروج','nav.lang':'اللغة','nav.exportTip':'حفظ كملف JSON','nav.importTip':'تحميل نسخة JSON',
+ 'stats.total':'الطلبات','stats.running':'قائمة','stats.decided':'مُحسومة',
+ 'stats.inTalks':'في المقابلات','stats.ofTotal':'إجمالًا','stats.rate':'نسبة المقابلات','stats.offers':'قبول',
+ 'table.head':'نظرة عامة','table.company':'الشركة / الوظيفة','table.location':'المكان','table.channel':'القناة',
+ 'table.salary':'الراتب','table.employment':'الدوام','table.applied':'تاريخ التقديم','table.deadline':'آخر موعد',
+ 'table.status':'الحالة','table.process':'المسار','table.close':'النتيجة',
+ 'table.entryOne':'طلب','table.entryMany':'طلبات',
+ 'empty.title':'لا توجد طلبات بعد','empty.text':'أضف طلبك الأول – سيُبنى الجدول والمخطط تلقائيًا بعد ذلك.',
+ 'stage.planned':'مُخطَّط','stage.applied':'تم التقديم','stage.iv1':'المقابلة الأولى','stage.iv2':'المقابلة الثانية',
+ 'stage.iv3':'المقابلة الثالثة','stage.ivN':'مقابلة إضافية','stage.offer':'وصل عرض',
+ 'stage.accepted':'قبول','stage.rejected':'رفض','stage.noreply':'بلا رد','stage.withdrawn':'مسحوب',
+ 'short.planned':'مُخطَّط','short.applied':'تم التقديم','short.iv1':'مقابلة ١','short.iv2':'مقابلة ٢',
+ 'short.iv3':'مقابلة ٣','short.ivN':'إضافية','short.offer':'عرض','short.accepted':'قبول',
+ 'short.rejected':'رفض','short.noreply':'بلا رد','short.withdrawn':'مسحوب',
+ 'emp.full':'دوام كامل','emp.part':'دوام جزئي','emp.mini':'عمل محدود',
+ 'sal.expected':'المتوقع','sal.listed':'حسب الإعلان','sal.expectedLong':'الراتب الذي أطلبه','sal.listedLong':'الراتب المُعلن',
+ 'per.year':'سنويًا','per.month':'شهريًا','per.hour':'للساعة',
+ 'per.yearOpt':'سنويًا','per.monthOpt':'شهريًا','per.hourOpt':'للساعة',
+ 'ch.linkedin':'لينكدإن','ch.indeed':'إنديد','ch.stepstone':'ستيب‌ستون','ch.xing':'تسينغ',
+ 'ch.website':'موقع الشركة','ch.email':'بريد / مبادرة','ch.other':'أخرى …',
+ 'form.new':'طلب جديد','form.edit':'تعديل الطلب','form.hint':'الشركة والوظيفة تكفيان – وما عدا ذلك اختياري.',
+ 'form.company':'الشركة','form.role':'الوظيفة','form.location':'المكان','form.status':'الحالة',
+ 'form.salary':'الراتب','form.employment':'الدوام','form.channel':'قدّمت عبر',
+ 'form.url':'رابط الإعلان','form.applied':'تاريخ التقديم','form.deadline':'آخر موعد',
+ 'form.optional':'(اختياري)','form.add':'إضافة','form.save':'حفظ','form.cancel':'إلغاء',
+ 'form.phCompany':'مثال: سيمنس','form.phRole':'مثال: مدير مشروع','form.phLocation':'مثال: بون',
+ 'form.phSalary':'المبلغ باليورو','form.phChannel':'اكتب القناة','form.salaryTip':'هل هذا ما تطلبه أنت أم الراتب المُعلن؟',
+ 'form.statusLocked':'غيّر الحالة من الصف أو من المسار',
+ 'row.toApplied':'← تم التقديم','row.toAppliedTip':'اعتبار الطلب مُرسلًا',
+ 'row.addTalk':'إضافة مقابلة','row.accept':'🎉 قبول','row.reject':'❌ رفض',
+ 'row.acceptTip':'إغلاق المسار بالقبول','row.rejectTip':'إغلاق المسار بالرفض',
+ 'row.noreplyTip':'لم يصل أي رد – أغلِق المسار بهذا',
+ 'row.more':'اختيار حالة أخرى','row.delete':'حذف الطلب','row.addLink':'+ رابط',
+ 'row.addLinkTip':'حفظ رابط الإعلان','row.openLink':'فتح الإعلان',
+ 'row.historyTip':'عرض المسار وتعديله',
+ 'menu.edit':'تعديل …','menu.history':'تعديل المسار …','menu.course':'المسار','menu.result':'النتيجة','menu.current':'الحالية',
+ 'hist.title':'المسار','hist.add':'إضافة مرحلة','hist.choose':'اختر مرحلة …',
+ 'hist.note':'المرحلة الأخيرة تحدد الحالة الحالية، والمخطط يتبع هذا المسار بالضبط.',
+ 'hist.dateTip':'تاريخ هذه المرحلة','hist.removeTip':'إزالة المرحلة','hist.done':'تم',
+ 'del.title':'حذف هذا الطلب؟','del.text':'سيُحذف {name} نهائيًا.','del.confirm':'حذف',
+ 'chart.title':'مسار الطلبات','chart.hint':'يبدأ من حالة «تم التقديم». عرض التيار = عدد الطلبات.',
+ 'chart.all':'الكل','chart.done':'المُغلقة فقط','chart.alt':'مخطط سانكي لمسار الطلبات',
+ 'chart.emptyAll':'لم يُرسل أي طلب بعد – يبدأ المخطط من حالة «تم التقديم».',
+ 'chart.emptyDone':'لم يُغلق أي مسار بعد – أغلِق طلبًا بقبول أو رفض.',
+ 'chart.open':'قائمة','chart.after':'بعد','chart.one':'طلب','chart.many':'طلبات',
+ 'conv.toTalk':'تقديم ← مقابلة','conv.toOffer':'مقابلة ← قبول','conv.rate':'نسبة القبول الإجمالية',
+ 'conv.rejections':'رفض','conv.noreply':'بلا رد','conv.withdrawn':'مسحوبة','conv.of':'من',
+ 'sync.ok':'متزامن','sync.today':'اليوم','sync.working':'جارٍ المزامنة …',
+ 'sync.offlineDirty':'⚠️ بلا اتصال – التغييرات على هذا الجهاز فقط وسترسل لاحقًا.',
+ 'sync.offline':'بلا اتصال – يظهر آخر وضع معروف.',
+ 'sync.noConn':'بلا اتصال – يظهر آخر وضع على هذا الجهاز.',
+ 'sync.noStore':'⚠️ هذا المتصفح لا يحفظ شيئًا هنا – احفظ عبر التصدير.',
+ 'conflict.title':'نسختان تتقابلان.',
+ 'conflict.text':'جهاز آخر أجرى تغييرًا في الوقت الذي غُيّر فيه هنا أيضًا. لم يُطمس شيء – اختر النسخة التي تعتمدها.',
+ 'conflict.line':'جهاز آخر أجرى تغييرات – اختر أدناه.',
+ 'conflict.server':'تحميل النسخة الأخرى','conflict.mine':'رفع هذه النسخة',
+ 'gate.login':'تسجيل الدخول','gate.register':'إنشاء حساب','gate.hintLogin':'طلباتك على كل أجهزتك.',
+ 'gate.hintReg':'برمز دعوة. طلباتك تبقى مرئية لك وحدك.',
+ 'gate.mail':'البريد الإلكتروني','gate.pass':'كلمة المرور','gate.invite':'رمز الدعوة','gate.phInvite':'أدخل الرمز',
+ 'gate.toReg':'لا حساب لديك؟ سجّل برمز دعوة','gate.toLogin':'رجوع إلى تسجيل الدخول',
+ 'gate.working':'لحظة …','gate.needBoth':'أدخل البريد وكلمة المرور.',
+ 'gate.shortPass':'اختر كلمة مرور من ١٠ أحرف على الأقل.',
+ 'gate.needInvite':'رمز الدعوة مطلوب.','gate.failed':'لم ينجح ذلك.',
+ 'gate.noServer':'لا اتصال بالخادم.',
+ 'gate.alreadyThere':'هذا الحساب موجود بالفعل – سجّل الدخول بكلمة المرور.',
+  'inv.title':'الدعوات','inv.short':'دعوة','inv.hint':'كل رمز يصلح مرة واحدة. الحسابات الجديدة تبدأ فارغة.','inv.new':'إنشاء رمز','inv.none':'لا توجد رموز بعد.','inv.loading':'جارٍ التحميل …','inv.failed':'تعذّر تحميل الرموز.','inv.copyCode':'الرمز','inv.copyLink':'الرابط','inv.copied':'تم النسخ ✓','inv.copyManual':'حدّد للنسخ:','inv.revoke':'سحب','inv.usedBy':'استخدمه {who}','inv.count':'{free} متاح · {used} مستخدم',
+  'flt.all':'الكل','flt.planned':'مُخطَّط','flt.applied':'تم التقديم','flt.talking':'في المقابلات','flt.accepted':'قبول','flt.rejected':'رفض','flt.noreply':'بلا رد','flt.emptyTitle':'لا نتائج في هذا التصفية','flt.emptyText':'اختر تصفية أخرى أو اعرض كل الطلبات.','sort.by':'ترتيب','sort.date':'التاريخ','sort.status':'الحالة','sort.company':'الشركة','sort.salary':'الراتب','sort.toggle':'عكس الاتجاه',
+  'demo.tag':'تجربة','demo.open':'جرّب بدون حساب – عرض ببيانات نموذجية','demo.note':'بيانات نموذجية للتجربة. التغييرات تبقى في هذه النافذة ولا تُحفظ.','demo.reset':'إعادة تعيين','demo.leave':'إلى تسجيل الدخول','demo.subtitle':'عرض ببيانات نموذجية – لا يُحفظ شيء.',
+  'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
+ 'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
+ 'misc.finished':'مُغلق','misc.badFile':'لم يُقرأ هذا الملف – المتوقع ملف JSON مُصدَّر من هذا التطبيق.',
+},
+};
+
+let lang = 'de';
+
+function t(key, vars){
+  let s = (DICT[lang] && DICT[lang][key]) ?? DICT.de[key] ?? key;
+  if(vars) for(const k in vars) s = s.replace('{' + k + '}', vars[k]);
+  return s;
+}
+const locale = () => LOCALES[lang] || 'de-DE';
+
+/** Beschriftungen der festen Listen an die Sprache hängen. */
+function applyLabels(){
+  for(const s of STAGES){ s.label = t('stage.' + s.id); s.short = t('short.' + s.id); }
+  EMPLOYMENT.full = t('emp.full'); EMPLOYMENT.part = t('emp.part'); EMPLOYMENT.mini = t('emp.mini');
+  SAL_TYPE.expected = t('sal.expected'); SAL_TYPE.listed = t('sal.listed');
+  SAL_PERIOD.year = t('per.year'); SAL_PERIOD.month = t('per.month'); SAL_PERIOD.hour = t('per.hour');
+  for(const c of CHANNELS) c.label = t('ch.' + c.id);
+}
+
+/** Feste Texte im Seitengerüst übersetzen. */
+function applyStatic(){
+  document.title = t('app.title');
+  for(const n of document.querySelectorAll('[data-i18n]')) n.textContent = t(n.dataset.i18n);
+  for(const n of document.querySelectorAll('[data-i18n-ph]')) n.placeholder = t(n.dataset.i18nPh);
+  for(const n of document.querySelectorAll('[data-i18n-title]')) n.title = t(n.dataset.i18nTitle);
+  for(const n of document.querySelectorAll('[data-i18n-aria]')) n.setAttribute('aria-label', t(n.dataset.i18nAria));
+  buildStatusSelect();
+  buildChannelSelect();
+  setGateMode(gateMode);
+}
+
+function setLang(code){
+  if(!DICT[code]) code = 'de';
+  lang = code;
+  try{ localStorage.setItem('bewerbungen.lang', code); }catch{}
+  document.documentElement.lang = code;
+  document.documentElement.dir = code === 'ar' ? 'rtl' : 'ltr';
+  $('#langFlag').textContent = LANGS.find(l => l.code === code).flag;
+  applyLabels();
+  applyStatic();
+  render();
+  paintSync();
+  if($('#ovChart').classList.contains('show')) renderChart();
+}
+
+function initLang(){
+  let saved = '';
+  try{ saved = localStorage.getItem('bewerbungen.lang') || ''; }catch{}
+  const fromBrowser = (navigator.language || 'de').slice(0,2).toLowerCase();
+  setLang(saved || (DICT[fromBrowser] ? fromBrowser : 'de'));
+}
+
+/** Auswahlmenü hinter dem Flaggenknopf. */
+function openLangMenu(){
+  const menu = $('#menu');
+  menu.innerHTML = '';
+  for(const l of LANGS){
+    const b = el('button');
+    b.append(el('span', null, l.flag), el('span', null, l.name));
+    if(l.code === lang) b.append(el('span','now', '✓'));
+    b.onclick = () => { closeMenu(); setLang(l.code); };
+    menu.append(b);
+  }
+  const r = $('#btnLang').getBoundingClientRect();
+  menu.classList.add('show');
+  menu.style.top = (r.bottom + 8) + 'px';
+  menu.style.left = Math.max(12, Math.min(r.right - menu.offsetWidth, innerWidth - menu.offsetWidth - 12)) + 'px';
+  setTimeout(() => document.addEventListener('pointerdown', onDocDown, {once:true}));
+}
+
 /* ═══════════════════════════  Helpers  ═══════════════════════════ */
 
 const $  = (s, r=document) => r.querySelector(s);
@@ -1624,12 +2011,12 @@ const el = (tag, cls, txt) => { const n = document.createElement(tag); if(cls) n
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-const nfEur = () => new Intl.NumberFormat('de-DE', {maximumFractionDigits:0});
-const nfEur2 = () => new Intl.NumberFormat('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2});
+const nfEur = () => new Intl.NumberFormat(locale(), {maximumFractionDigits:0});
+const nfEur2 = () => new Intl.NumberFormat(locale(), {minimumFractionDigits:2, maximumFractionDigits:2});
 
 function fmtDate(iso){
   if(!isDate(iso)) return '';
-  return new Date(iso + 'T00:00:00').toLocaleDateString('de-DE',
+  return new Date(iso + 'T00:00:00').toLocaleDateString(locale(),
     {day:'2-digit', month:'2-digit', year:'numeric'});
 }
 function daysUntil(iso){
@@ -1830,11 +2217,11 @@ function renderStats(){
   const rate = total ? Math.round(everInterview / total * 100) : 0;
 
   const cards = [
-    ['Bewerbungen', total, ''],
-    ['Laufend', active, decided ? `${decided} ${'entschieden'}` : ''],
-    ['Im Gespräch', inInterview, everInterview ? `${everInterview} ${'insgesamt'}` : ''],
-    ['Gesprächsquote', total ? rate + '%' : '–', ''],
-    ['Zusagen', accepted, accepted ? '🎉' : ''],
+    [t('stats.total'), total, ''],
+    [t('stats.running'), active, decided ? `${decided} ${t('stats.decided')}` : ''],
+    [t('stats.inTalks'), inInterview, everInterview ? `${everInterview} ${t('stats.ofTotal')}` : ''],
+    [t('stats.rate'), total ? rate + '%' : '–', ''],
+    [t('stats.offers'), accepted, accepted ? '🎉' : ''],
   ];
   const host = $('#stats');
   host.innerHTML = '';
@@ -1865,7 +2252,7 @@ const COLS = [
 /** Zähler im Kartenkopf. */
 function zeigeAnzahl(){
   const gesamt = items.length;
-  $('#count').textContent = gesamt ? `${gesamt} ${gesamt === 1 ? 'Eintrag' : 'Einträge'}` : '';
+  $('#count').textContent = gesamt ? `${gesamt} ${gesamt === 1 ? t('table.entryOne') : t('table.entryMany')}` : '';
 }
 
 function sorted(){
@@ -1899,8 +2286,8 @@ function renderTable(){
 
   if(!items.length){
     const e = el('div','empty');
-    e.innerHTML = `<div class="glyph">📮</div><h3>${esc('Noch keine Bewerbung erfasst')}</h3><p>${esc('Lege deine erste Bewerbung an – Tabelle und Diagramm bauen sich dann automatisch auf.')}</p>`;
-    const b = el('button','btn primary', 'Neue Bewerbung');
+    e.innerHTML = `<div class="glyph">📮</div><h3>${esc(t('empty.title'))}</h3><p>${esc(t('empty.text'))}</p>`;
+    const b = el('button','btn primary', t('nav.new'));
     b.style.marginTop = '18px';
     b.onclick = openForm;
     e.append(b);
@@ -1952,11 +2339,11 @@ function renderTable(){
       a.href = it.url;
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
-      a.title = 'Stellenanzeige öffnen';
+      a.title = t('row.openLink');
       line.append(a);
     }else{
-      const add = el('button','addlink', '+ Link');
-      add.title = 'Link zur Stellenanzeige hinterlegen';
+      const add = el('button','addlink', t('row.addLink'));
+      add.title = t('row.addLinkTip');
       add.onclick = () => openForm(it, 'f-url');
       line.append(add);
     }
@@ -2003,7 +2390,7 @@ function renderTable(){
       const done = STAGE[it.status].terminal || ORDER[it.status] > ORDER.applied;
       const span = el('span', done ? 'muted' : d < 0 ? 'over' : d <= 7 ? 'warn' : 'muted', fmtDate(it.deadline));
       c5.append(span);
-      if(!done && d >= 0 && d <= 7) c5.append(el('div','sub', d === 0 ? 'heute!' : d === 1 ? 'in 1 Tag' : `in ${d} Tagen`));
+      if(!done && d >= 0 && d <= 7) c5.append(el('div','sub', d === 0 ? t('misc.today') : d === 1 ? t('misc.inDay') : t('misc.inDays', {n:d})));
     } else c5.append(el('span','dash','–'));
     tr.append(label(c5, 'deadline'));
 
@@ -2011,7 +2398,7 @@ function renderTable(){
     const c6 = el('td');
     const p = el('button','pill click');
     p.setAttribute('style', pillStyle(it.status));
-    p.title = 'Verlauf ansehen und bearbeiten';
+    p.title = t('row.historyTip');
     p.append(el('span','dot'));
     p.append(document.createTextNode(`${STAGE[it.status].label} ${STAGE[it.status].emoji}`));
     p.onclick = () => openHistory(it);
@@ -2027,14 +2414,14 @@ function renderTable(){
     const c7 = el('td');
     const done = STAGE[it.status].terminal;
     if(it.status === 'planned'){
-      const b = el('button','step', '→ Beworben');
-      b.title = 'Bewerbung als verschickt markieren';
+      const b = el('button','step', t('row.toApplied'));
+      b.title = t('row.toAppliedTip');
       b.onclick = () => setStatus(it.id, 'applied');
       c7.append(b);
     }else if(!done){
       const nxt = nextInterview(it);
       const b = el('button','step', `+ ${STAGE[nxt].short}`);
-      b.title = 'Bewerbungsgespräch hinzufügen';
+      b.title = t('row.addTalk');
       b.onclick = () => addInterview(it.id);
       c7.append(b);
     }else{
@@ -2060,9 +2447,9 @@ function renderTable(){
         return b;
       };
       box.append(
-        endBtn('yes', 'accepted', 'Prozess mit Zusage abschließen'),
-        endBtn('no', 'rejected', 'Prozess mit Absage abschließen'),
-        endBtn('none', 'noreply', 'Keine Antwort erhalten – Prozess so abschließen'),
+        endBtn('yes', 'accepted', t('row.acceptTip')),
+        endBtn('no', 'rejected', t('row.rejectTip')),
+        endBtn('none', 'noreply', t('row.noreplyTip')),
       );
       c8.append(box);
     }
@@ -2072,14 +2459,14 @@ function renderTable(){
     const c9 = el('td');
     const acts = el('div','rowacts');
     const more = el('button','iconbtn','⋯');
-    more.title = 'Anderen Status wählen';
-    more.setAttribute('aria-label', 'Anderen Status wählen');
+    more.title = t('row.more');
+    more.setAttribute('aria-label', t('row.more'));
     more.onclick = e => { e.stopPropagation(); openMenu(more, it); };
     acts.append(more);
 
     const del = el('button','iconbtn trash','🗑');
-    del.title = 'Bewerbung löschen';
-    del.setAttribute('aria-label', 'Löschen');
+    del.title = t('row.delete');
+    del.setAttribute('aria-label', t('del.confirm'));
     del.onclick = () => askDelete(it);
     acts.append(del);
 
@@ -2148,13 +2535,13 @@ function renderHistory(){
     const date = el('input');
     date.type = 'date';
     date.value = isDate(h.date) ? h.date : '';
-    date.title = 'Datum dieser Station';
+    date.title = t('hist.dateTip');
     date.onchange = () => { h.date = date.value || today(); commitHistory(); };
     row.append(date);
 
     const del = el('button','iconbtn trash','✕');
-    del.title = 'Station entfernen';
-    del.setAttribute('aria-label', 'Station entfernen');
+    del.title = t('hist.removeTip');
+    del.setAttribute('aria-label', t('hist.removeTip'));
     del.disabled = it.history.length < 2;
     del.style.opacity = it.history.length < 2 ? '.3' : '';
     del.onclick = () => {
@@ -2169,7 +2556,7 @@ function renderHistory(){
   // Auswahl der noch sinnvollen Stationen
   const sel = $('#histAdd');
   sel.innerHTML = '';
-  const first = el('option', null, 'Station wählen …');
+  const first = el('option', null, t('hist.choose'));
   first.value = '';
   sel.append(first);
   for(const s of STAGES){
@@ -2209,13 +2596,13 @@ function openMenu(anchor, it){
   menu.innerHTML = '';
 
   const edit = el('button');
-  edit.append(el('span','dot'), el('span', null, 'Bearbeiten …'));
+  edit.append(el('span','dot'), el('span', null, t('menu.edit')));
   edit.querySelector('.dot').style.background = 'var(--text-tertiary)';
   edit.onclick = () => { closeMenu(); openForm(it); };
   menu.append(edit);
 
   const hist = el('button');
-  hist.append(el('span','dot'), el('span', null, 'Verlauf bearbeiten …'));
+  hist.append(el('span','dot'), el('span', null, t('menu.history')));
   hist.querySelector('.dot').style.background = 'var(--text-tertiary)';
   hist.onclick = () => { closeMenu(); openHistory(it); };
   menu.append(hist);
@@ -2226,15 +2613,15 @@ function openMenu(anchor, it){
     const d = el('span','dot');
     d.style.background = cssVar(STAGE[sid].color);
     b.append(d, el('span', null, `${STAGE[sid].label} ${STAGE[sid].emoji}`));
-    if(it.status === sid) b.append(el('span','now', 'aktuell'));
+    if(it.status === sid) b.append(el('span','now', t('menu.current')));
     b.onclick = () => { closeMenu(); if(it.status !== sid) setStatus(it.id, sid); };
     menu.append(b);
   };
 
-  menu.append(el('div','grp', 'Verlauf'));
+  menu.append(el('div','grp', t('menu.course')));
   ['planned','applied','iv1','iv2','iv3','ivN','offer'].forEach(add);
   menu.append(el('hr'));
-  menu.append(el('div','grp', 'Ergebnis'));
+  menu.append(el('div','grp', t('menu.result')));
   ['accepted','rejected','noreply','withdrawn'].forEach(add);
 
   const r = anchor.getBoundingClientRect();
@@ -2307,7 +2694,7 @@ function buildChannelSelect(){
     o.value = c.id;
     ch.append(o);
   }
-  const other = el('option', null, 'Andere …');
+  const other = el('option', null, t('ch.other'));
   other.value = '__other';
   ch.append(other);
   ch.value = keep;
@@ -2351,8 +2738,8 @@ function openForm(item = null, focus = 'f-company'){
   const f = $('#form');
   f.reset();
   editId = item?.id || null;
-  $('#formTitle').textContent = item ? 'Bewerbung bearbeiten' : 'Neue Bewerbung';
-  $('#form button[type=submit]').textContent = item ? 'Sichern' : 'Hinzufügen';
+  $('#formTitle').textContent = item ? t('form.edit') : t('form.new');
+  $('#form button[type=submit]').textContent = item ? t('form.save') : t('form.add');
 
   const src = item || {status:'applied', applied:today(), salaryType:'expected', salaryPeriod:'year'};
   $('#f-company').value = src.company || '';
@@ -2375,7 +2762,7 @@ function openForm(item = null, focus = 'f-company'){
 
   // Beim Bearbeiten bleibt der Verlauf unangetastet – dafür gibt es den Verlaufs-Editor
   $('#f-status').disabled = !!item;
-  $('#f-status').title = item ? 'Status über die Zeile oder den Verlauf ändern' : '';
+  $('#f-status').title = item ? t('form.statusLocked') : '';
 
   $('#f-company').classList.remove('invalid');
   $('#f-role').classList.remove('invalid');
@@ -2432,7 +2819,7 @@ $('#form').addEventListener('submit', e => {
 let pendingDelete = null;
 function askDelete(it){
   pendingDelete = it.id;
-  $('#confirmText').textContent = `${it.company + (it.role ? ' – ' + it.role : '')} wird endgültig entfernt.`;
+  $('#confirmText').textContent = t('del.text', {name: it.company + (it.role ? ' – ' + it.role : '')});
   openOverlay('#ovConfirm');
 }
 $('#confirmOk').onclick = () => {
@@ -2460,7 +2847,7 @@ $('#filePick').addEventListener('change', async e => {
   if(file){
     const incoming = parseList(await file.text());
     if(incoming.length) merge(incoming);
-    else alert('Diese Datei konnte nicht gelesen werden – erwartet wird ein JSON-Export dieser App.');
+    else alert(t('misc.badFile'));
   }
   e.target.value = '';
 });
@@ -2540,7 +2927,7 @@ function renderChart(){
     txt.setAttribute('x','50%'); txt.setAttribute('y','48%');
     txt.setAttribute('text-anchor','middle');
     txt.setAttribute('font-size','14');
-    txt.textContent = chartScope === 'done' ? 'Noch kein Prozess abgeschlossen – schließe eine Bewerbung mit Zusage oder Absage ab.' : 'Noch keine Bewerbung verschickt – das Diagramm startet beim Status „Beworben".';
+    txt.textContent = chartScope === 'done' ? t('chart.emptyDone') : t('chart.emptyAll');
     svg.append(txt);
     return;
   }
@@ -2653,12 +3040,12 @@ function renderChart(){
   for(const n of nodes.values()){
     const s = STAGE[n.stage];
     const c = cssVar(s.color);
-    const woher = n.from ? ` ${'nach'} „${STAGE[n.from].label}"` : '';
+    const woher = n.from ? ` ${t('chart.after')} „${STAGE[n.from].label}"` : '';
     const rect = mk('rect', {x:n.x, y:n.y, width:NW, height:n.h, rx:Math.min(4, NW/2), fill:c, 'fill-opacity':.95});
     rect.addEventListener('pointerenter', ev => {
       svg.classList.add('hovering');
       [...gLinks.children].forEach((p,i) => p.classList.toggle('hot', list[i].s === n.id || list[i].t === n.id));
-      showTip(ev, `<b>${s.label}${woher}</b> · ${n.ever} ${n.ever===1?'Bewerbung':'Bewerbungen'}${n.here && !s.terminal ? ` · ${n.here} ${'offen'}` : ''}`);
+      showTip(ev, `<b>${s.label}${woher}</b> · ${n.ever} ${n.ever===1?t('chart.one'):t('chart.many')}${n.here && !s.terminal ? ` · ${n.here} ${t('chart.open')}` : ''}`);
     });
     rect.addEventListener('pointermove', ev => showTip(ev));
     rect.addEventListener('pointerleave', () => {
@@ -2675,7 +3062,7 @@ function renderChart(){
     line1.textContent = `${s.emoji} ${s.short}`;
     const line2 = mk('tspan', {x:tx, dy:14, class:'v'});
     line2.textContent = n.here && n.here !== n.ever && !s.terminal
-      ? `${n.ever} · ${n.here} ${'offen'}`
+      ? `${n.ever} · ${n.here} ${t('chart.open')}`
       : `${n.ever}`;
     text.append(line1, line2);
     gLabels.append(text);
@@ -2714,10 +3101,10 @@ function renderConversions(){
 
   const pct = (a,b) => b ? Math.round(a/b*100) + '%' : '–';
   const cards = [
-    ['Beworben → Gespräch', pct(anyIv, applied), `${anyIv} ${'von'} ${applied}`],
-    ['Gespräch → Zusage', pct(acc, anyIv),    `${acc} ${'von'} ${anyIv}`],
-    ['Zusagequote gesamt',   pct(acc, n),         `${acc} ${'von'} ${n}`],
-    ['Absagen',  String(rej),         [nr ? `${nr} ${'ohne Antwort'}` : '', wd ? `${wd} ${'zurückgezogen'}` : '']
+    [t('conv.toTalk'), pct(anyIv, applied), `${anyIv} ${t('conv.of')} ${applied}`],
+    [t('conv.toOffer'), pct(acc, anyIv),    `${acc} ${t('conv.of')} ${anyIv}`],
+    [t('conv.rate'),   pct(acc, n),         `${acc} ${t('conv.of')} ${n}`],
+    [t('conv.rejections'),  String(rej),         [nr ? `${nr} ${t('conv.noreply')}` : '', wd ? `${wd} ${t('conv.withdrawn')}` : '']
                                                      .filter(Boolean).map((t,i) => (i ? '· ' : '+ ') + t).join(' ')],
   ];
   for(const [k,v,note] of cards){
@@ -2759,11 +3146,11 @@ $('#gateSwitch').onclick = () => setGateMode(gateMode === 'login' ? 'register' :
 function setGateMode(mode){
   gateMode = mode;
   const reg = gateMode === 'register';
-  $('#gateTitle').textContent = reg ? 'Konto anlegen' : 'Anmelden';
-  $('#gateHint').textContent = reg ? 'Mit Einladungscode. Deine Bewerbungen bleiben nur für dich sichtbar.' : 'Deine Bewerbungen, auf allen Geräten.';
+  $('#gateTitle').textContent = reg ? t('gate.register') : t('gate.login');
+  $('#gateHint').textContent = reg ? t('gate.hintReg') : t('gate.hintLogin');
   $('#inviteField').style.display = reg ? '' : 'none';
-  $('#gateGo').textContent = reg ? 'Konto anlegen' : 'Anmelden';
-  $('#gateSwitch').textContent = reg ? 'Zurück zur Anmeldung' : 'Noch kein Konto? Mit Einladung registrieren';
+  $('#gateGo').textContent = reg ? t('gate.register') : t('gate.login');
+  $('#gateSwitch').textContent = reg ? t('gate.toLogin') : t('gate.toReg');
   $('#a-pass').autocomplete = reg ? 'new-password' : 'current-password';
   gateError('');
 }
@@ -2779,15 +3166,15 @@ $('#authForm').addEventListener('submit', async e => {
   const mail = $('#a-mail').value.trim().toLowerCase();
   const pass = $('#a-pass').value;
   const invite = $('#a-invite').value.trim();
-  if(!mail || !pass) return gateError('Bitte E-Mail und Passwort angeben.');
+  if(!mail || !pass) return gateError(t('gate.needBoth'));
   if(gateMode === 'register' && pass.length < 10)
-    return gateError('Bitte ein Passwort mit mindestens 10 Zeichen wählen.');
+    return gateError(t('gate.shortPass'));
   if(gateMode === 'register' && !invite)
-    return gateError('Ohne Einladungscode geht es nicht.');
+    return gateError(t('gate.needInvite'));
 
   const btn = $('#gateGo');
   btn.disabled = true;
-  btn.textContent = 'Einen Moment …';
+  btn.textContent = t('gate.working');
   gateError('');
   try{
     const key = await deriveKey(mail, pass);       // dauert bewusst ~1 Sekunde
@@ -2802,11 +3189,11 @@ $('#authForm').addEventListener('submit', async e => {
       if(gateMode === 'register' && (res.status === 409 || res.status === 403)){
         setGateMode('login');
         $('#a-mail').value = mail;
-        gateError('Dieses Konto gibt es schon – bitte mit dem Passwort anmelden.');
+        gateError(t('gate.alreadyThere'));
         setTimeout(() => $('#a-pass').focus(), 100);
         return;
       }
-      gateError(data.error || 'Das hat nicht funktioniert.');
+      gateError(data.error || t('gate.failed'));
       return;
     }
     account = {email: data.email};
@@ -2815,10 +3202,10 @@ $('#authForm').addEventListener('submit', async e => {
     rev = 0; dirty = false; serverCopy = null;
     await pull(true);
   }catch{
-    gateError('Keine Verbindung zum Server.');
+    gateError(t('gate.noServer'));
   }finally{
     btn.disabled = false;
-    btn.textContent = gateMode === 'register' ? 'Konto anlegen' : 'Anmelden';
+    btn.textContent = gateMode === 'register' ? t('gate.register') : t('gate.login');
   }
 });
 
@@ -2864,7 +3251,7 @@ $('#inviteNew').onclick = async () => {
 async function loadInvites(){
   const host = $('#inviteList');
   host.innerHTML = '';
-  host.append(el('div','invempty', 'Wird geladen …'));
+  host.append(el('div','invempty', t('inv.loading')));
   let rows = [];
   try{
     const res = await fetch('/api/invites', {cache:'no-store'});
@@ -2872,7 +3259,7 @@ async function loadInvites(){
     rows = (await res.json()).invites || [];
   }catch{
     host.innerHTML = '';
-    host.append(el('div','invempty', 'Codes konnten nicht geladen werden.'));
+    host.append(el('div','invempty', t('inv.failed')));
     return;
   }
 
@@ -2882,7 +3269,7 @@ async function loadInvites(){
   rows = [...frischeCodes, ...rows];
 
   host.innerHTML = '';
-  if(!rows.length) host.append(el('div','invempty', 'Noch keine Codes vorhanden.'));
+  if(!rows.length) host.append(el('div','invempty', t('inv.none')));
 
   for(const row of rows){
     const line = el('div', 'inv' + (row.usedBy ? ' used' : ''));
@@ -2891,13 +3278,13 @@ async function loadInvites(){
     line.append(code);
 
     if(row.usedBy){
-      line.append(el('span','who', `eingelöst von ${row.usedBy}`));
+      line.append(el('span','who', t('inv.usedBy', {who: row.usedBy})));
       line.append(el('span','spacer'));
     }else{
       line.append(el('span','spacer'));
-      line.append(copyBtn('Code', pretty(row.code)));
-      line.append(copyBtn('Link', inviteLink(row.code)));
-      const back = el('button','act', 'zurücknehmen');
+      line.append(copyBtn(t('inv.copyCode'), pretty(row.code)));
+      line.append(copyBtn(t('inv.copyLink'), inviteLink(row.code)));
+      const back = el('button','act', t('inv.revoke'));
       back.onclick = async () => {
         back.disabled = true;
         try{ await fetch('/api/invites?code=' + encodeURIComponent(row.code), {method:'DELETE'}); }catch{}
@@ -2908,7 +3295,7 @@ async function loadInvites(){
     host.append(line);
   }
   const frei = rows.filter(r => !r.usedBy).length;
-  $('#inviteNote').textContent = `${frei} frei · ${rows.length - frei} eingelöst`;
+  $('#inviteNote').textContent = t('inv.count', {free: frei, used: rows.length - frei});
 }
 
 const pretty = c => c.length === 8 ? c.slice(0,4) + '-' + c.slice(4) : c;
@@ -2920,11 +3307,11 @@ function copyBtn(label, text){
   b.onclick = async () => {
     try{
       await navigator.clipboard.writeText(text);
-      b.textContent = 'kopiert ✓';
+      b.textContent = t('inv.copied');
       b.classList.add('ok');
     }catch{
       // Zwischenablage verweigert: Text zum Abschreiben anzeigen
-      prompt('Zum Kopieren markieren:', text);
+      prompt(t('inv.copyManual'), text);
       return;
     }
     setTimeout(() => { b.textContent = label; b.classList.remove('ok'); }, 1600);
@@ -2937,8 +3324,9 @@ $('#cbServer').onclick = takeServer;
 $('#cbMine').onclick = keepMine;
 
 /* ═══════════════════════════  Start  ═══════════════════════════ */
-buildStatusSelect();
-buildChannelSelect();
+$('#btnLang').onclick = e => { e.stopPropagation(); openLangMenu(); };
+applyLabels();
+initLang();
 boot();
 </script>
 </body>
