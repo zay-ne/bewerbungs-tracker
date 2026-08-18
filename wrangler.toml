@@ -1,0 +1,13 @@
+name = "bewerbungen"
+main = "sync/worker.js"
+compatibility_date = "2026-01-01"
+
+# Die Oberfläche wird direkt aus dem web-Ordner ausgeliefert
+[assets]
+directory = "./web"
+binding = "ASSETS"
+
+# Datenablage. Die id kommt aus:  npx wrangler kv namespace create DB
+[[kv_namespaces]]
+binding = "DB"
+id = "HIER_DIE_KV_ID_EINSETZEN"   # aus: npx wrangler kv namespace create DB
