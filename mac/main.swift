@@ -16,6 +16,24 @@ enum Store {
     }
     static var file: URL { folder.appendingPathComponent("bewerbungen.json") }
     static var backup: URL { folder.appendingPathComponent("bewerbungen.backup.json") }
+    static var config: URL { folder.appendingPathComponent("config.json") }
+
+    /// Adresse der gemeinsamen Ablage (Worker-URL), falls eingerichtet.
+    static var syncURL: String {
+        get {
+            guard let data = try? Data(contentsOf: config),
+                  let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+            else { return "" }
+            return (obj["syncURL"] as? String) ?? ""
+        }
+        set {
+            let obj = ["syncURL": newValue]
+            if let data = try? JSONSerialization.data(withJSONObject: obj, options: [.prettyPrinted]) {
+                try? data.write(to: config, options: .atomic)
+            }
+        }
+    }
+
     static func read() -> String {
         (try? String(contentsOf: file, encoding: .utf8)) ?? "[]"
     }
@@ -36,6 +54,8 @@ enum Store {
 final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     var window: NSWindow!
     var web: WKWebView!
+    var usingRemote = false
+    var offlineFallback = false
 
     func applicationDidFinishLaunching(_ note: Notification) {
         let config = WKWebViewConfiguration()
@@ -61,23 +81,62 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
         buildMenu()
 
-        guard let page = Bundle.main.url(forResource: "index", withExtension: "html") else {
-            fail("index.html fehlt im App-Bundle.")
-            return
-        }
-        web.loadFileURL(page, allowingReadAccessTo: page.deletingLastPathComponent())
+        loadInterface()
 
         NSApp.activate(ignoringOtherApps: true)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { true }
 
+    /// Mit eingerichteter Synchronisierung wird die gemeinsame Ansicht geladen,
+    /// ohne (oder wenn sie nicht erreichbar ist) die eingebaute Seite mit der lokalen Datei.
+    private func loadInterface() {
+        let sync = Store.syncURL
+        if !sync.isEmpty, let url = URL(string: sync) {
+            usingRemote = true
+            window.title = "Bewerbungen"
+            web.load(URLRequest(url: url))
+        } else {
+            usingRemote = false
+            loadBundled()
+        }
+    }
+
+    private func loadBundled() {
+        guard let page = Bundle.main.url(forResource: "index", withExtension: "html") else {
+            fail("index.html fehlt im App-Bundle.")
+            return
+        }
+        web.loadFileURL(page, allowingReadAccessTo: page.deletingLastPathComponent())
+    }
+
+    /// Kein Netz? Dann die eingebaute Seite mit dem letzten bekannten Stand zeigen –
+    /// und merken, dass ein neuer Versuch nötig ist.
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!,
+                 withError error: Error) {
+        guard usingRemote else { return }
+        usingRemote = false
+        offlineFallback = true
+        window.title = "Bewerbungen – offline"
+        loadBundled()
+    }
+
+    /// Bei jedem Wechsel ins Fenster erneut versuchen, den gemeinsamen Stand zu laden.
+    func applicationDidBecomeActive(_ note: Notification) {
+        guard offlineFallback, !Store.syncURL.isEmpty else { return }
+        offlineFallback = false
+        window.title = "Bewerbungen"
+        loadInterface()
+    }
+
     /// Links zu Stellenanzeigen im Standardbrowser öffnen statt im App-Fenster.
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        let ownHost = URL(string: Store.syncURL)?.host
         if let url = action.request.url,
            let scheme = url.scheme?.lowercased(),
-           scheme == "http" || scheme == "https" {
+           scheme == "http" || scheme == "https",
+           url.host != ownHost {
             NSWorkspace.shared.open(url)
             decisionHandler(.cancel)
             return
@@ -94,7 +153,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
     // Gespeicherte Daten hereinreichen, sobald die Oberfläche geladen ist.
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        hydrate(Store.read(), function: "__hydrate")
+        if !usingRemote { hydrate(Store.read(), function: "__hydrate") }
         if CommandLine.arguments.contains("--selftest") { selfTest() }
     }
 
@@ -107,7 +166,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           native: native, items: items.length,
           zeilen: document.querySelectorAll('tbody tr').length,
           diagramm_stroeme: document.querySelectorAll('#sankey path.link').length,
-          diagramm_knoten: document.querySelectorAll('#sankey g.nodes rect').length
+          diagramm_knoten: document.querySelectorAll('#sankey g.nodes rect').length,
+          verzeichnis: typeof COMPANY_DIR !== 'undefined' ? COMPANY_DIR.length : 0,
+          logos_versucht: document.querySelectorAll('.mark img').length,
+          logos_geladen: document.querySelectorAll('.mark.has-logo').length
         });
         """
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -139,6 +201,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         switch type {
         case "save":
             if let data = body["data"] as? String { Store.write(data) }
+
+        // Die gemeinsame Ablage ist noch leer und fragt nach dem bisherigen Bestand
+        case "seed":
+            hydrate(Store.read(), function: "__seedLocal")
 
         case "export":
             let panel = NSSavePanel()
@@ -183,6 +249,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: "Über Bewerbungen", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: "Synchronisierung …", action: #selector(setupSync), keyEquivalent: "")
         appMenu.addItem(withTitle: "Ordner mit Daten zeigen", action: #selector(revealData), keyEquivalent: "")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Bewerbungen ausblenden", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
@@ -211,6 +278,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
         NSApp.mainMenu = main
         NSApp.windowsMenu = win
+    }
+
+    /// Adresse der gemeinsamen Ablage eintragen oder wieder entfernen.
+    @objc private func setupSync() {
+        let alert = NSAlert()
+        alert.messageText = "Synchronisierung"
+        alert.informativeText = "Adresse der gemeinsamen Ablage samt Schlüssel einsetzen, "
+            + "zum Beispiel https://bewerbungen.deinname.workers.dev\n\n"
+            + "Leer lassen und sichern, um wieder nur mit der Datei auf diesem Mac zu arbeiten."
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 380, height: 24))
+        field.stringValue = Store.syncURL
+        field.placeholderString = "https://…workers.dev"
+        alert.accessoryView = field
+        alert.addButton(withTitle: "Sichern")
+        alert.addButton(withTitle: "Abbrechen")
+        if alert.runModal() == .alertFirstButtonReturn {
+            Store.syncURL = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            loadInterface()
+        }
     }
 
     @objc private func revealData() {
