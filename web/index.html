@@ -99,6 +99,7 @@ h1{
 }
 .subtitle{color:var(--text-secondary);font-size:15px;margin-top:7px}
 .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;min-width:0}
+.account .mail{max-width:min(170px, 28vw)}
 .flagbtn{
   width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:19px;
   background:var(--bg-elevated);box-shadow:0 1px 2px rgba(0,0,0,.08);flex:none;
@@ -137,6 +138,44 @@ h1{
 .stat .k{font-size:12.5px;font-weight:500;color:var(--text-secondary);letter-spacing:0}
 .stat .v{font-size:29px;font-weight:600;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
 .stat .v small{font-size:14px;font-weight:500;color:var(--text-tertiary);margin-left:4px;letter-spacing:0}
+
+/* Anmeldung */
+.gate{
+  position:fixed;inset:0;z-index:500;display:grid;place-items:center;padding:24px;
+  background:var(--bg);
+}
+/* Muss das hidden-Attribut überstimmen, sonst bleibt die Maske trotz Anmeldung stehen */
+.gate[hidden]{display:none}
+.gatebox{width:100%;max-width:370px}
+.gatemark{
+  display:block;width:60px;height:60px;margin:0 auto 20px;border-radius:14px;
+  box-shadow:0 8px 22px rgba(60,70,140,.16);
+}
+.gatebox h2{font-size:26px;font-weight:700;letter-spacing:-.022em;text-align:center}
+.gatehint{color:var(--text-secondary);font-size:14px;text-align:center;margin:6px 0 26px}
+.gatebtn{width:100%;height:44px;justify-content:center;margin-top:6px;font-size:15px}
+.gateswitch{
+  display:block;width:100%;margin-top:16px;padding:8px;font-size:13.5px;
+  color:var(--accent);border-radius:8px;
+}
+.gateswitch:hover{background:var(--accent-soft)}
+.gateerr{
+  background:color-mix(in srgb, var(--red) 12%, transparent);color:var(--red);
+  font-size:13px;font-weight:500;padding:9px 12px;border-radius:10px;margin-top:14px;
+}
+.account{display:flex;align-items:center;gap:8px}
+.account .mail{font-size:13px;color:var(--text-secondary);max-width:170px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Konflikt-Balken */
+.conflictbar{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  background:color-mix(in srgb, var(--orange) 12%, var(--bg-elevated));
+  border:1px solid color-mix(in srgb, var(--orange) 35%, transparent);
+  border-radius:var(--r-md);padding:14px 16px;margin-bottom:18px;
+}
+.cb-text{font-size:13.5px;line-height:1.5;max-width:70ch}
+.cb-acts{display:flex;gap:9px;flex:none}
 
 /* Card / table */
 .card{
@@ -340,6 +379,21 @@ input::placeholder{color:var(--text-tertiary)}
 .seg label:has(input:checked){background:var(--seg-active);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .seg label:focus-within{outline:2.5px solid var(--accent);outline-offset:1px}
 
+/* Einladungen */
+.invlist{display:flex;flex-direction:column;gap:8px}
+.inv{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg-sunken)}
+.inv.used{opacity:.6}
+.inv code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14.5px;
+  font-weight:600;letter-spacing:.06em;flex:none}
+.inv .who{font-size:12px;color:var(--text-secondary);min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.inv .spacer{margin-left:auto}
+.inv .act{height:28px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:550;
+  background:var(--bg-elevated);color:var(--text-secondary);white-space:nowrap;flex:none}
+.inv .act:hover{color:var(--text)}
+.inv .act.ok{color:var(--green)}
+.invempty{color:var(--text-secondary);font-size:14px;padding:14px 2px}
+
 /* Verlauf (Timeline) */
 .timeline{position:relative}
 .tl{display:flex;align-items:center;gap:11px;padding:7px 0;position:relative}
@@ -489,6 +543,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .top-actions .btn.primary{margin-left:auto}
   /* Beschriftungen bleiben lesbar, die Reihe bricht stattdessen um */
   .top-actions .btn{font-size:13.5px;height:34px;padding:0 12px}
+  .account .mail{display:none}
   .stat .v small{display:block;margin-left:0;margin-top:2px}
   .conflictbar{flex-direction:column;align-items:stretch}
   .cb-acts{flex-wrap:wrap}
@@ -511,10 +566,26 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     <div class="top-actions">
       <button class="btn quiet" id="btnExport"><span class="ico">↓</span><span>Export</span></button>
       <button class="btn quiet" id="btnImport"><span class="ico">↑</span><span>Import</span></button>
+      <button class="btn quiet" id="btnInvite" style="display:none"><span class="ico">✉</span><span>Einladen</span></button>
+      <span class="account" id="account" style="display:none">
+        <span class="mail" id="accountMail"></span>
+        <button class="btn quiet" id="btnLogout"><span class="ico">⇥</span><span>Abmelden</span></button>
+      </span>
       <button class="btn" id="btnChart"><span class="ico">◫</span><span>Analyse</span></button>
       <button class="btn primary" id="btnNew"><span class="ico">+</span><span>Neue Bewerbung</span></button>
     </div>
   </header>
+
+  <section class="conflictbar" id="conflict" style="display:none">
+    <div class="cb-text">
+      <b>Zwei Stände treffen aufeinander.</b>
+      <span>Auf einem anderen Gerät wurde geändert, während hier ebenfalls etwas geändert wurde. Nichts wurde überschrieben – wähle, was gelten soll.</span>
+    </div>
+    <div class="cb-acts">
+      <button class="btn" id="cbServer">Anderen Stand laden</button>
+      <button class="btn primary" id="cbMine">Diesen Stand hochladen</button>
+    </div>
+  </section>
 
   <section class="stats" id="stats"></section>
 
@@ -662,7 +733,61 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 </div>
 
 <!-- ── Anmeldung ────────────────────────────────────────────── -->
+<div class="gate" id="gate" hidden>
+  <div class="gatebox">
+    <svg class="gatemark" viewBox="0 0 100 100" aria-hidden="true">
+      <defs>
+        <radialGradient id="markbg" cx="50%" cy="50%" r="72%">
+          <stop offset="0" stop-color="#fbfcff"/><stop offset="0.55" stop-color="#ecf1fd"/><stop offset="1" stop-color="#dae3fa"/>
+        </radialGradient>
+      </defs>
+      <rect x="0" y="0" width="100" height="100" rx="22.5" fill="url(#markbg)"/>
+      <path d="M73.86 38.01 A13.23 13.23 0 0 1 73.86 61.99 C66.72 65.32 65.32 66.72 61.99 73.86 A13.23 13.23 0 0 1 38.01 73.86 C34.68 66.72 33.28 65.32 26.14 61.99 A13.23 13.23 0 0 1 26.14 38.01 C33.28 34.68 34.68 33.28 38.01 26.14 A13.23 13.23 0 0 1 61.99 26.14 C65.32 33.28 66.72 34.68 73.86 38.01 Z" fill="none" stroke="#565592" stroke-width="7.7" stroke-linejoin="round"/>
+    </svg>
+    <h2 id="gateTitle">Anmelden</h2>
+    <p class="gatehint" id="gateHint">Deine Bewerbungen, auf allen Geräten.</p>
+
+    <form id="authForm" novalidate>
+      <div class="field">
+        <label for="a-mail">E-Mail</label>
+        <input type="email" id="a-mail" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="a-pass">Passwort</label>
+        <input type="password" id="a-pass" autocomplete="current-password" required>
+      </div>
+      <div class="field" id="inviteField" style="display:none">
+        <label for="a-invite">Einladungscode</label>
+        <input type="text" id="a-invite" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="gateerr" id="gateErr" hidden></div>
+      <button type="submit" class="btn primary gatebtn" id="gateGo">Anmelden</button>
+    </form>
+
+    <button class="gateswitch" id="gateSwitch">Noch kein Konto? Mit Einladung registrieren</button>
+  </div>
+</div>
+
 <!-- ── Einladungen ──────────────────────────────────────────── -->
+<div class="overlay" id="ovInvite">
+  <div class="sheet" style="max-width:520px" role="dialog" aria-modal="true">
+    <div class="sheet-head">
+      <div>
+        <h2>Einladungen</h2>
+        <div class="hint">Jeder Code gilt genau einmal. Neue Konten starten leer.</div>
+      </div>
+      <button class="close" data-close>✕</button>
+    </div>
+    <div class="sheet-body">
+      <div id="inviteList" class="invlist"></div>
+    </div>
+    <div class="sheet-foot" style="justify-content:space-between">
+      <span class="sub" id="inviteNote"></span>
+      <button class="btn primary" id="inviteNew">Neuen Code erzeugen</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Confirm sheet ────────────────────────────────────────── -->
 <div class="overlay" id="ovConfirm">
   <div class="sheet" style="max-width:400px" role="dialog" aria-modal="true">
@@ -1244,24 +1369,108 @@ function normalize(o){
     status, history,
   };
 }
-/* Zwei Betriebsarten aus einer Datei:
-   • In Bewerbungen.app schreibt der native Wrapper in eine echte Datei.
-   • Im Browser übernimmt es der Browser-Speicher. */
+/* Drei Betriebsarten aus einer Datei:
+   • Bewerbungen.app: der native Wrapper schreibt in eine echte Datei.
+   • Browser lokal: Browser-Speicher.
+   • Über den Worker ausgeliefert: der Server ist die gemeinsame Quelle für alle Geräte,
+     der lokale Speicher dient nur noch als Zwischenspeicher für den Offline-Fall. */
 const native = !!window.webkit?.messageHandlers?.bewerbungen;
+const hosted = location.protocol === 'http:' || location.protocol === 'https:';
+const API = '/api/data';
+const KDF_ROUNDS = 400000;          // Runden der Passwort-Ableitung im Browser
+
 const toApp = msg => { try{ window.webkit.messageHandlers.bewerbungen.postMessage(msg); }catch{ localOk = false; } };
 const fromB64 = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)));
 
-function boot(){
+let account = null;          // {email}, sobald angemeldet
+let rev = 0;                 // Stand, auf dem unsere Daten beruhen
+let dirty = false;           // lokale Änderung noch nicht hochgeladen
+let syncState = 'local';     // local | ok | offline | conflict | signedout
+let lastSync = null;
+let serverCopy = null;       // Serverstand bei einem Konflikt
+let putTimer = null;
+let pendingInvite = '';
+
+const syncing = () => hosted && !!account;
+
+/** Einladungslink (#i=CODE) übernehmen und aus der Adresszeile entfernen. */
+function grabInvite(){
+  const m = location.hash.match(/[#&]i=([^&]+)/);
+  if(!m) return;
+  pendingInvite = decodeURIComponent(m[1]);
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
+async function boot(){
   if(native){
     // Der Wrapper reicht die gespeicherten Daten direkt nach dem Laden herein.
-    window.__hydrate = b64 => { items = parseList(fromB64(b64)); paintSync(); render(); };
+    window.__hydrate = b64 => { items = parseList(fromB64(b64)); afterLoad(); };
     window.__imported = b64 => { merge(parseList(fromB64(b64))); };
+    // Antwort auf die Nachfrage unten: bisheriger Bestand aus der lokalen Datei
+    window.__seedLocal = b64 => {
+      const list = parseList(fromB64(b64));
+      if(!list.length || items.length) return;
+      items = list; rev = 0; dirty = true;
+      render();
+      push();
+    };
   }else{
     items = loadLocal();
-    navigator.storage?.persist?.().catch(() => {});
+    navigator.storage?.persist?.().catch(() => {});   // Browser bittet um dauerhaften Speicher
   }
+  if(hosted) grabInvite();
+  afterLoad();
+  if(hosted) checkSession();
+}
+
+function afterLoad(){
   paintSync();
   render();
+}
+
+/** Läuft schon eine Sitzung? Sonst Anmeldemaske zeigen. */
+async function checkSession(){
+  try{
+    const res = await fetch('/api/me', {cache:'no-store'});
+    if(res.ok){
+      account = await res.json();
+      showGate(false);
+      return pull(true);
+    }
+    if(res.status === 401){
+      syncState = 'signedout';
+      showGate(true);
+      if(pendingInvite){ setGateMode('register'); $('#a-invite').value = pendingInvite; pendingInvite = ''; }
+      return paintSync();
+    }
+    throw new Error(res.status);
+  }catch{
+    // Kein Netz: mit dem lokalen Stand weiterarbeiten, keine Maske vorschieben
+    syncState = 'offline';
+    showGate(false);
+    paintSync();
+  }
+}
+
+function showGate(on){
+  $('#gate').hidden = !on;
+  document.body.style.overflow = on ? 'hidden' : '';
+  $('#account').style.display = account ? '' : 'none';
+  $('#btnInvite').style.display = account?.admin ? '' : 'none';
+  if(account) $('#accountMail').textContent = account.email;
+}
+
+/** Passwort niemals im Klartext senden: der Browser rechnet daraus einen Schlüssel. */
+async function deriveKey(email, password){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password),
+    'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({
+    name:'PBKDF2',
+    salt: new TextEncoder().encode('bewerbungen|' + email),
+    iterations: KDF_ROUNDS,
+    hash: 'SHA-256',
+  }, base, 256);
+  return [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
 function parseList(raw){
@@ -1271,27 +1480,133 @@ function parseList(raw){
   }catch{ return []; }
 }
 
-/** Wird nach jeder Änderung aufgerufen – speichert sofort. */
+/** Lokaler Zwischenspeicher – nativ als Datei, im Browser als localStorage. */
+function writeLocal(){
+  const raw = JSON.stringify(items);
+  if(native){ toApp({type:'save', data:raw}); return; }
+  try{ localStorage.setItem(KEY, raw); localOk = true; }
+  catch{ localOk = false; }
+}
+
+/** Wird nach jeder Änderung aufgerufen. */
 function save(){
-  const roh = JSON.stringify(items);
-  if(native){ toApp({type:'save', data:roh}); }
-  else{
-    try{ localStorage.setItem(KEY, roh); localOk = true; }
-    catch{ localOk = false; }
+  writeLocal();
+  if(syncing()){
+    dirty = true;
+    clearTimeout(putTimer);
+    putTimer = setTimeout(push, 400);
   }
   paintSync();
 }
 
-/** Zeile unter der Überschrift. */
+/** Serverstand holen. Beim ersten Mal entscheidet er, wer gewinnt. */
+async function pull(initial = false){
+  if(!syncing()) return;
+  try{
+    const res = await fetch(API, {cache: 'no-store'});
+    if(res.status === 401){ return signedOut(); }
+    if(!res.ok) throw new Error(res.status);
+    const data = await res.json();
+
+    // Erstbefüllung: der Server ist noch leer
+    if(initial && !data.rev && !data.items.length){
+      if(items.length){ rev = 0; dirty = true; return push(); }
+      // In der Mac-App liegt der bisherige Bestand in einer Datei – dort nachfragen
+      if(native){ toApp({type:'seed'}); return paintSync(); }
+    }
+    if(data.rev === rev && !initial) { syncState = 'ok'; return paintSync(); }
+    if(dirty && !initial){ serverCopy = data; syncState = 'conflict'; return paintSync(); }
+
+    rev = data.rev;
+    lastSync = data.updated;
+    items = (data.items || []).map(normalize);
+    writeLocal();
+    syncState = 'ok';
+    render();
+  }catch{
+    syncState = 'offline';
+  }
+  paintSync();
+}
+
+/** Eigenen Stand hochladen. Der Server lehnt ab, wenn er weiter ist. */
+async function push(force = false){
+  if(!syncing()) return;
+  clearTimeout(putTimer);
+  try{
+    if(force && serverCopy) rev = serverCopy.rev;
+    const res = await fetch(API, {
+      method: 'PUT',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({rev, items}),
+    });
+    if(res.status === 401){ return signedOut(); }
+    else if(res.status === 409){
+      serverCopy = await res.json();
+      syncState = 'conflict';
+    }else if(res.ok){
+      const d = await res.json();
+      rev = d.rev; lastSync = d.updated; dirty = false; serverCopy = null;
+      syncState = 'ok';
+    }else throw new Error(res.status);
+  }catch{
+    syncState = 'offline';
+  }
+  paintSync();
+}
+
+/* Konflikt auflösen */
+function takeServer(){
+  if(!serverCopy) return;
+  rev = serverCopy.rev;
+  items = (serverCopy.items || []).map(normalize);
+  lastSync = serverCopy.updated;
+  dirty = false; serverCopy = null; syncState = 'ok';
+  writeLocal();
+  render(); paintSync();
+}
+function keepMine(){ push(true); }
+
+/* Aktualisieren, wenn das Fenster wieder in den Vordergrund kommt */
+addEventListener('visibilitychange', () => { if(!document.hidden) dirty ? push() : pull(); });
+addEventListener('online', () => { dirty ? push() : pull(); });
+setInterval(() => { if(!document.hidden && !dirty) pull(); }, 30000);
+
+/** Zeile unter der Überschrift: Speicher- und Sync-Zustand. */
 function paintSync(){
   const sub = $('#subtitle');
-  if(!localOk && !native){
-    sub.textContent = '⚠️ Dieser Browser speichert hier nichts – bitte per Export sichern.';
-    sub.style.color = 'var(--orange)';
-    return;
+  const bar = $('#conflict');
+  bar.style.display = syncState === 'conflict' ? '' : 'none';
+
+  let text = 'Alles im Blick – von geplant bis Zusage.', color = '';
+  if(syncState === 'conflict'){
+    text = 'Auf einem anderen Gerät wurde geändert – bitte unten entscheiden.';
+    color = 'var(--orange)';
+  }else if(hosted && syncState === 'offline' && !account){
+    text = 'Ohne Verbindung – zeigt den letzten Stand dieses Geräts.';
+    color = 'var(--orange)';
+  }else if(syncing() && syncState === 'offline'){
+    text = dirty ? '⚠️ Offline – Änderungen liegen nur auf diesem Gerät und gehen später raus.' : 'Offline – zeigt den letzten bekannten Stand.';
+    color = 'var(--orange)';
+  }else if(syncing() && syncState === 'ok'){
+    text = dirty ? 'Wird synchronisiert …' : `${'Synchronisiert'}${lastSync ? ' · ' + fmtStamp(lastSync) : ''}`;
+  }else if(!localOk && !native){
+    text = '⚠️ Dieser Browser speichert hier nichts – bitte per Export sichern.';
+    color = 'var(--orange)';
+  }else if(native){
+    text = 'Alles im Blick – automatisch gespeichert.';
   }
-  sub.textContent = native ? 'Alles im Blick – automatisch gespeichert.' : 'Alles im Blick – von geplant bis Zusage.';
-  sub.style.color = '';
+  sub.textContent = text;
+  sub.style.color = color;
+
+}
+
+function fmtStamp(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  const heute = new Date().toDateString() === d.toDateString();
+  const zeit = d.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+  return heute ? `${'heute'} ${zeit}` : `${d.toLocaleDateString('de-DE')} ${zeit}`;
 }
 
 function uid(){ return 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -2434,6 +2749,192 @@ function celebrate(){
   document.body.append(host);
   setTimeout(() => host.remove(), 4200);
 }
+
+/* ─────────── Anmeldung, Registrierung, Abmelden ─────────── */
+
+let gateMode = 'login';
+
+$('#gateSwitch').onclick = () => setGateMode(gateMode === 'login' ? 'register' : 'login');
+
+function setGateMode(mode){
+  gateMode = mode;
+  const reg = gateMode === 'register';
+  $('#gateTitle').textContent = reg ? 'Konto anlegen' : 'Anmelden';
+  $('#gateHint').textContent = reg ? 'Mit Einladungscode. Deine Bewerbungen bleiben nur für dich sichtbar.' : 'Deine Bewerbungen, auf allen Geräten.';
+  $('#inviteField').style.display = reg ? '' : 'none';
+  $('#gateGo').textContent = reg ? 'Konto anlegen' : 'Anmelden';
+  $('#gateSwitch').textContent = reg ? 'Zurück zur Anmeldung' : 'Noch kein Konto? Mit Einladung registrieren';
+  $('#a-pass').autocomplete = reg ? 'new-password' : 'current-password';
+  gateError('');
+}
+
+function gateError(text){
+  const box = $('#gateErr');
+  box.hidden = !text;
+  box.textContent = text;
+}
+
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const mail = $('#a-mail').value.trim().toLowerCase();
+  const pass = $('#a-pass').value;
+  const invite = $('#a-invite').value.trim();
+  if(!mail || !pass) return gateError('Bitte E-Mail und Passwort angeben.');
+  if(gateMode === 'register' && pass.length < 10)
+    return gateError('Bitte ein Passwort mit mindestens 10 Zeichen wählen.');
+  if(gateMode === 'register' && !invite)
+    return gateError('Ohne Einladungscode geht es nicht.');
+
+  const btn = $('#gateGo');
+  btn.disabled = true;
+  btn.textContent = 'Einen Moment …';
+  gateError('');
+  try{
+    const key = await deriveKey(mail, pass);       // dauert bewusst ~1 Sekunde
+    const res = await fetch(gateMode === 'register' ? '/api/register' : '/api/login', {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body: JSON.stringify(gateMode === 'register' ? {email:mail, key, invite} : {email:mail, key}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok){
+      // Konto besteht schon? Dann zur Anmeldung wechseln statt Fehler stehen lassen.
+      if(gateMode === 'register' && (res.status === 409 || res.status === 403)){
+        setGateMode('login');
+        $('#a-mail').value = mail;
+        gateError('Dieses Konto gibt es schon – bitte mit dem Passwort anmelden.');
+        setTimeout(() => $('#a-pass').focus(), 100);
+        return;
+      }
+      gateError(data.error || 'Das hat nicht funktioniert.');
+      return;
+    }
+    account = {email: data.email};
+    $('#a-pass').value = '';
+    showGate(false);
+    rev = 0; dirty = false; serverCopy = null;
+    await pull(true);
+  }catch{
+    gateError('Keine Verbindung zum Server.');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = gateMode === 'register' ? 'Konto anlegen' : 'Anmelden';
+  }
+});
+
+$('#btnLogout').onclick = async () => {
+  if(dirty) await push();
+  try{ await fetch('/api/logout', {method:'POST'}); }catch{}
+  account = null; rev = 0; items = []; dirty = false;
+  syncState = 'signedout';
+  render();
+  showGate(true);
+  paintSync();
+};
+
+/** Sitzung abgelaufen: zurück zur Anmeldung, ohne lokale Änderungen wegzuwerfen. */
+function signedOut(){
+  account = null;
+  syncState = 'signedout';
+  showGate(true);
+  paintSync();
+}
+
+/* ─────────── Einladungen verwalten (nur Hauptkonto) ─────────── */
+
+$('#btnInvite').onclick = () => { openOverlay('#ovInvite'); loadInvites(); };
+/* Eben erzeugte Codes: die Schlüsselliste der Ablage hinkt dem Schreiben kurz nach,
+   deshalb halten wir sie hier fest, bis sie von selbst in der Antwort auftauchen. */
+let frischeCodes = [];
+
+$('#inviteNew').onclick = async () => {
+  const btn = $('#inviteNew');
+  btn.disabled = true;
+  try{
+    const res = await fetch('/api/invites', {method:'POST'});
+    const data = await res.json().catch(() => ({}));
+    if(res.ok && data.code){
+      frischeCodes.unshift({code: data.code, usedBy: null, usedAt: null});
+      await loadInvites();
+    }
+  }catch{}
+  btn.disabled = false;
+};
+
+async function loadInvites(){
+  const host = $('#inviteList');
+  host.innerHTML = '';
+  host.append(el('div','invempty', 'Wird geladen …'));
+  let rows = [];
+  try{
+    const res = await fetch('/api/invites', {cache:'no-store'});
+    if(!res.ok) throw new Error(res.status);
+    rows = (await res.json()).invites || [];
+  }catch{
+    host.innerHTML = '';
+    host.append(el('div','invempty', 'Codes konnten nicht geladen werden.'));
+    return;
+  }
+
+  // Frisch erzeugte Codes ergänzen, solange die Ablage sie noch nicht mitliefert
+  const bekannt = new Set(rows.map(r => r.code));
+  frischeCodes = frischeCodes.filter(f => !bekannt.has(f.code));
+  rows = [...frischeCodes, ...rows];
+
+  host.innerHTML = '';
+  if(!rows.length) host.append(el('div','invempty', 'Noch keine Codes vorhanden.'));
+
+  for(const row of rows){
+    const line = el('div', 'inv' + (row.usedBy ? ' used' : ''));
+    const code = document.createElement('code');
+    code.textContent = pretty(row.code);
+    line.append(code);
+
+    if(row.usedBy){
+      line.append(el('span','who', `eingelöst von ${row.usedBy}`));
+      line.append(el('span','spacer'));
+    }else{
+      line.append(el('span','spacer'));
+      line.append(copyBtn('Code', pretty(row.code)));
+      line.append(copyBtn('Link', inviteLink(row.code)));
+      const back = el('button','act', 'zurücknehmen');
+      back.onclick = async () => {
+        back.disabled = true;
+        try{ await fetch('/api/invites?code=' + encodeURIComponent(row.code), {method:'DELETE'}); }catch{}
+        loadInvites();
+      };
+      line.append(back);
+    }
+    host.append(line);
+  }
+  const frei = rows.filter(r => !r.usedBy).length;
+  $('#inviteNote').textContent = `${frei} frei · ${rows.length - frei} eingelöst`;
+}
+
+const pretty = c => c.length === 8 ? c.slice(0,4) + '-' + c.slice(4) : c;
+const inviteLink = c => location.origin + '/#i=' + pretty(c);
+
+/** Knopf, der etwas in die Zwischenablage legt und kurz bestätigt. */
+function copyBtn(label, text){
+  const b = el('button','act', label);
+  b.onclick = async () => {
+    try{
+      await navigator.clipboard.writeText(text);
+      b.textContent = 'kopiert ✓';
+      b.classList.add('ok');
+    }catch{
+      // Zwischenablage verweigert: Text zum Abschreiben anzeigen
+      prompt('Zum Kopieren markieren:', text);
+      return;
+    }
+    setTimeout(() => { b.textContent = label; b.classList.remove('ok'); }, 1600);
+  };
+  return b;
+}
+
+/* Konflikt-Balken */
+$('#cbServer').onclick = takeServer;
+$('#cbMine').onclick = keepMine;
 
 /* ═══════════════════════════  Start  ═══════════════════════════ */
 buildStatusSelect();
