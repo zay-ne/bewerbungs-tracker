@@ -189,6 +189,26 @@ h1{
 .card-head h2{font-size:17px;font-weight:600;letter-spacing:-.015em}
 .table-scroll{overflow-x:auto}
 
+/* Suchfeld */
+.searchbox{position:relative;display:flex;align-items:center;flex:1 1 220px;max-width:330px}
+.searchicon{
+  position:absolute;left:11px;font-size:15px;color:var(--text-tertiary);
+  pointer-events:none;line-height:1;
+}
+#search{
+  width:100%;height:32px;padding:0 30px 0 30px;border-radius:999px;font-size:13.5px;
+  background:var(--bg-sunken);border:1px solid transparent;color:var(--text);
+}
+#search:focus{outline:none;background:var(--bg-elevated);border-color:var(--accent);
+  box-shadow:0 0 0 3.5px var(--accent-soft)}
+#search::-webkit-search-cancel-button,#search::-webkit-search-decoration{-webkit-appearance:none}
+.searchclear{
+  position:absolute;right:6px;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;font-size:11px;color:var(--text-tertiary);
+  background:var(--separator);line-height:1;
+}
+.searchclear:hover{color:var(--text)}
+
 /* Filter- und Sortierleiste */
 .toolbar.hide{display:none}
 .toolbar{
@@ -623,6 +643,12 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   <section class="card">
     <div class="card-head">
       <h2 data-i18n="table.head">Übersicht</h2>
+      <div class="searchbox">
+        <span class="searchicon" aria-hidden="true">⌕</span>
+        <input type="search" id="search" data-i18n-ph="such.ph" placeholder="Suchen …"
+               autocomplete="off" spellcheck="false" data-i18n-aria="such.label">
+        <button class="searchclear" id="searchClear" hidden data-i18n-aria="such.clear">✕</button>
+      </div>
       <span class="muted" id="count" style="font-size:13.5px"></span>
     </div>
     <div class="toolbar" id="toolbarWrap">
@@ -2299,6 +2325,22 @@ const FILTERS = [
   {id:'noreply',  tk:'flt.noreply',  passt: it => it.status === 'noreply'},
 ];
 
+let suche = '';
+
+/** Durchsucht Firma, Rolle, Ort, Kanal und Status – alle Wörter müssen vorkommen. */
+const suchtext = it => [
+  it.company, it.role, it.location,
+  channelLabel(it.channel),
+  STAGE[it.status]?.label,
+  ...it.history.map(h => STAGE[h.status]?.short),
+].filter(Boolean).join(' ').toLowerCase();
+
+function passtSuche(it){
+  if(!suche) return true;
+  const heu = suchtext(it);
+  return suche.split(/\s+/).filter(Boolean).every(w => heu.includes(w));
+}
+
 let filter = 'all';
 try{ filter = localStorage.getItem('bewerbungen.filter') || 'all'; }catch{}
 try{
@@ -2307,7 +2349,7 @@ try{
 }catch{}
 
 const activeFilter = () => FILTERS.find(f => f.id === filter) || FILTERS[0];
-const filtered = () => items.filter(activeFilter().passt);
+const filtered = () => items.filter(passtSuche).filter(activeFilter().passt);
 
 function setFilter(id){
   filter = id;
@@ -2327,7 +2369,7 @@ function renderChips(){
   const host = $('#chips');
   host.innerHTML = '';
   for(const f of FILTERS){
-    const anzahl = items.filter(f.passt).length;
+    const anzahl = items.filter(passtSuche).filter(f.passt).length;
     if(f.id !== 'all' && !anzahl) continue;      // leere Gruppen weglassen
     const b = el('button', 'fchip' + (f.id === filter ? ' on' : ''));
     b.append(el('span', null, t(f.tk)));
@@ -2388,12 +2430,12 @@ function renderTable(){
   const sichtbar = filtered().length;
   if(items.length && !sichtbar){
     const e = el('div','empty');
-    const titel = t('flt.emptyTitle');
-    const text = t('flt.emptyText');
+    const titel = suche ? t('such.emptyTitle', {wort: suche}) : t('flt.emptyTitle');
+    const text = suche ? t('such.emptyText') : t('flt.emptyText');
     e.innerHTML = `<div class="glyph">🔍</div><h3>${esc(titel)}</h3><p>${esc(text)}</p>`;
-    const b = el('button','btn', t('flt.all'));
+    const b = el('button','btn', suche ? t('such.clear') : t('flt.all'));
     b.style.marginTop = '16px';
-    b.onclick = () => setFilter('all');
+    b.onclick = () => { if(suche) setzeSuche(''); else setFilter('all'); };
     e.append(b);
     host.append(e);
     return;
@@ -2776,6 +2818,13 @@ document.addEventListener('keydown', e => {
     if($('#menu').classList.contains('show')) return closeMenu();
     const ov = [...document.querySelectorAll('.overlay.show')].pop();
     if(ov) closeOverlay(ov);
+  }
+  if(e.key === '/' && !e.metaKey && !e.ctrlKey &&
+     !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName) &&
+     !document.querySelector('.overlay.show') && !$('#gate').hidden === false){
+    e.preventDefault();
+    $('#search').focus();
+    return;
   }
   if((e.key === 'n' || e.key === 'N') && !e.metaKey && !e.ctrlKey &&
      !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName) &&
@@ -3433,6 +3482,19 @@ function copyBtn(label, text){
   };
   return b;
 }
+
+/* Suche */
+function setzeSuche(wert){
+  suche = wert.trim().toLowerCase();
+  $('#search').value = wert;
+  $('#searchClear').hidden = !wert;
+  renderTable();
+}
+$('#search').addEventListener('input', e => setzeSuche(e.target.value));
+$('#search').addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ e.stopPropagation(); setzeSuche(''); $('#search').blur(); }
+});
+$('#searchClear').onclick = () => { setzeSuche(''); $('#search').focus(); };
 
 /* Konflikt-Balken */
 $('#cbServer').onclick = takeServer;
