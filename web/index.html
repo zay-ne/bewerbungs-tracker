@@ -167,6 +167,24 @@ h1{
 .account .mail{font-size:13px;color:var(--text-secondary);max-width:170px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* Demo-Hinweis */
+.demobar{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--bg-elevated);border:1px solid var(--separator);
+  border-radius:var(--r-md);padding:11px 14px;margin-bottom:18px;box-shadow:var(--shadow-card);
+}
+.demotag{
+  flex:none;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--accent);color:#fff;border-radius:999px;padding:3px 9px;
+}
+.demotext{font-size:13px;color:var(--text-secondary);flex:1;min-width:180px}
+.demoacts{display:flex;gap:8px;flex:none}
+.gatedemo{
+  display:block;width:100%;margin-top:6px;padding:10px;font-size:13.5px;
+  color:var(--text-secondary);border-radius:10px;
+}
+.gatedemo:hover{background:var(--surface-hover);color:var(--text)}
+
 /* Konflikt-Balken */
 .conflictbar{
   display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
@@ -627,6 +645,15 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     </div>
   </header>
 
+  <section class="demobar" id="demobar" hidden>
+    <span class="demotag" data-i18n="demo.tag">Demo</span>
+    <span class="demotext" data-i18n="demo.note">Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.</span>
+    <span class="demoacts">
+      <button class="btn quiet" id="demoReset" data-i18n="demo.reset">Zurücksetzen</button>
+      <button class="btn" id="demoLeave" data-i18n="demo.leave">Zur Anmeldung</button>
+    </span>
+  </section>
+
   <section class="conflictbar" id="conflict" style="display:none">
     <div class="cb-text">
       <b data-i18n="conflict.title">Zwei Stände treffen aufeinander.</b>
@@ -830,6 +857,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     </form>
 
     <button class="gateswitch" id="gateSwitch">Noch kein Konto? Mit Einladung registrieren</button>
+    <button class="gatedemo" id="gateDemo" data-i18n="demo.open">Ohne Konto ansehen – Demo mit Beispieldaten</button>
   </div>
 </div>
 
@@ -1456,7 +1484,7 @@ let serverCopy = null;       // Serverstand bei einem Konflikt
 let putTimer = null;
 let pendingInvite = '';
 
-const syncing = () => hosted && !!account;
+const syncing = () => hosted && !!account && !demo;
 
 /** Einladungslink (#i=CODE) übernehmen und aus der Adresszeile entfernen. */
 function grabInvite(){
@@ -1495,10 +1523,16 @@ function afterLoad(){
 
 /** Läuft schon eine Sitzung? Sonst Anmeldemaske zeigen. */
 async function checkSession(){
+  if(location.hash.includes('demo')){
+    history.replaceState(null, '', location.pathname + location.search);
+    return enterDemo();
+  }
   try{
     const res = await fetch('/api/me', {cache:'no-store'});
     if(res.ok){
-      account = await res.json();
+      const data = await res.json();
+      if(data.demo) return enterDemo();       // reine Demo-Auslieferung
+      account = data;
       showGate(false);
       return pull(true);
     }
@@ -1521,7 +1555,7 @@ function showGate(on){
   $('#gate').hidden = !on;
   document.body.style.overflow = on ? 'hidden' : '';
   $('#account').style.display = account ? '' : 'none';
-  $('#btnInvite').style.display = account?.admin ? '' : 'none';
+  $('#btnInvite').style.display = account?.admin && !demo ? '' : 'none';
   if(account) $('#accountMail').textContent = account.email;
 }
 
@@ -1555,6 +1589,11 @@ function writeLocal(){
 
 /** Wird nach jeder Änderung aufgerufen. */
 function save(){
+  if(demo){
+    try{ sessionStorage.setItem(DEMO_KEY, JSON.stringify(items)); }catch{}
+    paintSync();
+    return;
+  }
   writeLocal();
   if(syncing()){
     dirty = true;
@@ -1644,6 +1683,11 @@ function paintSync(){
   bar.style.display = syncState === 'conflict' ? '' : 'none';
 
   let text = t('app.tagline'), color = '';
+  if(demo){
+    $('#subtitle').textContent = t('demo.subtitle');
+    $('#subtitle').style.color = '';
+    return;
+  }
   if(syncState === 'conflict'){
     text = t('conflict.line');
     color = 'var(--orange)';
@@ -1681,6 +1725,79 @@ function today(){
 }
 function isDate(v){ return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v); }
 
+
+/* ═══════════════════════════  Demo-Modus  ═══════════════════════════ */
+
+/* Beispielbestand für die Vorführung: deckt alle Stufen und Ausgänge ab,
+   damit Tabelle, Filter und Diagramm auf Anhieb etwas zu zeigen haben. */
+const DEMO_ITEMS = [
+  ['Siemens Healthineers','Applikationsspezialist Bildgebung','Erlangen','linkedin',72000,'listed','full',
+   [['applied','2026-05-04'],['iv1','2026-05-19'],['iv2','2026-06-02'],['offer','2026-06-15'],['accepted','2026-06-18']],'2026-05-10'],
+  ['SAP','Associate Consultant Data & Analytics','Walldorf','stepstone',68000,'expected','full',
+   [['applied','2026-05-11'],['iv1','2026-05-27'],['iv2','2026-06-09'],['rejected','2026-06-20']],''],
+  ['Bosch','Projektingenieur Antriebstechnik','Stuttgart','website',66000,'listed','full',
+   [['applied','2026-05-18'],['iv1','2026-06-03'],['rejected','2026-06-12']],''],
+  ['Zalando','Product Analyst','Berlin','linkedin',63000,'expected','full',
+   [['applied','2026-06-02'],['iv1','2026-06-17'],['iv2','2026-07-01'],['iv3','2026-07-14'],['rejected','2026-07-22']],'2026-06-08'],
+  ['BASF','Prozessingenieur','Ludwigshafen','indeed',70000,'listed','full',
+   [['applied','2026-06-08'],['noreply','2026-07-20']],''],
+  ['Bayer','Regulatory Affairs Manager','Leverkusen','email',null,'expected','full',
+   [['applied','2026-06-15'],['iv1','2026-07-02'],['withdrawn','2026-07-08']],''],
+  ['Deutsche Bahn','Disponent Netzbetrieb','Frankfurt am Main','stepstone',58000,'listed','full',
+   [['applied','2026-06-22'],['noreply','2026-08-01']],''],
+  ['Fraunhofer','Wissenschaftlicher Mitarbeiter','München','website',61000,'listed','part',
+   [['applied','2026-07-01'],['iv1','2026-07-16'],['iv2','2026-08-04']],'2026-07-05'],
+  ['Personio','Customer Success Manager','München','linkedin',60000,'expected','full',
+   [['applied','2026-07-06'],['iv1','2026-07-21']],''],
+  ['TÜV Rheinland','Auditor Medizinprodukte','Köln','indeed',64000,'listed','full',
+   [['applied','2026-07-13'],['rejected','2026-07-28']],''],
+  ['Celonis','Solution Engineer','München','linkedin',75000,'expected','full',
+   [['applied','2026-07-20'],['iv1','2026-08-05']],'2026-07-25'],
+  ['N26','Risk Analyst','Berlin','website',62000,'expected','full',
+   [['applied','2026-08-03'],['noreply','2026-08-18']],''],
+  ['Charité','Studienkoordinator','Berlin','email',55000,'listed','part',
+   [['applied','2026-08-10']],'2026-08-24'],
+  ['Trade Republic','Operations Analyst','Berlin','linkedin',null,'expected','full',
+   [['planned','2026-08-17']],'2026-09-05'],
+  ['Miele','Qualitätsingenieur','Gütersloh','stepstone',65000,'listed','full',
+   [['planned','2026-08-18']],'2026-09-12'],
+].map(([company, role, location, channel, salary, salaryType, employment, stationen, deadline], i) => normalize({
+  id: 'demo' + i,
+  company, role, location, channel, salary, salaryType, employment, deadline,
+  salaryPeriod: 'year',
+  url: 'https://example.com/stellenanzeige/' + (i + 1),
+  applied: stationen.find(([st]) => st === 'applied')?.[1] || '',
+  status: stationen[stationen.length - 1][0],
+  history: stationen.map(([status, date]) => ({status, date})),
+}));
+
+let demo = false;
+const DEMO_KEY = 'bewerbungen.demo';
+
+/** Vorführung starten: eigener Bestand, nichts wird zum Server geschickt. */
+function enterDemo(){
+  demo = true;
+  account = null;
+  let gemerkt = null;
+  try{ gemerkt = JSON.parse(sessionStorage.getItem(DEMO_KEY) || 'null'); }catch{}
+  items = Array.isArray(gemerkt) && gemerkt.length ? gemerkt.map(normalize) : DEMO_ITEMS.map(o => normalize(o));
+  syncState = 'demo';
+  showGate(false);
+  $('#demobar').hidden = false;
+  render();
+  paintSync();
+}
+
+function leaveDemo(){
+  try{ sessionStorage.removeItem(DEMO_KEY); }catch{}
+  location.href = location.pathname;
+}
+
+function resetDemo(){
+  try{ sessionStorage.removeItem(DEMO_KEY); }catch{}
+  items = DEMO_ITEMS.map(o => normalize(o));
+  render();
+}
 
 /* ═══════════════════════════  Sprachen  ═══════════════════════════ */
 
@@ -3495,6 +3612,11 @@ $('#search').addEventListener('keydown', e => {
   if(e.key === 'Escape'){ e.stopPropagation(); setzeSuche(''); $('#search').blur(); }
 });
 $('#searchClear').onclick = () => { setzeSuche(''); $('#search').focus(); };
+
+/* Demo */
+$('#gateDemo').onclick = enterDemo;
+$('#demoReset').onclick = resetDemo;
+$('#demoLeave').onclick = leaveDemo;
 
 /* Konflikt-Balken */
 $('#cbServer').onclick = takeServer;

@@ -273,6 +273,10 @@ export default {
 
     if (pathname === '/api/health') return json({ok: true});
 
+    // Reine Vorführ-Auslieferung: kein Konto, keine Ablage, nichts zu holen
+    if (env.DEMO_ONLY) {
+      return pathname === '/api/me' ? json({demo: true}) : json({error: 'demo only'}, 403);
+    }
     if (pathname === '/api/register' && req.method === 'POST') return watched('register', register(req, env));
     if (pathname === '/api/login' && req.method === 'POST') return watched('login', login(req, env));
     if (pathname === '/api/logout') return json({ok: true}, 200, {'set-cookie': clearCookie()});
