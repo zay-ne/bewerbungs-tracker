@@ -207,6 +207,100 @@ h1{
 .card-head h2{font-size:17px;font-weight:600;letter-spacing:-.015em}
 .table-scroll{overflow-x:auto}
 
+/* ─────────────────────────  Ansichtswechsel  ───────────────────────── */
+.viewswitch{
+  position:relative;display:inline-flex;gap:2px;padding:4px;margin:0 0 22px;
+  background:var(--bg-sunken);border-radius:999px;
+}
+.vspring{
+  position:absolute;top:4px;bottom:4px;left:4px;border-radius:999px;
+  background:var(--bg-elevated);box-shadow:0 1px 3px rgba(0,0,0,.12);
+  transition:transform .42s var(--ease), width .42s var(--ease);
+}
+.vtab{
+  position:relative;z-index:1;height:34px;padding:0 20px;border-radius:999px;
+  font-size:14.5px;font-weight:550;color:var(--text-secondary);
+  transition:color .28s var(--ease);white-space:nowrap;
+}
+.vtab.on{color:var(--text)}
+.vtab:active{transform:scale(.97)}
+
+/* ─────────────────────────  Statistik-Karten  ───────────────────────── */
+.board{
+  display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
+  align-items:start;
+}
+.bcard{
+  background:var(--bg-elevated);border-radius:var(--r-lg);box-shadow:var(--shadow-card);
+  padding:18px 20px 20px;opacity:0;transform:translateY(10px);
+  animation:kartenAuf .5s var(--ease) forwards;
+}
+.bcard.wide{grid-column:1/-1}
+@keyframes kartenAuf{to{opacity:1;transform:none}}
+.bhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.bhead h3{font-size:15.5px;font-weight:600;letter-spacing:-.015em}
+.bhint{font-size:12.5px;color:var(--text-tertiary);flex:1;min-width:120px}
+.bhead .seg.small{padding:2px;flex:none;margin-left:auto}
+.bhead .seg.small label{font-size:12px;padding:5px 10px;flex:0 0 auto}
+@media (max-width:560px){
+  .bhead{gap:8px}
+  .bhead .seg.small{margin-left:0;width:100%}
+  .bhead .seg.small label{flex:1 1 0}
+}
+.bempty{font-size:13.5px;color:var(--text-tertiary);padding:6px 0 2px}
+
+/* Große Kennzahl */
+.bignum{margin:2px 0 14px}
+.bigline{display:flex;align-items:baseline;gap:7px}
+.bigval{font-size:34px;font-weight:600;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.bigunit{font-size:14px;color:var(--text-secondary);font-weight:500}
+.bigfoot{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+
+/* Waagerechte Balken */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:flex;align-items:center;gap:10px;font-size:13px}
+.blabel{flex:0 0 34%;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btrack{flex:1;height:9px;border-radius:999px;background:var(--bg-sunken);overflow:hidden}
+.bfill{
+  display:block;height:100%;width:0;border-radius:999px;
+  animation:balkenAuf .75s var(--ease) forwards;
+}
+@keyframes balkenAuf{to{width:var(--breite)}}
+.bval{flex:none;font-variant-numeric:tabular-nums;color:var(--text-secondary);min-width:52px;text-align:right}
+
+/* Säulen über die Zeit */
+.colwrap{margin-top:2px}
+svg.cols{display:block;width:100%;height:110px}
+svg.cols rect{
+  fill:var(--accent);transform-origin:bottom;transform:scaleY(0);
+  animation:saeuleAuf .6s var(--ease) forwards;
+}
+@keyframes saeuleAuf{to{transform:scaleY(1)}}
+.colaxis{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-tertiary);margin-top:8px}
+
+/* Gehaltsspanne */
+.range{margin-top:6px}
+.rtrack{position:relative;height:10px;border-radius:999px;background:var(--bg-sunken);overflow:visible}
+.rspan{
+  position:absolute;top:0;bottom:0;border-radius:999px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 35%,transparent),var(--accent));
+  transform:scaleX(0);transform-origin:left;animation:spanneAuf .7s var(--ease) .1s forwards;
+}
+@keyframes spanneAuf{to{transform:scaleX(1)}}
+.rmark{
+  position:absolute;top:-4px;width:4px;height:18px;border-radius:2px;background:var(--text);
+  box-shadow:0 0 0 3px var(--bg-elevated);opacity:0;animation:markeAuf .4s var(--ease) .55s forwards;
+}
+@keyframes markeAuf{to{opacity:1}}
+.rends{display:flex;justify-content:space-between;font-size:12px;color:var(--text-tertiary);margin-top:11px}
+.rends .rmid{color:var(--text);font-weight:600}
+
+@media (max-width:700px){
+  .board{grid-template-columns:1fr}
+  .blabel{flex:0 0 40%}
+}
+
 /* Suchfeld */
 .searchbox{position:relative;display:flex;align-items:center;flex:1 1 220px;max-width:330px}
 .searchicon{
@@ -497,7 +591,7 @@ input::placeholder{color:var(--text-tertiary)}
 
 /* ───────────────────────────  Sankey  ─────────────────────────── */
 .chart-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:4px}
-.chart-wrap{position:relative;padding:6px 4px 0}
+.chart-wrap{position:relative;padding:4px 0 0}
 svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 .sankey .node rect{transition:opacity .16s}
 .sankey .link{transition:opacity .16s}
@@ -639,7 +733,6 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
         <span class="mail" id="accountMail"></span>
         <button class="btn quiet" id="btnLogout" data-i18n-title="nav.logout"><span class="ico">⇥</span><span data-i18n="nav.logout">Abmelden</span></button>
       </span>
-      <button class="btn" id="btnChart"><span class="ico">◫</span><span data-i18n="nav.analysis">Analyse</span></button>
       <button class="flagbtn" id="btnLang" data-i18n-title="nav.lang" aria-label="Sprache"><span id="langFlag">🇩🇪</span></button>
       <button class="btn primary" id="btnNew"><span class="ico">+</span><span data-i18n="nav.new">Neue Bewerbung</span></button>
     </div>
@@ -665,6 +758,13 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     </div>
   </section>
 
+  <nav class="viewswitch" id="viewswitch" role="tablist">
+    <span class="vspring" id="vspring" aria-hidden="true"></span>
+    <button class="vtab on" data-view="list" role="tab" data-i18n="view.list">Übersicht</button>
+    <button class="vtab" data-view="stats" role="tab" data-i18n="view.stats">Statistiken</button>
+  </nav>
+
+  <div id="viewList">
   <section class="stats" id="stats"></section>
 
   <section class="card">
@@ -688,6 +788,11 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     </div>
     <div class="table-scroll" id="tableHost"></div>
   </section>
+  </div>
+
+  <div id="viewStats" hidden>
+    <div class="board" id="board"></div>
+  </div>
 </div>
 
 <!-- ── Form sheet ───────────────────────────────────────────── -->
@@ -775,55 +880,6 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 </div>
 
 <!-- ── Chart sheet ──────────────────────────────────────────── -->
-<div class="overlay" id="ovChart">
-  <div class="sheet wide" role="dialog" aria-modal="true" aria-labelledby="chartTitle">
-    <div class="sheet-head">
-      <div>
-        <h2 id="chartTitle" data-i18n="chart.title">Bewerbungs-Fluss</h2>
-        <div class="hint" data-i18n="chart.hint">Ab dem Status „Beworben". Breite der Ströme = Anzahl der Bewerbungen.</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;flex:none">
-        <div class="seg" id="chartScope">
-          <label><input type="radio" name="scope" value="all" checked><span data-i18n="chart.all">Alle</span></label>
-          <label><input type="radio" name="scope" value="done"><span data-i18n="chart.done">Nur abgeschlossene</span></label>
-        </div>
-        <button class="close" data-close data-i18n-aria="misc.close">✕</button>
-      </div>
-    </div>
-    <div class="sheet-body">
-      <div class="chart-wrap">
-        <svg class="sankey" id="sankey" data-i18n-aria="chart.alt"></svg>
-        <div class="tip" id="tip"></div>
-      </div>
-      <div class="conv" id="conv"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ── History sheet ────────────────────────────────────────── -->
-<div class="overlay" id="ovHistory">
-  <div class="sheet" style="max-width:460px" role="dialog" aria-modal="true" aria-labelledby="histTitle">
-    <div class="sheet-head">
-      <div>
-        <h2 id="histTitle" data-i18n="hist.title">Verlauf</h2>
-        <div class="hint" id="histWho"></div>
-      </div>
-      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
-    </div>
-    <div class="sheet-body">
-      <div class="timeline" id="histList"></div>
-      <div class="field" style="margin:18px 0 0">
-        <label for="histAdd" data-i18n="hist.add">Station ergänzen</label>
-        <select id="histAdd"></select>
-      </div>
-      <p class="sub" style="margin-top:10px" data-i18n="hist.note">Die letzte Station bestimmt den aktuellen Status. Das Diagramm zeigt genau diesen Weg.</p>
-    </div>
-    <div class="sheet-foot">
-      <button class="btn primary" data-close data-i18n="hist.done">Fertig</button>
-    </div>
-  </div>
-</div>
-
 <!-- ── Anmeldung ────────────────────────────────────────────── -->
 <div class="gate" id="gate" hidden>
   <div class="gatebox">
@@ -1883,6 +1939,7 @@ de:{
   'flt.all':'Alle','flt.planned':'Geplant','flt.applied':'Beworben','flt.talking':'Im Gespräch','flt.accepted':'Zusage','flt.rejected':'Absage','flt.noreply':'Keine Antwort','flt.emptyTitle':'Keine Einträge in dieser Auswahl','flt.emptyText':'Wähle einen anderen Filter oder zeige alle Einträge.','sort.by':'Sortieren','sort.date':'Datum','sort.status':'Status','sort.company':'Firma','sort.salary':'Gehalt','sort.toggle':'Richtung umschalten',
   'demo.tag':'Demo','demo.open':'Ohne Konto ansehen – Demo mit Beispieldaten','demo.note':'Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.','demo.reset':'Zurücksetzen','demo.leave':'Zur Anmeldung','demo.subtitle':'Demo mit Beispieldaten – nichts wird gespeichert.',
   'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
+  'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen',
  'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
  'misc.finished':'abgeschlossen','misc.badFile':'Diese Datei konnte nicht gelesen werden – erwartet wird ein JSON-Export dieser App.',
 },
@@ -1959,6 +2016,7 @@ en:{
   'flt.all':'All','flt.planned':'Planned','flt.applied':'Applied','flt.talking':'Interviewing','flt.accepted':'Accepted','flt.rejected':'Rejected','flt.noreply':'No reply','flt.emptyTitle':'Nothing in this selection','flt.emptyText':'Pick another filter or show all entries.','sort.by':'Sort by','sort.date':'Date','sort.status':'Status','sort.company':'Company','sort.salary':'Salary','sort.toggle':'Switch direction',
   'demo.tag':'Demo','demo.open':'Try it without an account – demo with sample data','demo.note':'Sample data to play with. Changes stay in this tab and are never saved.','demo.reset':'Reset','demo.leave':'To sign-in','demo.subtitle':'Demo with sample data – nothing is saved.',
   'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
+  'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet',
  'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
  'misc.finished':'closed','misc.badFile':'This file could not be read – a JSON export from this app is expected.',
 },
@@ -2035,6 +2093,7 @@ fr:{
   'flt.all':'Toutes','flt.planned':'Prévues','flt.applied':'Envoyées','flt.talking':'En entretien','flt.accepted':'Acceptées','flt.rejected':'Refus','flt.noreply':'Sans réponse','flt.emptyTitle':'Rien dans cette sélection','flt.emptyText':'Choisissez un autre filtre ou affichez tout.','sort.by':'Trier par','sort.date':'Date','sort.status':'Statut','sort.company':'Entreprise','sort.salary':'Salaire','sort.toggle':'Inverser le sens',
   'demo.tag':'Démo','demo.open':'Essayer sans compte – démo avec des données d’exemple','demo.note':'Données d’exemple pour essayer. Les modifications restent dans cet onglet et ne sont jamais enregistrées.','demo.reset':'Réinitialiser','demo.leave':'Vers la connexion','demo.subtitle':'Démo avec données d’exemple – rien n’est enregistré.',
   'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
+  'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos',
  'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
  'misc.finished':'clos','misc.badFile':'Ce fichier n’a pas pu être lu – un export JSON de cette application est attendu.',
 },
@@ -2111,6 +2170,7 @@ ar:{
   'flt.all':'الكل','flt.planned':'مُخطَّط','flt.applied':'تم التقديم','flt.talking':'في المقابلات','flt.accepted':'قبول','flt.rejected':'رفض','flt.noreply':'بلا رد','flt.emptyTitle':'لا نتائج في هذا التصفية','flt.emptyText':'اختر تصفية أخرى أو اعرض كل الطلبات.','sort.by':'ترتيب','sort.date':'التاريخ','sort.status':'الحالة','sort.company':'الشركة','sort.salary':'الراتب','sort.toggle':'عكس الاتجاه',
   'demo.tag':'تجربة','demo.open':'جرّب بدون حساب – عرض ببيانات نموذجية','demo.note':'بيانات نموذجية للتجربة. التغييرات تبقى في هذه النافذة ولا تُحفظ.','demo.reset':'إعادة تعيين','demo.leave':'إلى تسجيل الدخول','demo.subtitle':'عرض ببيانات نموذجية – لا يُحفظ شيء.',
   'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
+  'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد',
  'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
  'misc.finished':'مُغلق','misc.badFile':'لم يُقرأ هذا الملف – المتوقع ملف JSON مُصدَّر من هذا التطبيق.',
 },
@@ -2157,7 +2217,7 @@ function setLang(code){
   applyStatic();
   render();
   paintSync();
-  if($('#ovChart').classList.contains('show')) renderChart();
+  if(view === 'stats') renderBoard();
 }
 
 function initLang(){
@@ -2385,7 +2445,7 @@ function pillStyle(id){
 function render(){
   renderStats();
   renderTable();
-  if($('#ovChart').classList.contains('show')) renderChart();
+  if(view === 'stats') renderBoard();
 }
 
 function renderStats(){
@@ -3141,6 +3201,285 @@ function merge(incoming){
   render();
 }
 
+/* ═══════════════════════════  Statistiken  ═══════════════════════════ */
+
+let view = 'list';
+try{ view = localStorage.getItem('bewerbungen.view') || 'list'; }catch{}
+
+function setView(neu){
+  view = neu === 'stats' ? 'stats' : 'list';
+  try{ localStorage.setItem('bewerbungen.view', view); }catch{}
+  $('#viewList').hidden = view !== 'list';
+  $('#viewStats').hidden = view !== 'stats';
+  for(const b of $('#viewswitch').querySelectorAll('.vtab')){
+    const an = b.dataset.view === view;
+    b.classList.toggle('on', an);
+    b.setAttribute('aria-selected', an ? 'true' : 'false');
+  }
+  federSetzen();
+  if(view === 'stats') renderBoard();
+}
+
+/** Der gleitende Hintergrund des Umschalters folgt dem aktiven Reiter. */
+function federSetzen(){
+  const tabs = [...$('#viewswitch').querySelectorAll('.vtab')];
+  const aktiv = tabs.find(b => b.dataset.view === view) || tabs[0];
+  const feder = $('#vspring');
+  feder.style.width = aktiv.offsetWidth + 'px';
+  feder.style.transform = `translateX(${aktiv.offsetLeft - 4}px)`;
+}
+
+/* ─────────── Zahlenmaterial ─────────── */
+
+const ANTWORT_STATIONEN = ['iv1','iv2','iv3','ivN','offer','accepted','rejected'];
+
+/** Tage zwischen Bewerbung und erster echter Reaktion. */
+function antwortTage(it){
+  const raus = it.history.find(h => h.status === 'applied');
+  const antwort = it.history.find(h => ANTWORT_STATIONEN.includes(h.status));
+  if(!raus || !antwort || !isDate(raus.date) || !isDate(antwort.date)) return null;
+  const tage = Math.round((new Date(antwort.date) - new Date(raus.date)) / 86400000);
+  return tage >= 0 ? tage : null;
+}
+
+/** Gehalt auf ein Jahresäquivalent bringen, damit sich Angaben vergleichen lassen. */
+function jahresGehalt(it){
+  if(it.salary == null) return null;
+  return Math.round(it.salary * (it.salaryPeriod === 'month' ? 12 : it.salaryPeriod === 'hour' ? 1720 : 1));
+}
+
+const median = zahlen => {
+  if(!zahlen.length) return null;
+  const s = [...zahlen].sort((a,b) => a-b), m = Math.floor(s.length/2);
+  return s.length % 2 ? s[m] : Math.round((s[m-1] + s[m]) / 2);
+};
+
+/* ─────────── Bausteine ─────────── */
+
+function karte(titel, hinweis, klasse){
+  const k = el('section', 'bcard' + (klasse ? ' ' + klasse : ''));
+  const kopf = el('div','bhead');
+  kopf.append(el('h3', null, titel));
+  if(hinweis) kopf.append(el('span','bhint', hinweis));
+  k.append(kopf);
+  return k;
+}
+
+/** Waagerechter Balken mit Beschriftung – wächst beim Einblenden von links. */
+function balkenListe(zeilen, farbe){
+  const box = el('div','bars');
+  const max = Math.max(1, ...zeilen.map(z => z.wert));
+  zeilen.forEach((z, i) => {
+    const zeile = el('div','bar');
+    zeile.append(el('span','blabel', z.name));
+    const spur = el('span','btrack');
+    const fuell = el('span','bfill');
+    fuell.style.background = z.farbe || farbe || 'var(--accent)';
+    fuell.style.setProperty('--breite', (z.wert / max * 100) + '%');
+    fuell.style.animationDelay = (i * 45) + 'ms';
+    spur.append(fuell);
+    zeile.append(spur);
+    zeile.append(el('span','bval', z.text ?? String(z.wert)));
+    box.append(zeile);
+  });
+  return box;
+}
+
+/** Säulendiagramm über die Zeit, als SVG. */
+function saeulen(werte, beschriftung){
+  const NS = 'http://www.w3.org/2000/svg';
+  const B = 100, H = 34, luft = 1.2;
+  const max = Math.max(1, ...werte.map(w => w.wert));
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${B} ${H}`);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.classList.add('cols');
+  const breite = werte.length ? (B - luft * (werte.length - 1)) / werte.length : B;
+  werte.forEach((w, i) => {
+    const h = w.wert / max * (H - 2);
+    const r = document.createElementNS(NS, 'rect');
+    r.setAttribute('x', (i * (breite + luft)).toFixed(2));
+    r.setAttribute('y', (H - h).toFixed(2));
+    r.setAttribute('width', breite.toFixed(2));
+    r.setAttribute('height', Math.max(h, 0.6).toFixed(2));
+    r.setAttribute('rx', Math.min(breite / 2, 1.2).toFixed(2));
+    r.style.animationDelay = (i * 40) + 'ms';
+    const titel = document.createElementNS(NS, 'title');
+    titel.textContent = `${w.name}: ${w.wert}`;
+    r.append(titel);
+    svg.append(r);
+  });
+  const wrap = el('div','colwrap');
+  wrap.append(svg);
+  const achse = el('div','colaxis');
+  beschriftung.forEach(txt => achse.append(el('span', null, txt)));
+  wrap.append(achse);
+  return wrap;
+}
+
+/* ─────────── Das Dashboard ─────────── */
+
+function renderBoard(){
+  const board = $('#board');
+  board.innerHTML = '';
+  const daten = chartItems();
+
+  if(!items.length){
+    const leer = el('div','empty');
+    leer.innerHTML = `<div class="glyph">📊</div><h3>${esc(t('stat.emptyTitle'))}</h3><p>${esc(t('stat.emptyText'))}</p>`;
+    board.append(leer);
+    return;
+  }
+
+  /* Sankey */
+  const kSankey = karte(t('chart.title'), t('chart.hint'), 'wide');
+  const scope = el('div','seg small');
+  scope.id = 'chartScope';
+  for(const [wert, key] of [['all','chart.all'],['done','chart.done']]){
+    const lab = el('label');
+    const inp = el('input'); inp.type = 'radio'; inp.name = 'scope'; inp.value = wert;
+    inp.checked = chartScope === wert;
+    lab.append(inp, el('span', null, t(key)));
+    scope.append(lab);
+  }
+  scope.addEventListener('change', e => { chartScope = e.target.value; renderChart(); renderBoard(); });
+  kSankey.querySelector('.bhead').append(scope);
+  const wrap = el('div','chart-wrap');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','sankey'); svg.id = 'sankey';
+  wrap.append(svg);
+  const tip = el('div','tip'); tip.id = 'tip';
+  wrap.append(tip);
+  kSankey.append(wrap);
+  const conv = el('div','conv'); conv.id = 'conv';
+  kSankey.append(conv);
+  board.append(kSankey);
+
+  /* Bewerbungen nach Datum */
+  const monate = new Map();
+  for(const it of items){
+    const d = appliedDate(it);
+    if(!d) continue;
+    const key = d.slice(0, 7);
+    monate.set(key, (monate.get(key) || 0) + 1);
+  }
+  const kZeit = karte(t('stat.overTime'), t('stat.overTimeHint'));
+  if(monate.size){
+    const sortiert = [...monate.entries()].sort((a,b) => a[0].localeCompare(b[0]));
+    const werte = sortiert.map(([k, v]) => ({
+      name: new Date(k + '-01T00:00:00').toLocaleDateString(locale(), {month:'short', year:'2-digit'}),
+      wert: v,
+    }));
+    const summe = werte.reduce((a,b) => a + b.wert, 0);
+    kZeit.append(grosszahl(summe, t('stat.overTimeUnit', {n: werte.length})));
+    kZeit.append(saeulen(werte, [werte[0].name, werte[werte.length-1].name]));
+  }else kZeit.append(el('p','bempty', t('stat.none')));
+  board.append(kZeit);
+
+  /* Antwortzeit */
+  const tage = items.map(antwortTage).filter(t => t !== null);
+  const kAntwort = karte(t('stat.reply'), t('stat.replyHint'));
+  if(tage.length){
+    kAntwort.append(grosszahl(median(tage), t('stat.days'), t('stat.medianOf', {n: tage.length})));
+    const faecher = [
+      {name: t('stat.week1'), wert: tage.filter(d => d <= 7).length},
+      {name: t('stat.week2'), wert: tage.filter(d => d > 7 && d <= 14).length},
+      {name: t('stat.week4'), wert: tage.filter(d => d > 14 && d <= 28).length},
+      {name: t('stat.later'), wert: tage.filter(d => d > 28).length},
+    ];
+    kAntwort.append(balkenListe(faecher, 'var(--purple)'));
+  }else kAntwort.append(el('p','bempty', t('stat.noReplyYet')));
+  board.append(kAntwort);
+
+  /* Gehaltsspanne */
+  const gehaelter = items.map(jahresGehalt).filter(g => g !== null);
+  const kGeld = karte(t('stat.salary'), t('stat.salaryHint'));
+  if(gehaelter.length){
+    const min = Math.min(...gehaelter), max = Math.max(...gehaelter), mid = median(gehaelter);
+    const fmt = n => nfEur().format(n) + ' €';
+    kGeld.append(grosszahl(fmt(mid), '', t('stat.medianOf', {n: gehaelter.length})));
+    const spanne = el('div','range');
+    const spur = el('div','rtrack');
+    const strecke = el('div','rspan');
+    const p = w => max === min ? 50 : (w - min) / (max - min) * 100;
+    strecke.style.left = '0%'; strecke.style.right = '0%';
+    const marke = el('div','rmark');
+    marke.style.left = p(mid) + '%';
+    spur.append(strecke, marke);
+    spanne.append(spur);
+    const enden = el('div','rends');
+    enden.append(el('span', null, fmt(min)), el('span','rmid', fmt(mid)), el('span', null, fmt(max)));
+    spanne.append(enden);
+    kGeld.append(spanne);
+  }else kGeld.append(el('p','bempty', t('stat.noSalary')));
+  board.append(kGeld);
+
+  /* Orte */
+  const orte = new Map();
+  for(const it of items){
+    const o = (it.location || '').trim();
+    if(o) orte.set(o, (orte.get(o) || 0) + 1);
+  }
+  const kOrt = karte(t('stat.places'), t('stat.placesHint'));
+  if(orte.size){
+    const zeilen = [...orte.entries()].sort((a,b) => b[1] - a[1]).slice(0, 7)
+      .map(([name, wert]) => ({name, wert}));
+    kOrt.append(balkenListe(zeilen, 'var(--accent)'));
+  }else kOrt.append(el('p','bempty', t('stat.noPlaces')));
+  board.append(kOrt);
+
+  /* Kanäle mit Gesprächsquote */
+  const kanaele = new Map();
+  for(const it of items){
+    const k = it.channel || '–';
+    const e = kanaele.get(k) || {gesamt:0, gespraech:0};
+    e.gesamt++;
+    if(it.history.some(h => INTERVIEWS.includes(h.status))) e.gespraech++;
+    kanaele.set(k, e);
+  }
+  const kKanal = karte(t('stat.channels'), t('stat.channelsHint'));
+  if(kanaele.size){
+    const zeilen = [...kanaele.entries()].sort((a,b) => b[1].gesamt - a[1].gesamt).slice(0, 6)
+      .map(([k, e]) => ({
+        name: channelLabel(k) || t('stat.unknown'),
+        wert: e.gesamt,
+        text: `${e.gesamt} · ${Math.round(e.gespraech / e.gesamt * 100)} %`,
+      }));
+    kKanal.append(balkenListe(zeilen, 'var(--green)'));
+  }else kKanal.append(el('p','bempty', t('stat.none')));
+  board.append(kKanal);
+
+  /* Ausgang der abgeschlossenen Prozesse */
+  const abgeschlossen = items.filter(i => STAGE[i.status].terminal);
+  const kAusgang = karte(t('stat.outcome'), t('stat.outcomeHint'));
+  if(abgeschlossen.length){
+    const zeilen = ['accepted','rejected','noreply','withdrawn']
+      .map(id => ({
+        name: `${STAGE[id].emoji} ${STAGE[id].label}`,
+        wert: abgeschlossen.filter(i => i.status === id).length,
+        farbe: cssVar(STAGE[id].color),
+      }))
+      .filter(z => z.wert);
+    kAusgang.append(balkenListe(zeilen));
+  }else kAusgang.append(el('p','bempty', t('stat.noneClosed')));
+  board.append(kAusgang);
+
+  // Karten gestaffelt einblenden
+  [...board.children].forEach((k, i) => k.style.animationDelay = (i * 60) + 'ms');
+  renderChart();
+}
+
+/** Große Kennzahl mit Einheit und Fußnote. */
+function grosszahl(wert, einheit, fussnote){
+  const box = el('div','bignum');
+  const zeile = el('div','bigline');
+  zeile.append(el('span','bigval', String(wert)));
+  if(einheit) zeile.append(el('span','bigunit', einheit));
+  box.append(zeile);
+  if(fussnote) box.append(el('div','bigfoot', fussnote));
+  return box;
+}
+
 /* ═══════════════════════════  Sankey  ═══════════════════════════ */
 
 /** Datenbasis der Analyse: nur tatsächlich verschickte Bewerbungen,
@@ -3150,15 +3489,12 @@ function chartItems(){
   const sent = items.filter(i => i.history.some(h => h.status !== 'planned'));
   return chartScope === 'done' ? sent.filter(i => STAGE[i.status].terminal) : sent;
 }
-$('#chartScope').addEventListener('change', e => { chartScope = e.target.value; renderChart(); });
 
-$('#btnChart').onclick = () => {
-  openOverlay('#ovChart');
-  // Zweigleisig: im Hintergrund gedrosselte Tabs führen requestAnimationFrame nicht aus
-  requestAnimationFrame(renderChart);
-  setTimeout(renderChart, 120);
-};
-addEventListener('resize', () => { if($('#ovChart').classList.contains('show')) renderChart(); });
+$('#viewswitch').addEventListener('click', e => {
+  const tab = e.target.closest('.vtab');
+  if(tab) setView(tab.dataset.view);
+});
+addEventListener('resize', () => { if(view === 'stats') renderChart(); federSetzen(); });
 
 /** Verlauf → Knoten- und Kantengewichte.
  *  Endstatus bekommen je Abzweigstelle einen eigenen Knoten: eine Absage nach dem
@@ -3623,6 +3959,7 @@ $('#cbServer').onclick = takeServer;
 $('#cbMine').onclick = keepMine;
 
 /* ═══════════════════════════  Start  ═══════════════════════════ */
+addEventListener('load', () => setView(view));
 $('#btnLang').onclick = e => { e.stopPropagation(); openLangMenu(); };
 applyLabels();
 initLang();

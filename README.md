@@ -33,6 +33,12 @@ Firmenlogos über einen öffentlichen Favicon-Dienst mit farbiger Monogramm-Kach
 Bewerbungskanäle als Icon (LinkedIn, Indeed, StepStone, Xing, Website, E-Mail) und
 Gehalt strukturiert nach Betrag, Art und Zeitraum.
 
+**Zwei Ansichten.** Oben schaltet ein Segmentwähler zwischen *Übersicht* und *Statistiken*.
+Das Dashboard zeigt den Bewerbungsfluss als Sankey, Bewerbungen nach Monat, die Antwortzeit
+vom Verschicken bis zur ersten Reaktion, die Gehaltsspanne mit Median, Bewerbungen nach Ort,
+die Kanäle mit ihrem Anteil an Gesprächen und den Ausgang abgeschlossener Vorgänge — alles
+als handgebautes SVG beziehungsweise CSS, mit gestaffelt einlaufenden Balken.
+
 **Suchen, filtern, sortieren.** Die Suche greift über Firma, Rolle, Ort, Kanal und Status
 und verlangt bei mehreren Wörtern, dass alle passen. Chips nach Status zeigen die Anzahl
 innerhalb des Suchergebnisses, sortiert wird nach Datum, Status, Firma oder Gehalt in beide
