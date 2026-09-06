@@ -915,7 +915,30 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   </div>
 </div>
 
-<!-- ── Chart sheet ──────────────────────────────────────────── -->
+<!-- ── History sheet ────────────────────────────────────────── -->
+<div class="overlay" id="ovHistory">
+  <div class="sheet" style="max-width:460px" role="dialog" aria-modal="true" aria-labelledby="histTitle">
+    <div class="sheet-head">
+      <div>
+        <h2 id="histTitle" data-i18n="hist.title">Verlauf</h2>
+        <div class="hint" id="histWho"></div>
+      </div>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="timeline" id="histList"></div>
+      <div class="field" style="margin:18px 0 0">
+        <label for="histAdd" data-i18n="hist.add">Station ergänzen</label>
+        <select id="histAdd"></select>
+      </div>
+      <p class="sub" style="margin-top:10px" data-i18n="hist.note">Die letzte Station bestimmt den aktuellen Status. Das Diagramm zeigt genau diesen Weg.</p>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn primary" data-close data-i18n="hist.done">Fertig</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Teilen ───────────────────────────────────────────────── -->
 <div class="overlay" id="ovShare">
   <div class="sheet" style="max-width:560px" role="dialog" aria-modal="true">
@@ -3046,6 +3069,7 @@ function closeMenu(){ $('#menu').classList.remove('show'); }
 
 function openOverlay(sel){
   const ov = $(sel);
+  if(!ov){ console.error('Fenster fehlt im Dokument: ' + sel); return null; }
   ov.classList.add('show');
   document.body.style.overflow = 'hidden';
   return ov;

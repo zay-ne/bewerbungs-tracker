@@ -170,8 +170,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           verzeichnis: typeof COMPANY_DIR !== 'undefined' ? COMPANY_DIR.length : 0,
           logos_versucht: document.querySelectorAll('.mark img').length,
           logos_geladen: document.querySelectorAll('.mark.has-logo').length,
-          statistik_karten: document.querySelectorAll('#board .bcard').length
+          statistik_karten: document.querySelectorAll('#board .bcard').length,
+          fenster_fehlend: fehlendeFenster(),
+          verlauf: await verlaufProbe()
         });
+
+        // Jedes Fenster, das die Oberfläche öffnen kann, muss auch im Dokument stehen
+        function fehlendeFenster(){
+          return ['#ovForm','#ovHistory','#ovShare','#ovInvite','#ovConfirm']
+            .filter(sel => !document.querySelector(sel)).join(' ') || 'keine';
+        }
+        // Verlauf des ersten Eintrags wirklich öffnen und nachsehen, ob er sichtbar wird
+        async function verlaufProbe(){
+          if(!items.length) return 'kein Eintrag';
+          openHistory(items[0]);
+          const ov = document.querySelector('#ovHistory');
+          if(!ov) return 'Fenster fehlt';
+          await new Promise(r => setTimeout(r, 400));
+          // Nicht die Deckkraft prüfen: in einem unsichtbaren Fenster läuft die Blende nicht.
+          const stil = getComputedStyle(ov);
+          const kasten = ov.querySelector('.sheet').getBoundingClientRect();
+          const sichtbar = ov.classList.contains('show') && stil.display !== 'none'
+                        && stil.pointerEvents === 'auto' && kasten.width > 200 && kasten.height > 200;
+          const stationen = document.querySelectorAll('#histList .tl').length;
+          document.querySelectorAll('.overlay.show').forEach(o => o.classList.remove('show'));
+          document.body.style.overflow = '';
+          return sichtbar ? stationen + ' Stationen sichtbar' : 'unsichtbar';
+        }
         """
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             self.web.callAsyncJavaScript(probe, in: nil, in: .page) { outcome in
