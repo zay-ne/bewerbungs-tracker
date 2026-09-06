@@ -167,6 +167,19 @@ h1{
 .account .mail{font-size:13px;color:var(--text-secondary);max-width:170px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* Teilen */
+.previewbox{
+  margin-top:16px;background:var(--bg-sunken);border-radius:var(--r-md);
+  padding:14px;display:grid;place-items:center;
+}
+.preview{
+  display:block;max-width:100%;border-radius:10px;
+  box-shadow:0 8px 26px rgba(0,0,0,.16);background:#fff;
+}
+.preview.hoch{max-height:340px}
+.preview.quer{max-height:260px}
+.btn.share{gap:6px}
+
 /* Demo-Hinweis */
 .demobar{
   display:flex;align-items:center;gap:12px;flex-wrap:wrap;
@@ -226,6 +239,7 @@ h1{
 .vtab:active{transform:scale(.97)}
 
 /* ─────────────────────────  Statistik-Karten  ───────────────────────── */
+.boardbar{display:flex;justify-content:flex-end;margin:-6px 0 14px}
 .board{
   display:grid;gap:16px;
   grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
@@ -237,6 +251,8 @@ h1{
   animation:kartenAuf .5s var(--ease) forwards;
 }
 .bcard.wide{grid-column:1/-1}
+.bcard.wide2{grid-column:span 2}
+@media (max-width:1000px){.bcard.wide2{grid-column:1/-1}}
 @keyframes kartenAuf{to{opacity:1;transform:none}}
 .bhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .bhead h3{font-size:15.5px;font-weight:600;letter-spacing:-.015em}
@@ -268,6 +284,23 @@ h1{
 }
 @keyframes balkenAuf{to{width:var(--breite)}}
 .bval{flex:none;font-variant-numeric:tabular-nums;color:var(--text-secondary);min-width:52px;text-align:right}
+
+/* Bewerbungen nach Monat */
+.months{display:flex;gap:8px;align-items:flex-end;overflow-x:auto;padding-bottom:2px}
+.month{flex:1 1 0;min-width:34px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mval{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;height:16px}
+.month.leer .mval{color:var(--text-tertiary)}
+.mtrack{width:100%;height:104px;display:flex;align-items:flex-end}
+.mfill{
+  width:100%;height:0;border-radius:7px 7px 3px 3px;
+  background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 72%,transparent));
+  animation:saeuleHoch .65s var(--ease) forwards;
+}
+.month.leer .mfill{background:var(--bg-sunken);height:3px;animation:none;border-radius:3px}
+@keyframes saeuleHoch{to{height:var(--hoehe)}}
+.mname{display:flex;flex-direction:column;align-items:center;line-height:1.15}
+.mname b{font-size:11.5px;font-weight:600;color:var(--text-secondary)}
+.mname i{font-size:10px;font-style:normal;color:var(--text-tertiary)}
 
 /* Säulen über die Zeit */
 .colwrap{margin-top:2px}
@@ -791,6 +824,9 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   </div>
 
   <div id="viewStats" hidden>
+    <div class="boardbar">
+      <button class="btn" id="btnShare"><span class="ico">↗</span><span data-i18n="share.button">Teilen</span></button>
+    </div>
     <div class="board" id="board"></div>
   </div>
 </div>
@@ -880,6 +916,31 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 </div>
 
 <!-- ── Chart sheet ──────────────────────────────────────────── -->
+<!-- ── Teilen ───────────────────────────────────────────────── -->
+<div class="overlay" id="ovShare">
+  <div class="sheet" style="max-width:560px" role="dialog" aria-modal="true">
+    <div class="sheet-head">
+      <div>
+        <h2 data-i18n="share.heading">Statistiken teilen</h2>
+        <div class="hint" data-i18n="share.hint">Ein Bild mit Summen – ohne Firmennamen.</div>
+      </div>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="seg" id="shareFormat">
+        <label><input type="radio" name="pformat" value="hoch" checked><span data-i18n="share.portrait">Hochformat 1080 × 1920</span></label>
+        <label><input type="radio" name="pformat" value="quer"><span data-i18n="share.landscape">Querformat 1920 × 1080</span></label>
+      </div>
+      <div class="previewbox"><img id="sharePreview" class="preview hoch" alt=""></div>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn quiet" data-close data-i18n="form.cancel">Abbrechen</button>
+      <button class="btn" id="shareSave" data-i18n="share.save">Bild sichern</button>
+      <button class="btn primary" id="shareGo" data-i18n="share.share">Teilen</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Anmeldung ────────────────────────────────────────────── -->
 <div class="gate" id="gate" hidden>
   <div class="gatebox">
@@ -1940,6 +2001,8 @@ de:{
   'demo.tag':'Demo','demo.open':'Ohne Konto ansehen – Demo mit Beispieldaten','demo.note':'Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.','demo.reset':'Zurücksetzen','demo.leave':'Zur Anmeldung','demo.subtitle':'Demo mit Beispieldaten – nichts wird gespeichert.',
   'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
   'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen',
+  'stat.bestMonth':'Stärkster Monat: {monat} mit {n}',
+  'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.funnel':'Vom Verschicken zur Zusage','share.interview':'Im Gespräch','share.median':'Median','share.footer':'erstellt mit Bewerbungen',
  'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
  'misc.finished':'abgeschlossen','misc.badFile':'Diese Datei konnte nicht gelesen werden – erwartet wird ein JSON-Export dieser App.',
 },
@@ -2017,6 +2080,8 @@ en:{
   'demo.tag':'Demo','demo.open':'Try it without an account – demo with sample data','demo.note':'Sample data to play with. Changes stay in this tab and are never saved.','demo.reset':'Reset','demo.leave':'To sign-in','demo.subtitle':'Demo with sample data – nothing is saved.',
   'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
   'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet',
+  'stat.bestMonth':'Strongest month: {monat} with {n}',
+  'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.funnel':'From sending to offer','share.interview':'Interviewing','share.median':'Median','share.footer':'made with Bewerbungen',
  'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
  'misc.finished':'closed','misc.badFile':'This file could not be read – a JSON export from this app is expected.',
 },
@@ -2094,6 +2159,8 @@ fr:{
   'demo.tag':'Démo','demo.open':'Essayer sans compte – démo avec des données d’exemple','demo.note':'Données d’exemple pour essayer. Les modifications restent dans cet onglet et ne sont jamais enregistrées.','demo.reset':'Réinitialiser','demo.leave':'Vers la connexion','demo.subtitle':'Démo avec données d’exemple – rien n’est enregistré.',
   'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
   'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos',
+  'stat.bestMonth':'Mois le plus fort : {monat} avec {n}',
+  'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.funnel':'De l’envoi à la promesse','share.interview':'En entretien','share.median':'Médiane','share.footer':'créé avec Bewerbungen',
  'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
  'misc.finished':'clos','misc.badFile':'Ce fichier n’a pas pu être lu – un export JSON de cette application est attendu.',
 },
@@ -2171,6 +2238,8 @@ ar:{
   'demo.tag':'تجربة','demo.open':'جرّب بدون حساب – عرض ببيانات نموذجية','demo.note':'بيانات نموذجية للتجربة. التغييرات تبقى في هذه النافذة ولا تُحفظ.','demo.reset':'إعادة تعيين','demo.leave':'إلى تسجيل الدخول','demo.subtitle':'عرض ببيانات نموذجية – لا يُحفظ شيء.',
   'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
   'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد',
+  'stat.bestMonth':'أقوى شهر: {monat} بعدد {n}',
+  'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.funnel':'من الإرسال حتى القبول','share.interview':'في المقابلات','share.median':'الوسيط','share.footer':'أُنشئ بـ Bewerbungen',
  'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
  'misc.finished':'مُغلق','misc.badFile':'لم يُقرأ هذا الملف – المتوقع ملف JSON مُصدَّر من هذا التطبيق.',
 },
@@ -3285,6 +3354,51 @@ function balkenListe(zeilen, farbe){
   return box;
 }
 
+
+/** Lückenlose Monatsreihe vom ersten bis zum letzten Bewerbungsmonat. */
+function monatsReihe(){
+  const zaehler = new Map();
+  for(const it of items){
+    const d = appliedDate(it);
+    if(d) zaehler.set(d.slice(0, 7), (zaehler.get(d.slice(0, 7)) || 0) + 1);
+  }
+  if(!zaehler.size) return [];
+  const schluessel = [...zaehler.keys()].sort();
+  const [jaA, moA] = schluessel[0].split('-').map(Number);
+  const [jaE, moE] = schluessel[schluessel.length - 1].split('-').map(Number);
+  const reihe = [];
+  for(let j = jaA, m = moA; j < jaE || (j === jaE && m <= moE); m === 12 ? (m = 1, j++) : m++){
+    const key = `${j}-${String(m).padStart(2, '0')}`;
+    reihe.push({key, wert: zaehler.get(key) || 0,
+                name: new Date(key + '-01T00:00:00').toLocaleDateString(locale(), {month:'short'}),
+                jahr: String(j).slice(2)});
+  }
+  return reihe;
+}
+
+/** Säulen mit Zahl über und Monat unter jeder Säule. */
+function monatsSaeulen(reihe){
+  const box = el('div','months');
+  const max = Math.max(1, ...reihe.map(r => r.wert));
+  reihe.forEach((r, i) => {
+    const spalte = el('div','month' + (r.wert ? '' : ' leer'));
+    spalte.append(el('span','mval', r.wert ? String(r.wert) : ''));
+    const spur = el('span','mtrack');
+    const saeule = el('span','mfill');
+    saeule.style.setProperty('--hoehe', Math.max(r.wert / max * 100, r.wert ? 4 : 0) + '%');
+    saeule.style.animationDelay = (i * 45) + 'ms';
+    spur.append(saeule);
+    spalte.append(spur);
+    const beschriftung = el('span','mname');
+    beschriftung.append(el('b', null, r.name));
+    beschriftung.append(el('i', null, r.jahr));
+    spalte.append(beschriftung);
+    spalte.title = `${r.name} ${r.jahr}: ${r.wert}`;
+    box.append(spalte);
+  });
+  return box;
+}
+
 /** Säulendiagramm über die Zeit, als SVG. */
 function saeulen(werte, beschriftung){
   const NS = 'http://www.w3.org/2000/svg';
@@ -3356,23 +3470,14 @@ function renderBoard(){
   board.append(kSankey);
 
   /* Bewerbungen nach Datum */
-  const monate = new Map();
-  for(const it of items){
-    const d = appliedDate(it);
-    if(!d) continue;
-    const key = d.slice(0, 7);
-    monate.set(key, (monate.get(key) || 0) + 1);
-  }
-  const kZeit = karte(t('stat.overTime'), t('stat.overTimeHint'));
-  if(monate.size){
-    const sortiert = [...monate.entries()].sort((a,b) => a[0].localeCompare(b[0]));
-    const werte = sortiert.map(([k, v]) => ({
-      name: new Date(k + '-01T00:00:00').toLocaleDateString(locale(), {month:'short', year:'2-digit'}),
-      wert: v,
-    }));
-    const summe = werte.reduce((a,b) => a + b.wert, 0);
-    kZeit.append(grosszahl(summe, t('stat.overTimeUnit', {n: werte.length})));
-    kZeit.append(saeulen(werte, [werte[0].name, werte[werte.length-1].name]));
+  const reihe = monatsReihe();
+  const kZeit = karte(t('stat.overTime'), t('stat.overTimeHint'), 'wide2');
+  if(reihe.length){
+    const summe = reihe.reduce((a,b) => a + b.wert, 0);
+    const bester = reihe.reduce((a,b) => b.wert > a.wert ? b : a);
+    kZeit.append(grosszahl(summe, t('stat.overTimeUnit', {n: reihe.length}),
+      t('stat.bestMonth', {monat: bester.name + ' ' + bester.jahr, n: bester.wert})));
+    kZeit.append(monatsSaeulen(reihe));
   }else kZeit.append(el('p','bempty', t('stat.none')));
   board.append(kZeit);
 
@@ -3480,6 +3585,376 @@ function grosszahl(wert, einheit, fussnote){
   return box;
 }
 
+/* ═══════════════════════════  Teilen  ═══════════════════════════ */
+
+/* Das Bild wird auf eine Leinwand gezeichnet statt die Seite abzufotografieren:
+   so ist das Ergebnis in jeder Umgebung gleich, braucht keine fremden Bausteine
+   und enthält bewusst nur Summen – keine Firmennamen. */
+
+const POSTER = {
+  hoch:  {b: 1080, h: 1920},
+  quer:  {b: 1920, h: 1080},
+};
+let posterFormat = 'hoch';
+
+const PFARBE = {
+  grund:   '#f2f4f9',
+  karte:   '#ffffff',
+  text:    '#14161c',
+  leise:   '#6e7280',
+  zart:    '#a6abb8',
+  akzent:  '#0a66e0',
+  gruen:   '#1d9e4b',
+  rot:     '#d63a2f',
+  sand:    '#a9852f',
+  grau:    '#9aa0ad',
+  violett: '#6a4ce0',
+};
+
+const schrift = (groesse, gewicht = 400) =>
+  `${gewicht} ${groesse}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Inter, system-ui, sans-serif`;
+
+function rundesRechteck(ctx, x, y, b, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + b, y, x + b, y + h, r);
+  ctx.arcTo(x + b, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + b, y, r);
+  ctx.closePath();
+}
+
+/** Das App-Zeichen: vier runde Spitzen mit eingezogenen Kanten. */
+function zeichenMalen(ctx, cx, cy, groesse){
+  const r = groesse * 0.315, rt = r * 0.42, c = r - rt, phi = Math.PI * 65 / 180, reach = r * 0.25;
+  const achsen = [0, Math.PI/2, Math.PI, Math.PI*1.5];
+  const schulter = (achse, off) => {
+    const a = achse + off;
+    return {p: [cx + c*Math.cos(achse) + rt*Math.cos(a), cy + c*Math.sin(achse) + rt*Math.sin(a)],
+            t: [-Math.sin(a), Math.cos(a)]};
+  };
+  ctx.beginPath();
+  const start = schulter(achsen[0], -phi).p;
+  ctx.moveTo(start[0], start[1]);
+  achsen.forEach((achse, i) => {
+    ctx.arc(cx + c*Math.cos(achse), cy + c*Math.sin(achse), rt, achse - phi, achse + phi);
+    const aus = schulter(achse, phi), rein = schulter(achsen[(i+1)%4], -phi);
+    ctx.bezierCurveTo(aus.p[0] + aus.t[0]*reach, aus.p[1] + aus.t[1]*reach,
+                      rein.p[0] - rein.t[0]*reach, rein.p[1] - rein.t[1]*reach,
+                      rein.p[0], rein.p[1]);
+  });
+  ctx.closePath();
+  ctx.strokeStyle = '#565592';
+  ctx.lineWidth = groesse * 0.077;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+}
+
+/** Zeichnet das Poster und gibt die Leinwand zurück. */
+function posterZeichnen(format = 'hoch'){
+  const {b: B, h: H} = POSTER[format] || POSTER.hoch;
+  const quer = format === 'quer';
+  const c = document.createElement('canvas');
+  c.width = B; c.height = H;
+  const ctx = c.getContext('2d');
+  const daten = items;
+
+  const verlauf = ctx.createLinearGradient(0, 0, B, H);
+  verlauf.addColorStop(0, '#f7f8fc');
+  verlauf.addColorStop(1, '#e9edf7');
+  ctx.fillStyle = verlauf;
+  ctx.fillRect(0, 0, B, H);
+
+  const rand = Math.round(B * (quer ? 0.045 : 0.072));
+  const innen = B - rand * 2;
+  const luecke = quer ? 20 : 24;
+
+  /* ── Zahlen, die mehrere Blöcke brauchen ── */
+  const reihe = monatsReihe();
+  const verschickt = daten.filter(i => i.history.some(h => h.status !== 'planned'));
+  const mitGespraech = verschickt.filter(i => i.history.some(h => INTERVIEWS.includes(h.status)));
+  const zusagen = daten.filter(i => i.status === 'accepted');
+  const tage = daten.map(antwortTage).filter(t => t !== null);
+  const gehaelter = daten.map(jahresGehalt).filter(g => g !== null);
+
+  /* ── Kopf ── */
+  const zeichenGr = quer ? 80 : 96;
+  zeichenMalen(ctx, rand + zeichenGr / 2, rand + zeichenGr / 2, zeichenGr);
+  ctx.fillStyle = PFARBE.text;
+  ctx.font = schrift(quer ? 52 : 60, 700);
+  ctx.fillText(t('share.title'), rand + zeichenGr + 22, rand + zeichenGr * 0.46);
+  ctx.fillStyle = PFARBE.leise;
+  ctx.font = schrift(quer ? 25 : 28, 500);
+  const zeitraum = reihe.length
+    ? `${reihe[0].name} ${reihe[0].jahr} – ${reihe[reihe.length-1].name} ${reihe[reihe.length-1].jahr}`
+    : '';
+  ctx.fillText(zeitraum, rand + zeichenGr + 22, rand + zeichenGr * 0.86);
+
+  const kopfH = zeichenGr + (quer ? 26 : 34);
+  const fussH = quer ? 46 : 56;
+  const oben = rand + kopfH;
+  const platz = H - oben - rand - fussH;
+
+  /* ── Bausteine ── */
+  const karteMalen = (x, y, b, h, titel) => {
+    ctx.fillStyle = PFARBE.karte;
+    rundesRechteck(ctx, x, y, b, h, quer ? 26 : 32);
+    ctx.fill();
+    if(titel){
+      ctx.fillStyle = PFARBE.text;
+      ctx.font = schrift(quer ? 26 : 30, 600);
+      ctx.textAlign = 'left';
+      ctx.fillText(titel, x + 30, y + (quer ? 44 : 52));
+    }
+    return {ix: x + 30, iy: y + (titel ? (quer ? 62 : 74) : 30), ib: b - 60, ih: h - (titel ? (quer ? 78 : 92) : 60)};
+  };
+
+  const kpiMalen = (x, y, b, h) => {
+    const werte = [
+      [String(verschickt.length), t('share.sent')],
+      [verschickt.length ? Math.round(mitGespraech.length / verschickt.length * 100) + '%' : '–', t('share.rate')],
+      [String(zusagen.length), t('share.offers')],
+      [tage.length ? median(tage) + ' ' + t('stat.days') : '–', t('share.reply')],
+    ];
+    const kb = (b - 3 * luecke) / 4;
+    werte.forEach(([wert, titel], i) => {
+      const kx = x + i * (kb + luecke);
+      ctx.fillStyle = PFARBE.karte;
+      rundesRechteck(ctx, kx, y, kb, h, quer ? 26 : 32);
+      ctx.fill();
+      ctx.fillStyle = PFARBE.text;
+      ctx.font = schrift(Math.min(kb * 0.24, quer ? 46 : 54), 600);
+      ctx.fillText(wert, kx + 26, y + h * 0.62);
+      ctx.fillStyle = PFARBE.leise;
+      ctx.font = schrift(quer ? 21 : 23, 500);
+      ctx.fillText(titel, kx + 26, y + h * 0.85);
+    });
+  };
+
+  const monateMalen = (x, y, b, h) => {
+    const r = karteMalen(x, y, b, h, t('stat.overTime'));
+    if(!reihe.length) return;
+    const max = Math.max(1, ...reihe.map(m => m.wert));
+    const basis = r.iy + r.ih - 52;
+    const hoehe = r.ih - 84;
+    const spalte = r.ib / reihe.length;
+    reihe.forEach((m, i) => {
+      const bh = Math.max(m.wert / max * hoehe, 4);
+      const bx = r.ix + i * spalte + spalte * 0.16;
+      const bb = spalte * 0.68;
+      ctx.fillStyle = m.wert ? PFARBE.akzent : '#e3e7ef';
+      rundesRechteck(ctx, bx, basis - bh, bb, bh, Math.min(bb / 2, 10));
+      ctx.fill();
+      ctx.textAlign = 'center';
+      if(m.wert){
+        ctx.fillStyle = PFARBE.text;
+        ctx.font = schrift(22, 600);
+        ctx.fillText(String(m.wert), bx + bb / 2, basis - bh - 12);
+      }
+      ctx.fillStyle = PFARBE.leise;
+      ctx.font = schrift(20, 500);
+      ctx.fillText(m.name, bx + bb / 2, basis + 28);
+      ctx.fillStyle = PFARBE.zart;
+      ctx.font = schrift(17, 500);
+      ctx.fillText(m.jahr, bx + bb / 2, basis + 50);
+      ctx.textAlign = 'left';
+    });
+  };
+
+  const trichterMalen = (x, y, b, h) => {
+    const r = karteMalen(x, y, b, h, t('share.funnel'));
+    const stufen = [
+      [t('stage.applied'), verschickt.length, PFARBE.akzent],
+      [t('share.interview'), mitGespraech.length, PFARBE.violett],
+      [t('stage.offer'), daten.filter(i => i.history.some(h2 => h2.status === 'offer')).length, PFARBE.sand],
+      [t('stage.accepted'), zusagen.length, PFARBE.gruen],
+    ];
+    const max = Math.max(1, ...stufen.map(s => s[1]));
+    const schritt = r.ih / stufen.length;
+    // Bei knapper Höhe steht die Beschriftung neben dem Balken statt darüber
+    const eng = schritt < 62;
+    stufen.forEach(([name, wert, farbe], i) => {
+      const zy = r.iy + i * schritt + schritt * (eng ? 0.5 : 0.46);
+      const spurX = eng ? r.ix + r.ib * 0.42 : r.ix;
+      const spurB = eng ? r.ib * 0.58 : r.ib;
+      ctx.fillStyle = PFARBE.text;
+      ctx.font = schrift(eng ? 20 : 21, 600);
+      if(eng) ctx.fillText(`${name}  ${wert}`, r.ix, zy + 6);
+      else ctx.fillText(`${name}  ${wert}`, r.ix, zy - 12);
+      const bh = eng ? 18 : 26;
+      ctx.fillStyle = '#eef1f7';
+      rundesRechteck(ctx, spurX, zy - bh / 2, spurB, bh, bh / 2);
+      ctx.fill();
+      ctx.fillStyle = farbe;
+      rundesRechteck(ctx, spurX, zy - bh / 2, Math.max(spurB * (wert / max), 8), bh, bh / 2);
+      ctx.fill();
+    });
+  };
+
+  const ausgangMalen = (x, y, b, h) => {
+    const r = karteMalen(x, y, b, h, t('stat.outcome'));
+    const teile = [['accepted', PFARBE.gruen], ['rejected', PFARBE.rot],
+                   ['noreply', PFARBE.sand], ['withdrawn', PFARBE.grau]]
+      .map(([id, farbe]) => ({id, farbe, wert: daten.filter(i => i.status === id).length}))
+      .filter(a => a.wert);
+    const gesamt = teile.reduce((a, b2) => a + b2.wert, 0);
+    if(!gesamt){
+      ctx.fillStyle = PFARBE.zart;
+      ctx.font = schrift(22, 500);
+      ctx.fillText(t('stat.noneClosed'), r.ix, r.iy + 30);
+      return;
+    }
+    const radius = Math.min(r.ib * 0.19, r.ih * 0.42);
+    const mx = r.ix + radius + 10, my = r.iy + r.ih / 2;
+    let winkel = -Math.PI / 2;
+    teile.forEach(a => {
+      const anteil = a.wert / gesamt * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(mx, my, radius, winkel, winkel + anteil);
+      ctx.strokeStyle = a.farbe;
+      ctx.lineWidth = radius * 0.44;
+      ctx.stroke();
+      winkel += anteil;
+    });
+    ctx.fillStyle = PFARBE.text;
+    ctx.font = schrift(radius * 0.62, 600);
+    ctx.textAlign = 'center';
+    ctx.fillText(String(gesamt), mx, my + radius * 0.22);
+    ctx.textAlign = 'left';
+    const lx = mx + radius + 34;
+    teile.forEach((a, i) => {
+      const ly = my - (teile.length - 1) * 20 + i * 40 + 6;
+      ctx.fillStyle = a.farbe;
+      ctx.beginPath();
+      ctx.arc(lx, ly - 7, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = PFARBE.text;
+      ctx.font = schrift(22, 500);
+      ctx.fillText(`${STAGE[a.id].label} · ${a.wert}`, lx + 20, ly);
+    });
+  };
+
+  const orteMalen = (x, y, b, h) => {
+    const r = karteMalen(x, y, b, h, t('stat.places'));
+    const orte = new Map();
+    for(const it of daten){
+      const o = (it.location || '').trim();
+      if(o) orte.set(o, (orte.get(o) || 0) + 1);
+    }
+    const gehaltZeile = gehaelter.length ? 54 : 0;
+    const platzOrte = r.ih - gehaltZeile;
+    const wieViele = Math.max(1, Math.min(orte.size, Math.floor(platzOrte / 44)));
+    const top = [...orte.entries()].sort((a, b2) => b2[1] - a[1]).slice(0, wieViele);
+    const max = Math.max(1, ...top.map(o => o[1]));
+    top.forEach(([name, wert], i) => {
+      const zy = r.iy + 18 + i * (platzOrte / Math.max(top.length, 1));
+      ctx.fillStyle = PFARBE.leise;
+      ctx.font = schrift(22, 500);
+      ctx.fillText(name, r.ix, zy + 6);
+      const spurX = r.ix + r.ib * 0.34, spurB = r.ib * 0.52;
+      ctx.fillStyle = '#eef1f7';
+      rundesRechteck(ctx, spurX, zy - 12, spurB, 18, 9);
+      ctx.fill();
+      ctx.fillStyle = PFARBE.akzent;
+      rundesRechteck(ctx, spurX, zy - 12, Math.max(spurB * (wert / max), 8), 18, 9);
+      ctx.fill();
+      ctx.fillStyle = PFARBE.text;
+      ctx.font = schrift(21, 600);
+      ctx.fillText(String(wert), spurX + spurB + 16, zy + 5);
+    });
+    if(gehaelter.length){
+      const gy = r.iy + r.ih - 6;
+      const fmt = n => nfEur().format(n) + ' €';
+      ctx.fillStyle = PFARBE.leise;
+      ctx.font = schrift(21, 500);
+      ctx.fillText(`${t('stat.salary')}  ${fmt(Math.min(...gehaelter))} – ${fmt(Math.max(...gehaelter))}`, r.ix, gy);
+      ctx.fillStyle = PFARBE.text;
+      ctx.font = schrift(21, 600);
+      ctx.textAlign = 'right';
+      ctx.fillText(`${t('share.median')} ${fmt(median(gehaelter))}`, r.ix + r.ib, gy);
+      ctx.textAlign = 'left';
+    }
+  };
+
+  /* ── Anordnung ── */
+  if(quer){
+    const kpiH = platz * 0.2;
+    const restH = platz - kpiH - luecke * 2;
+    const obenH = restH * 0.52, untenH = restH - obenH;
+    const linksB = innen * 0.58, rechtsB = innen - linksB - luecke;
+    kpiMalen(rand, oben, innen, kpiH);
+    const y2 = oben + kpiH + luecke;
+    monateMalen(rand, y2, linksB, obenH);
+    ausgangMalen(rand + linksB + luecke, y2, rechtsB, obenH);
+    const y3 = y2 + obenH + luecke;
+    trichterMalen(rand, y3, linksB, untenH);
+    orteMalen(rand + linksB + luecke, y3, rechtsB, untenH);
+  }else{
+    const anteile = [0.155, 0.265, 0.285, 0.295];
+    const gesamtLuecke = luecke * 3;
+    const hoehen = anteile.map(a => (platz - gesamtLuecke) * a / anteile.reduce((x, z) => x + z, 0));
+    let y = oben;
+    kpiMalen(rand, y, innen, hoehen[0]); y += hoehen[0] + luecke;
+    monateMalen(rand, y, innen, hoehen[1]); y += hoehen[1] + luecke;
+    const halb = (innen - luecke) / 2;
+    trichterMalen(rand, y, halb, hoehen[2]);
+    ausgangMalen(rand + halb + luecke, y, halb, hoehen[2]);
+    y += hoehen[2] + luecke;
+    orteMalen(rand, y, innen, hoehen[3]);
+  }
+
+  /* ── Fuß ── */
+  ctx.fillStyle = PFARBE.zart;
+  ctx.font = schrift(21, 500);
+  ctx.fillText(new Date().toLocaleDateString(locale(), {day:'2-digit', month:'long', year:'numeric'}), rand, H - rand - 8);
+  ctx.textAlign = 'right';
+  ctx.fillText(t('share.footer'), B - rand, H - rand - 8);
+  ctx.textAlign = 'left';
+
+  return c;
+}
+
+/* ─────────── Teilen-Fenster ─────────── */
+
+function teilenOeffnen(){
+  openOverlay('#ovShare');
+  posterVorschau();
+}
+
+function posterVorschau(){
+  const c = posterZeichnen(posterFormat);
+  const bild = $('#sharePreview');
+  bild.src = c.toDataURL('image/png');
+  bild.className = 'preview ' + posterFormat;
+}
+
+function posterName(){
+  return `bewerbungen-${today()}-${posterFormat === 'quer' ? '1920x1080' : '1080x1920'}.png`;
+}
+
+async function posterSichern(){
+  const c = posterZeichnen(posterFormat);
+  const daten = c.toDataURL('image/png');
+  if(native){
+    toApp({type:'exportImage', data: daten.split(',')[1], name: posterName()});
+    return;
+  }
+  const a = el('a');
+  a.href = daten;
+  a.download = posterName();
+  a.click();
+}
+
+async function posterTeilen(){
+  const c = posterZeichnen(posterFormat);
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  const datei = new File([blob], posterName(), {type: 'image/png'});
+  if(navigator.canShare?.({files: [datei]})){
+    try{ await navigator.share({files: [datei], title: t('share.title')}); return; }catch{ return; }
+  }
+  posterSichern();
+}
+
 /* ═══════════════════════════  Sankey  ═══════════════════════════ */
 
 /** Datenbasis der Analyse: nur tatsächlich verschickte Bewerbungen,
@@ -3489,6 +3964,11 @@ function chartItems(){
   const sent = items.filter(i => i.history.some(h => h.status !== 'planned'));
   return chartScope === 'done' ? sent.filter(i => STAGE[i.status].terminal) : sent;
 }
+
+$('#btnShare').onclick = teilenOeffnen;
+$('#shareFormat').addEventListener('change', e => { posterFormat = e.target.value; posterVorschau(); });
+$('#shareSave').onclick = posterSichern;
+$('#shareGo').onclick = posterTeilen;
 
 $('#viewswitch').addEventListener('click', e => {
   const tab = e.target.closest('.vtab');

@@ -160,7 +160,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     /// Prüft ohne Zutun: Daten kommen an, Tabelle und Diagramm bauen sich auf, Speichern landet in der Datei.
     private func selfTest() {
         let probe = """
-        document.querySelector('#btnChart').click();
+        setView('stats');
         await new Promise(r => setTimeout(r, 1500));   // Logos kommen übers Netz
         return JSON.stringify({
           native: native, items: items.length,
@@ -169,7 +169,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           diagramm_knoten: document.querySelectorAll('#sankey g.nodes rect').length,
           verzeichnis: typeof COMPANY_DIR !== 'undefined' ? COMPANY_DIR.length : 0,
           logos_versucht: document.querySelectorAll('.mark img').length,
-          logos_geladen: document.querySelectorAll('.mark.has-logo').length
+          logos_geladen: document.querySelectorAll('.mark.has-logo').length,
+          statistik_karten: document.querySelectorAll('#board .bcard').length
         });
         """
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -205,6 +206,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         // Die gemeinsame Ablage ist noch leer und fragt nach dem bisherigen Bestand
         case "seed":
             hydrate(Store.read(), function: "__seedLocal")
+
+        // Poster aus der Statistik-Ansicht sichern
+        case "exportImage":
+            let panel = NSSavePanel()
+            panel.nameFieldStringValue = (body["name"] as? String) ?? "bewerbungen.png"
+            panel.allowedContentTypes = [.png]
+            panel.beginSheetModal(for: window) { response in
+                guard response == .OK, let url = panel.url,
+                      let b64 = body["data"] as? String,
+                      let data = Data(base64Encoded: b64) else { return }
+                try? data.write(to: url, options: .atomic)
+            }
 
         case "export":
             let panel = NSSavePanel()

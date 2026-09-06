@@ -33,6 +33,11 @@ Firmenlogos über einen öffentlichen Favicon-Dienst mit farbiger Monogramm-Kach
 Bewerbungskanäle als Icon (LinkedIn, Indeed, StepStone, Xing, Website, E-Mail) und
 Gehalt strukturiert nach Betrag, Art und Zeitraum.
 
+**Teilen als Bild.** Aus den Statistiken lässt sich ein Poster im Hochformat (1080 × 1920)
+oder Querformat (1920 × 1080) erzeugen — auf eine Leinwand gezeichnet statt die Seite
+abzufotografieren, damit das Ergebnis überall gleich aussieht und ohne fremde Bausteine
+auskommt. Es zeigt bewusst nur Summen, keine Firmennamen.
+
 **Zwei Ansichten.** Oben schaltet ein Segmentwähler zwischen *Übersicht* und *Statistiken*.
 Das Dashboard zeigt den Bewerbungsfluss als Sankey, Bewerbungen nach Monat, die Antwortzeit
 vom Verschicken bis zur ersten Reaktion, die Gehaltsspanne mit Median, Bewerbungen nach Ort,
