@@ -183,12 +183,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           verzeichnis: typeof COMPANY_DIR !== 'undefined' ? COMPANY_DIR.length : 0,
           statistik_karten: document.querySelectorAll('#board .bcard').length,
           fenster_fehlend: fehlendeFenster(),
-          verlauf: await verlaufProbe()
+          verlauf: await verlaufProbe(),
+          passwortknopf: (() => {
+            const b = document.querySelector('#btnPass');
+            if(!b) return 'Knopf fehlt';
+            const an = getComputedStyle(b).display !== 'none';
+            return account ? (an ? 'sichtbar' : 'fehlt bei angemeldetem Konto')
+                           : (an ? 'sichtbar ohne Anmeldung' : 'aus, weil abgemeldet');
+          })()
         });
 
         // Jedes Fenster, das die Oberfläche öffnen kann, muss auch im Dokument stehen
         function fehlendeFenster(){
-          return ['#ovForm','#ovHistory','#ovShare','#ovInvite','#ovConfirm']
+          return ['#ovForm','#ovHistory','#ovShare','#ovInvite','#ovConfirm','#ovPass']
             .filter(sel => !document.querySelector(sel)).join(' ') || 'keine';
         }
         // Der Pfeil zur Ausschreibung: vorhanden, groß genug zum Klicken, echtes Ziel

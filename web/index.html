@@ -768,6 +768,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
       <button class="btn quiet" id="btnInvite" style="display:none" data-i18n-title="inv.title"><span class="ico">✉</span><span data-i18n="inv.short">Einladen</span></button>
       <span class="account" id="account" style="display:none">
         <span class="mail" id="accountMail"></span>
+        <button class="btn quiet" id="btnPass" data-i18n-title="pw.title"><span class="ico">🔑</span><span data-i18n="pw.short">Passwort</span></button>
         <button class="btn quiet" id="btnLogout" data-i18n-title="nav.logout"><span class="ico">⇥</span><span data-i18n="nav.logout">Abmelden</span></button>
       </span>
       <button class="flagbtn" id="btnLang" data-i18n-title="nav.lang" aria-label="Sprache"><span id="langFlag">🇩🇪</span></button>
@@ -998,6 +999,37 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 </div>
 
 <!-- ── Einladungen ──────────────────────────────────────────── -->
+<!-- ── Passwort ändern ──────────────────────────────────────── -->
+<div class="overlay" id="ovPass">
+  <div class="sheet" style="max-width:430px" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+    <div class="sheet-head">
+      <div>
+        <h2 id="pwTitle" data-i18n="pw.title">Passwort ändern</h2>
+        <div class="hint" data-i18n="pw.hint">Gilt sofort auf allen Geräten. Angemeldet bleibst du.</div>
+      </div>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
+    </div>
+    <form id="passForm" novalidate>
+      <div class="sheet-body">
+        <div class="field">
+          <label for="p-neu" data-i18n="pw.new">Neues Passwort</label>
+          <input type="password" id="p-neu" autocomplete="new-password" required>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label for="p-wdh" data-i18n="pw.again">Noch einmal</label>
+          <input type="password" id="p-wdh" autocomplete="new-password" required>
+        </div>
+        <div class="gateerr" id="passErr" hidden></div>
+        <p class="sub" style="margin-top:12px" data-i18n="pw.note">Mindestens 10 Zeichen. Das Passwort verlässt dieses Gerät nicht – der Server bekommt nur einen daraus abgeleiteten Wert.</p>
+      </div>
+      <div class="sheet-foot">
+        <button type="button" class="btn quiet" data-close data-i18n="form.cancel">Abbrechen</button>
+        <button type="submit" class="btn primary" id="passGo" data-i18n="pw.save">Passwort setzen</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="overlay" id="ovInvite">
   <div class="sheet" style="max-width:520px" role="dialog" aria-modal="true">
     <div class="sheet-head">
@@ -1697,6 +1729,7 @@ function showGate(on){
   document.body.style.overflow = on ? 'hidden' : '';
   $('#account').style.display = account ? '' : 'none';
   $('#btnInvite').style.display = account?.admin && !demo ? '' : 'none';
+  $('#btnPass').style.display = account && !demo ? '' : 'none';
   if(account) $('#accountMail').textContent = account.email;
 }
 
@@ -1818,6 +1851,16 @@ addEventListener('online', () => { dirty ? push() : pull(); });
 setInterval(() => { if(!document.hidden && !dirty) pull(); }, 30000);
 
 /** Zeile unter der Überschrift: Speicher- und Sync-Zustand. */
+/** Kurze Rückmeldung in der Zeile unter dem Titel, danach wieder der Normalzustand. */
+let meldungTimer = null;
+function meldung(text){
+  const sub = $('#subtitle');
+  sub.textContent = text;
+  sub.style.color = 'var(--green)';
+  clearTimeout(meldungTimer);
+  meldungTimer = setTimeout(paintSync, 4000);
+}
+
 function paintSync(){
   const sub = $('#subtitle');
   const bar = $('#conflict');
@@ -2020,6 +2063,7 @@ de:{
  'gate.needInvite':'Ohne Einladungscode geht es nicht.','gate.failed':'Das hat nicht funktioniert.',
  'gate.noServer':'Keine Verbindung zum Server.',
  'gate.alreadyThere':'Dieses Konto gibt es schon – bitte mit dem Passwort anmelden.',
+  'pw.title':'Passwort ändern','pw.short':'Passwort','pw.hint':'Gilt sofort auf allen Geräten. Angemeldet bleibst du.','pw.new':'Neues Passwort','pw.again':'Noch einmal','pw.save':'Passwort setzen','pw.note':'Mindestens 10 Zeichen. Das Passwort verlässt dieses Gerät nicht – der Server bekommt nur einen daraus abgeleiteten Wert.','pw.mismatch':'Die beiden Eingaben sind nicht gleich.','pw.needLogin':'Dafür musst du angemeldet sein.','pw.done':'Passwort geändert ✓',
   'inv.title':'Einladungen','inv.short':'Einladen','inv.hint':'Jeder Code gilt genau einmal. Neue Konten starten leer.','inv.new':'Neuen Code erzeugen','inv.none':'Noch keine Codes vorhanden.','inv.loading':'Wird geladen …','inv.failed':'Codes konnten nicht geladen werden.','inv.copyCode':'Code','inv.copyLink':'Link','inv.copied':'kopiert ✓','inv.copyManual':'Zum Kopieren markieren:','inv.revoke':'zurücknehmen','inv.usedBy':'eingelöst von {who}','inv.count':'{free} frei · {used} eingelöst',
   'flt.all':'Alle','flt.planned':'Geplant','flt.applied':'Beworben','flt.talking':'Im Gespräch','flt.accepted':'Zusage','flt.rejected':'Absage','flt.noreply':'Keine Antwort','flt.emptyTitle':'Keine Einträge in dieser Auswahl','flt.emptyText':'Wähle einen anderen Filter oder zeige alle Einträge.','sort.by':'Sortieren','sort.date':'Datum','sort.status':'Status','sort.company':'Firma','sort.salary':'Gehalt','sort.toggle':'Richtung umschalten',
   'demo.tag':'Demo','demo.open':'Ohne Konto ansehen – Demo mit Beispieldaten','demo.note':'Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.','demo.reset':'Zurücksetzen','demo.leave':'Zur Anmeldung','demo.subtitle':'Demo mit Beispieldaten – nichts wird gespeichert.',
@@ -2099,6 +2143,7 @@ en:{
  'gate.needInvite':'An invitation code is required.','gate.failed':'That did not work.',
  'gate.noServer':'No connection to the server.',
  'gate.alreadyThere':'This account already exists – please sign in with your password.',
+  'pw.title':'Change password','pw.short':'Password','pw.hint':'Takes effect on every device right away. You stay signed in.','pw.new':'New password','pw.again':'Once more','pw.save':'Set password','pw.note':'At least 10 characters. The password never leaves this device – the server only receives a value derived from it.','pw.mismatch':'The two entries do not match.','pw.needLogin':'You need to be signed in for that.','pw.done':'Password changed ✓',
   'inv.title':'Invitations','inv.short':'Invite','inv.hint':'Each code works once. New accounts start empty.','inv.new':'Create a code','inv.none':'No codes yet.','inv.loading':'Loading …','inv.failed':'Codes could not be loaded.','inv.copyCode':'Code','inv.copyLink':'Link','inv.copied':'copied ✓','inv.copyManual':'Select to copy:','inv.revoke':'revoke','inv.usedBy':'used by {who}','inv.count':'{free} free · {used} used',
   'flt.all':'All','flt.planned':'Planned','flt.applied':'Applied','flt.talking':'Interviewing','flt.accepted':'Accepted','flt.rejected':'Rejected','flt.noreply':'No reply','flt.emptyTitle':'Nothing in this selection','flt.emptyText':'Pick another filter or show all entries.','sort.by':'Sort by','sort.date':'Date','sort.status':'Status','sort.company':'Company','sort.salary':'Salary','sort.toggle':'Switch direction',
   'demo.tag':'Demo','demo.open':'Try it without an account – demo with sample data','demo.note':'Sample data to play with. Changes stay in this tab and are never saved.','demo.reset':'Reset','demo.leave':'To sign-in','demo.subtitle':'Demo with sample data – nothing is saved.',
@@ -2178,6 +2223,7 @@ fr:{
  'gate.needInvite':'Un code d’invitation est nécessaire.','gate.failed':'Cela n’a pas fonctionné.',
  'gate.noServer':'Pas de connexion au serveur.',
  'gate.alreadyThere':'Ce compte existe déjà – connectez-vous avec votre mot de passe.',
+  'pw.title':'Changer le mot de passe','pw.short':'Mot de passe','pw.hint':'Effet immédiat sur tous les appareils. Vous restez connecté.','pw.new':'Nouveau mot de passe','pw.again':'Encore une fois','pw.save':'Définir','pw.note':'Au moins 10 caractères. Le mot de passe ne quitte pas cet appareil – le serveur ne reçoit qu’une valeur dérivée.','pw.mismatch':'Les deux saisies diffèrent.','pw.needLogin':'Il faut être connecté pour cela.','pw.done':'Mot de passe changé ✓',
   'inv.title':'Invitations','inv.short':'Inviter','inv.hint':'Chaque code ne sert qu’une fois. Les nouveaux comptes démarrent vides.','inv.new':'Créer un code','inv.none':'Aucun code pour l’instant.','inv.loading':'Chargement …','inv.failed':'Impossible de charger les codes.','inv.copyCode':'Code','inv.copyLink':'Lien','inv.copied':'copié ✓','inv.copyManual':'Sélectionner pour copier :','inv.revoke':'retirer','inv.usedBy':'utilisé par {who}','inv.count':'{free} libres · {used} utilisés',
   'flt.all':'Toutes','flt.planned':'Prévues','flt.applied':'Envoyées','flt.talking':'En entretien','flt.accepted':'Acceptées','flt.rejected':'Refus','flt.noreply':'Sans réponse','flt.emptyTitle':'Rien dans cette sélection','flt.emptyText':'Choisissez un autre filtre ou affichez tout.','sort.by':'Trier par','sort.date':'Date','sort.status':'Statut','sort.company':'Entreprise','sort.salary':'Salaire','sort.toggle':'Inverser le sens',
   'demo.tag':'Démo','demo.open':'Essayer sans compte – démo avec des données d’exemple','demo.note':'Données d’exemple pour essayer. Les modifications restent dans cet onglet et ne sont jamais enregistrées.','demo.reset':'Réinitialiser','demo.leave':'Vers la connexion','demo.subtitle':'Démo avec données d’exemple – rien n’est enregistré.',
@@ -2257,6 +2303,7 @@ ar:{
  'gate.needInvite':'رمز الدعوة مطلوب.','gate.failed':'لم ينجح ذلك.',
  'gate.noServer':'لا اتصال بالخادم.',
  'gate.alreadyThere':'هذا الحساب موجود بالفعل – سجّل الدخول بكلمة المرور.',
+  'pw.title':'تغيير كلمة المرور','pw.short':'كلمة المرور','pw.hint':'يسري فوراً على كل الأجهزة، وتبقى مسجّلاً.','pw.new':'كلمة مرور جديدة','pw.again':'مرة أخرى','pw.save':'تعيين','pw.note':'عشرة أحرف على الأقل. كلمة المرور لا تترك هذا الجهاز – الخادم يستلم قيمة مشتقّة منها فقط.','pw.mismatch':'الإدخالان غير متطابقين.','pw.needLogin':'يجب تسجيل الدخول لذلك.','pw.done':'تم تغيير كلمة المرور ✓',
   'inv.title':'الدعوات','inv.short':'دعوة','inv.hint':'كل رمز يصلح مرة واحدة. الحسابات الجديدة تبدأ فارغة.','inv.new':'إنشاء رمز','inv.none':'لا توجد رموز بعد.','inv.loading':'جارٍ التحميل …','inv.failed':'تعذّر تحميل الرموز.','inv.copyCode':'الرمز','inv.copyLink':'الرابط','inv.copied':'تم النسخ ✓','inv.copyManual':'حدّد للنسخ:','inv.revoke':'سحب','inv.usedBy':'استخدمه {who}','inv.count':'{free} متاح · {used} مستخدم',
   'flt.all':'الكل','flt.planned':'مُخطَّط','flt.applied':'تم التقديم','flt.talking':'في المقابلات','flt.accepted':'قبول','flt.rejected':'رفض','flt.noreply':'بلا رد','flt.emptyTitle':'لا نتائج في هذا التصفية','flt.emptyText':'اختر تصفية أخرى أو اعرض كل الطلبات.','sort.by':'ترتيب','sort.date':'التاريخ','sort.status':'الحالة','sort.company':'الشركة','sort.salary':'الراتب','sort.toggle':'عكس الاتجاه',
   'demo.tag':'تجربة','demo.open':'جرّب بدون حساب – عرض ببيانات نموذجية','demo.note':'بيانات نموذجية للتجربة. التغييرات تبقى في هذه النافذة ولا تُحفظ.','demo.reset':'إعادة تعيين','demo.leave':'إلى تسجيل الدخول','demo.subtitle':'عرض ببيانات نموذجية – لا يُحفظ شيء.',
@@ -4422,6 +4469,53 @@ $('#authForm').addEventListener('submit', async e => {
   }finally{
     btn.disabled = false;
     btn.textContent = gateMode === 'register' ? t('gate.register') : t('gate.login');
+  }
+});
+
+/* ─────────── Passwort ändern ─────────── */
+
+$('#btnPass').onclick = () => {
+  $('#p-neu').value = '';
+  $('#p-wdh').value = '';
+  passError('');
+  openOverlay('#ovPass');
+  setTimeout(() => $('#p-neu').focus(), 120);
+};
+
+function passError(text){
+  const box = $('#passErr');
+  box.hidden = !text;
+  box.textContent = text;
+}
+
+$('#passForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const neu = $('#p-neu').value, wdh = $('#p-wdh').value;
+  if(neu.length < 10) return passError(t('gate.shortPass'));
+  if(neu !== wdh) return passError(t('pw.mismatch'));
+  if(!account?.email) return passError(t('pw.needLogin'));
+
+  const btn = $('#passGo');
+  btn.disabled = true;
+  btn.textContent = t('gate.working');
+  passError('');
+  try{
+    const key = await deriveKey(account.email, neu);   // dauert bewusst ~1 Sekunde
+    const res = await fetch('/api/password', {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({key}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) return passError(data.error || t('gate.failed'));
+    $('#p-neu').value = '';
+    $('#p-wdh').value = '';
+    closeOverlay($('#ovPass'));
+    meldung(t('pw.done'));
+  }catch{
+    passError(t('gate.noServer'));
+  }finally{
+    btn.disabled = false;
+    btn.textContent = t('pw.save');
   }
 });
 

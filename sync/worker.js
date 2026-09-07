@@ -156,6 +156,28 @@ async function register(req, env) {
               200, {'set-cookie': await makeCookie(env, id, mail)});
 }
 
+/* Passwort neu setzen. Wer eine gültige Sitzung hat, darf das – ein Konto ohne
+   Zurücksetzen per Mail wäre sonst für immer verloren, wenn das Passwort weg ist.
+   Der Server sieht nur den im Browser abgeleiteten Schlüssel, nie das Passwort. */
+async function setPassword(req, env, me) {
+  let body;
+  try { body = await req.json(); } catch { return json({error: 'invalid json'}, 400); }
+
+  const sentKey = String(body.key || '');
+  if (sentKey.length < 32 || sentKey.length > 200) return json({error: 'Passwort zu kurz.'}, 400);
+
+  const user = await readUser(env, me.email);
+  if (!user) return json({error: 'Konto nicht gefunden.'}, 404);
+
+  const salt = randomHex(16);
+  const next = {...user, salt, hash: await sha256(sentKey + ':' + salt),
+                passwordChanged: new Date().toISOString()};
+  await env.DB.put(userKey(user.email), JSON.stringify(next));
+
+  // Frische Sitzung, damit das Gerät angemeldet bleibt
+  return json({ok: true}, 200, {'set-cookie': await makeCookie(env, user.id, user.email)});
+}
+
 async function login(req, env) {
   const gate = await tooManyFails(env, req);
   if (gate.over) return json({error: 'Zu viele Versuche. Bitte später erneut probieren.'}, 429);
@@ -285,6 +307,8 @@ export default {
     if (!me) return json({error: 'unauthorized'}, 401);
 
     if (pathname === '/api/me') return json({email: me.email, admin: isAdmin(env, me)});
+    if (pathname === '/api/password' && req.method === 'POST')
+      return watched('password', setPassword(req, env, me));
     if (pathname === '/api/data') return handleData(req, env, me.id);
     if (pathname === '/api/invites') return handleInvites(req, env, me);
 

@@ -33,6 +33,11 @@ Firmenlogos über einen öffentlichen Favicon-Dienst mit farbiger Monogramm-Kach
 Bewerbungskanäle als Icon (LinkedIn, Indeed, StepStone, Xing, Website, E-Mail) und
 Gehalt strukturiert nach Betrag, Art und Zeitraum.
 
+**Passwort ändern statt Zurücksetzen.** Ohne Mailversand gibt es kein „Passwort vergessen".
+Wer angemeldet ist, setzt darum über einen Knopf im Kopf ein neues Passwort – der Browser
+leitet daraus wie bei der Anmeldung einen Schlüssel ab, der Server tauscht Salz und
+Prüfsumme aus und stellt eine frische Sitzung aus.
+
 **Teilen als Bild.** Aus den Statistiken lässt sich ein Poster im Hochformat (1080 × 1920)
 oder Querformat (1920 × 1080) erzeugen — auf eine Leinwand gezeichnet statt die Seite
 abzufotografieren, damit das Ergebnis überall gleich aussieht und ohne fremde Bausteine
