@@ -69,10 +69,10 @@ web/index.html      komplette Oberfläche: HTML, CSS, JavaScript — keine Abhä
                     kein Build-Schritt, keine externen Skripte
 sync/worker.js      Cloudflare Worker: Konten, Sitzungen, Datensatz je Konto in KV
 mac/main.swift      nativer macOS-Wrapper (WKWebView) mit lokaler Datei als Offline-Stand
-mac/icon.swift      baut Icon und Wortmarke aus den Logo-Dateien (CoreGraphics):
-                    ab 128 px der ganze Schriftzug, darunter nur „zap"
+mac/icon.swift      macht aus der Logo-Datei das Icon – genau dieses Bild, vollflächig,
+                    ohne Beschneidung – und stellt den Schriftzug frei (CoreGraphics)
 brand/              die gelieferten Logo-Dateien, unverändert
-web/icon-*.png      daraus erzeugte Icons; web/wortmarke.png der zugeschnittene Schriftzug
+web/icon-*.png      daraus erzeugte Icons; web/wortmarke.png der freigestellte Schriftzug
 build-app.sh        baut daraus zapply.app
 sync/codes.py       Einladungscodes verwalten
 ```
