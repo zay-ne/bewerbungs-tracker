@@ -1,10 +1,10 @@
-# Bewerbungen — Bewerbungs-Tracker
+# zapply — Bewerbungs-Tracker
 
 Ein Werkzeug, das den eigenen Bewerbungsprozess sichtbar macht: Tabelle aller Bewerbungen,
 Statusverlauf pro Stelle und ein Sankey-Diagramm, das zeigt, wo Bewerbungen tatsächlich enden.
 
 **▶ Live-Demo (ohne Anmeldung, mit Beispieldaten):**
-https://bewerbungen-demo.bewerbungs-tracker.workers.dev
+https://zapply-demo.bewerbungs-tracker.workers.dev
 
 Vier Sprachen (Deutsch, English, Français, العربية inkl. Rechts-nach-links), hell und dunkel
 nach Systemeinstellung, vom 320-px-Handy bis zum großen Bildschirm ohne seitliches Scrollen.
@@ -64,8 +64,10 @@ web/index.html      komplette Oberfläche: HTML, CSS, JavaScript — keine Abhä
                     kein Build-Schritt, keine externen Skripte
 sync/worker.js      Cloudflare Worker: Konten, Sitzungen, Datensatz je Konto in KV
 mac/main.swift      nativer macOS-Wrapper (WKWebView) mit lokaler Datei als Offline-Stand
-mac/icon.swift      zeichnet das App-Icon programmatisch (CoreGraphics)
-build-app.sh        baut daraus Bewerbungen.app
+mac/icon.swift      baut Icon und Wortmarke aus den Logo-Dateien (CoreGraphics)
+brand/              die gelieferten Logo-Dateien, unverändert
+web/icon-*.png      daraus erzeugte Icons; web/wortmarke.png der zugeschnittene Schriftzug
+build-app.sh        baut daraus zapply.app
 sync/codes.py       Einladungscodes verwalten
 ```
 
@@ -145,4 +147,4 @@ invitation-only; passwords are stretched in the browser (PBKDF2, 400k rounds) be
 Worker free tier allows only 10 ms CPU per request; concurrent edits are resolved by
 revision checks and an explicit user choice rather than last-write-wins.
 
-**Live demo:** https://bewerbungen-demo.bewerbungs-tracker.workers.dev
+**Live demo:** https://zapply-demo.bewerbungs-tracker.workers.dev

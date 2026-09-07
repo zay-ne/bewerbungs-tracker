@@ -6,11 +6,12 @@
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Bewerbungen">
+<meta name="apple-mobile-web-app-title" content="zapply">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-180.png">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Bewerbungen</title>
+<title>zapply</title>
 <style>
 /* ─────────────────────────────  Tokens  ───────────────────────────── */
 :root{
@@ -24,9 +25,9 @@
   --text-tertiary:#a1a1a6;
   --separator:rgba(0,0,0,.09);
   --separator-strong:rgba(0,0,0,.16);
-  --accent:#0071e3;
-  --accent-hover:#0077ed;
-  --accent-soft:rgba(0,113,227,.1);
+  --accent:#0089ad;
+  --accent-hover:#0b9bc2;
+  --accent-soft:rgba(0,137,173,.1);
   --green:#1d9e4b;
   --red:#d63a2f;
   --orange:#c26b00;
@@ -51,9 +52,9 @@
     --text-tertiary:#6e6e73;
     --separator:rgba(255,255,255,.1);
     --separator-strong:rgba(255,255,255,.2);
-    --accent:#0a84ff;
-    --accent-hover:#409cff;
-    --accent-soft:rgba(10,132,255,.16);
+    --accent:#22b5d8;
+    --accent-hover:#4ac6e4;
+    --accent-soft:rgba(34,181,216,.16);
     --green:#30d158;
     --red:#ff453a;
     --orange:#ff9f0a;
@@ -97,6 +98,9 @@ header.top{
 h1{
   font-size:40px;line-height:1.08;font-weight:700;letter-spacing:-.028em;
 }
+/* Die Wortmarke: „zap" im Türkis des Logos, der Rest in der Textfarbe */
+.brand{letter-spacing:-.045em}
+.brand span{color:var(--accent)}
 .subtitle{color:var(--text-secondary);font-size:15px;margin-top:7px}
 .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;min-width:0}
 .account .mail{max-width:min(170px, 28vw)}
@@ -148,8 +152,8 @@ h1{
 .gate[hidden]{display:none}
 .gatebox{width:100%;max-width:370px}
 .gatemark{
-  display:block;width:60px;height:60px;margin:0 auto 20px;border-radius:14px;
-  box-shadow:0 8px 22px rgba(60,70,140,.16);
+  display:block;width:190px;height:auto;margin:0 auto 22px;padding:15px 20px;
+  background:#fafcff;border-radius:16px;box-shadow:0 8px 22px rgba(60,70,140,.16);
 }
 .gatebox h2{font-size:26px;font-weight:700;letter-spacing:-.022em;text-align:center}
 .gatehint{color:var(--text-secondary);font-size:14px;text-align:center;margin:6px 0 26px}
@@ -755,7 +759,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 
   <header class="top">
     <div>
-      <h1 data-i18n="app.title">Bewerbungen</h1>
+      <h1 class="brand"><span>zap</span>ply!</h1>
       <div class="subtitle" id="subtitle">Alles im Blick – von geplant bis Zusage.</div>
     </div>
     <div class="top-actions">
@@ -967,15 +971,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 <!-- ── Anmeldung ────────────────────────────────────────────── -->
 <div class="gate" id="gate" hidden>
   <div class="gatebox">
-    <svg class="gatemark" viewBox="0 0 100 100" aria-hidden="true">
-      <defs>
-        <radialGradient id="markbg" cx="50%" cy="50%" r="72%">
-          <stop offset="0" stop-color="#fbfcff"/><stop offset="0.55" stop-color="#ecf1fd"/><stop offset="1" stop-color="#dae3fa"/>
-        </radialGradient>
-      </defs>
-      <rect x="0" y="0" width="100" height="100" rx="22.5" fill="url(#markbg)"/>
-      <path d="M73.86 38.01 A13.23 13.23 0 0 1 73.86 61.99 C66.72 65.32 65.32 66.72 61.99 73.86 A13.23 13.23 0 0 1 38.01 73.86 C34.68 66.72 33.28 65.32 26.14 61.99 A13.23 13.23 0 0 1 26.14 38.01 C33.28 34.68 34.68 33.28 38.01 26.14 A13.23 13.23 0 0 1 61.99 26.14 C65.32 33.28 66.72 34.68 73.86 38.01 Z" fill="none" stroke="#565592" stroke-width="7.7" stroke-linejoin="round"/>
-    </svg>
+    <img class="gatemark" src="wortmarke.png" alt="zapply">
     <h2 id="gateTitle">Anmelden</h2>
     <p class="gatehint" id="gateHint">Deine Bewerbungen, auf allen Geräten.</p>
 
@@ -1607,6 +1603,11 @@ function normalize(o){
    • Browser lokal: Browser-Speicher.
    • Über den Worker ausgeliefert: der Server ist die gemeinsame Quelle für alle Geräte,
      der lokale Speicher dient nur noch als Zwischenspeicher für den Offline-Fall. */
+const MARKE_NAME = 'zapply';
+/* Der Schriftzug fürs Poster – früh geladen, damit er beim Zeichnen bereitsteht. */
+const MARKE_BILD = new Image();
+MARKE_BILD.src = 'wortmarke.png';
+
 const native = !!window.webkit?.messageHandlers?.bewerbungen;
 const hosted = location.protocol === 'http:' || location.protocol === 'https:';
 const API = '/api/data';
@@ -1951,7 +1952,7 @@ const LOCALES = {de:'de-DE', en:'en-GB', fr:'fr-FR', ar:'ar-u-nu-latn'};
 
 const DICT = {
 de:{
- 'app.title':'Bewerbungen','app.tagline':'Alles im Blick – von geplant bis Zusage.',
+ 'app.tagline':'Alles im Blick – von geplant bis Zusage.',
  'app.saved':'Alles im Blick – automatisch gespeichert.',
  'nav.export':'Export','nav.import':'Import','nav.analysis':'Analyse','nav.new':'Neue Bewerbung',
  'nav.logout':'Abmelden','nav.lang':'Sprache','nav.exportTip':'Als JSON-Datei sichern','nav.importTip':'JSON-Backup laden',
@@ -2025,12 +2026,12 @@ de:{
   'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
   'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen',
   'stat.bestMonth':'Stärkster Monat: {monat} mit {n}',
-  'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.median':'Median','share.footer':'erstellt mit Bewerbungen',
+  'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.median':'Median','share.footer':'erstellt mit zapply',
  'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
  'misc.finished':'abgeschlossen','misc.badFile':'Diese Datei konnte nicht gelesen werden – erwartet wird ein JSON-Export dieser App.',
 },
 en:{
- 'app.title':'Applications','app.tagline':'Every application at a glance – from planned to offer.',
+ 'app.tagline':'Every application at a glance – from planned to offer.',
  'app.saved':'Every application at a glance – saved automatically.',
  'nav.export':'Export','nav.import':'Import','nav.analysis':'Analysis','nav.new':'New application',
  'nav.logout':'Sign out','nav.lang':'Language','nav.exportTip':'Save as a JSON file','nav.importTip':'Load a JSON backup',
@@ -2104,12 +2105,12 @@ en:{
   'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
   'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet',
   'stat.bestMonth':'Strongest month: {monat} with {n}',
-  'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.median':'Median','share.footer':'made with Bewerbungen',
+  'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.median':'Median','share.footer':'made with zapply',
  'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
  'misc.finished':'closed','misc.badFile':'This file could not be read – a JSON export from this app is expected.',
 },
 fr:{
- 'app.title':'Candidatures','app.tagline':'Toutes vos candidatures en vue – du projet à la promesse.',
+ 'app.tagline':'Toutes vos candidatures en vue – du projet à la promesse.',
  'app.saved':'Toutes vos candidatures en vue – enregistré automatiquement.',
  'nav.export':'Exporter','nav.import':'Importer','nav.analysis':'Analyse','nav.new':'Nouvelle candidature',
  'nav.logout':'Se déconnecter','nav.lang':'Langue','nav.exportTip':'Enregistrer en fichier JSON','nav.importTip':'Charger une sauvegarde JSON',
@@ -2183,12 +2184,12 @@ fr:{
   'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
   'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos',
   'stat.bestMonth':'Mois le plus fort : {monat} avec {n}',
-  'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.median':'Médiane','share.footer':'créé avec Bewerbungen',
+  'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.median':'Médiane','share.footer':'créé avec zapply',
  'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
  'misc.finished':'clos','misc.badFile':'Ce fichier n’a pas pu être lu – un export JSON de cette application est attendu.',
 },
 ar:{
- 'app.title':'الطلبات','app.tagline':'كل طلباتك في لمحة – من التخطيط حتى القبول.',
+ 'app.tagline':'كل طلباتك في لمحة – من التخطيط حتى القبول.',
  'app.saved':'كل طلباتك في لمحة – يُحفظ تلقائيًا.',
  'nav.export':'تصدير','nav.import':'استيراد','nav.analysis':'التحليل','nav.new':'طلب جديد',
  'nav.logout':'خروج','nav.lang':'اللغة','nav.exportTip':'حفظ كملف JSON','nav.importTip':'تحميل نسخة JSON',
@@ -2262,7 +2263,7 @@ ar:{
   'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
   'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد',
   'stat.bestMonth':'أقوى شهر: {monat} بعدد {n}',
-  'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.median':'الوسيط','share.footer':'أُنشئ بـ Bewerbungen',
+  'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.median':'الوسيط','share.footer':'أُنشئ بـ zapply',
  'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
  'misc.finished':'مُغلق','misc.badFile':'لم يُقرأ هذا الملف – المتوقع ملف JSON مُصدَّر من هذا التطبيق.',
 },
@@ -2288,7 +2289,7 @@ function applyLabels(){
 
 /** Feste Texte im Seitengerüst übersetzen. */
 function applyStatic(){
-  document.title = t('app.title');
+  document.title = MARKE_NAME;            // der Name der App bleibt in jeder Sprache gleich
   for(const n of document.querySelectorAll('[data-i18n]')) n.textContent = t(n.dataset.i18n);
   for(const n of document.querySelectorAll('[data-i18n-ph]')) n.placeholder = t(n.dataset.i18nPh);
   for(const n of document.querySelectorAll('[data-i18n-title]')) n.title = t(n.dataset.i18nTitle);
@@ -3644,7 +3645,7 @@ const PFARBE = {
   text:    '#14161c',
   leise:   '#6e7280',
   zart:    '#a6abb8',
-  akzent:  '#0a66e0',
+  akzent:  '#0089ad',
   gruen:   '#1d9e4b',
   rot:     '#d63a2f',
   sand:    '#a9852f',
@@ -3672,30 +3673,22 @@ function rundesRechteck(ctx, x, y, b, h, r){
   ctx.closePath();
 }
 
-/** Das App-Zeichen: vier runde Spitzen mit eingezogenen Kanten. */
-function zeichenMalen(ctx, cx, cy, groesse){
-  const r = groesse * 0.315, rt = r * 0.42, c = r - rt, phi = Math.PI * 65 / 180, reach = r * 0.25;
-  const achsen = [0, Math.PI/2, Math.PI, Math.PI*1.5];
-  const schulter = (achse, off) => {
-    const a = achse + off;
-    return {p: [cx + c*Math.cos(achse) + rt*Math.cos(a), cy + c*Math.sin(achse) + rt*Math.sin(a)],
-            t: [-Math.sin(a), Math.cos(a)]};
-  };
-  ctx.beginPath();
-  const start = schulter(achsen[0], -phi).p;
-  ctx.moveTo(start[0], start[1]);
-  achsen.forEach((achse, i) => {
-    ctx.arc(cx + c*Math.cos(achse), cy + c*Math.sin(achse), rt, achse - phi, achse + phi);
-    const aus = schulter(achse, phi), rein = schulter(achsen[(i+1)%4], -phi);
-    ctx.bezierCurveTo(aus.p[0] + aus.t[0]*reach, aus.p[1] + aus.t[1]*reach,
-                      rein.p[0] - rein.t[0]*reach, rein.p[1] - rein.t[1]*reach,
-                      rein.p[0], rein.p[1]);
-  });
-  ctx.closePath();
-  ctx.strokeStyle = '#565592';
-  ctx.lineWidth = groesse * 0.077;
-  ctx.lineJoin = 'round';
-  ctx.stroke();
+/** Der Schriftzug im Kopf des Posters. Gibt seine Breite zurück, damit der
+ *  Titel daneben passt. Ist das Bild noch nicht da, tritt Schrift an seine Stelle. */
+function markeMalen(ctx, x, y, hoehe){
+  if(MARKE_BILD.complete && MARKE_BILD.naturalWidth){
+    const breite = hoehe * MARKE_BILD.naturalWidth / MARKE_BILD.naturalHeight;
+    ctx.drawImage(MARKE_BILD, x, y, breite, hoehe);
+    return breite;
+  }
+  ctx.font = schrift(hoehe * 1.1, 700);
+  const zap = 'zap', rest = 'ply!';
+  const bZap = ctx.measureText(zap).width;
+  ctx.fillStyle = PFARBE.akzent;
+  ctx.fillText(zap, x, y + hoehe * 0.92);
+  ctx.fillStyle = PFARBE.text;
+  ctx.fillText(rest, x + bZap, y + hoehe * 0.92);
+  return bZap + ctx.measureText(rest).width;
 }
 
 /** Zeichnet das Poster und gibt die Leinwand zurück. */
@@ -3726,19 +3719,21 @@ function posterZeichnen(format = 'hoch'){
   const gehaelter = daten.map(jahresGehalt).filter(g => g !== null);
 
   /* ── Kopf ── */
-  const zeichenGr = quer ? 80 : 96;
-  zeichenMalen(ctx, rand + zeichenGr / 2, rand + zeichenGr / 2, zeichenGr);
+  const bandH = quer ? 80 : 96;                       // Höhe des Kopfbereichs
+  const markeH = bandH * 0.52;
+  const markeB = markeMalen(ctx, rand, rand + bandH * 0.16, markeH);
+  const textX = rand + markeB + 26;
   ctx.fillStyle = PFARBE.text;
-  ctx.font = schrift(quer ? 52 : 60, 700);
-  ctx.fillText(t('share.title'), rand + zeichenGr + 22, rand + zeichenGr * 0.46);
+  ctx.font = schrift(quer ? 46 : 54, 700);
+  ctx.fillText(t('share.title'), textX, rand + bandH * 0.44);
   ctx.fillStyle = PFARBE.leise;
   ctx.font = schrift(quer ? 25 : 28, 500);
   const zeitraum = reihe.length
     ? `${reihe[0].name} ${reihe[0].jahr} – ${reihe[reihe.length-1].name} ${reihe[reihe.length-1].jahr}`
     : '';
-  ctx.fillText(zeitraum, rand + zeichenGr + 22, rand + zeichenGr * 0.86);
+  ctx.fillText(zeitraum, textX, rand + bandH * 0.84);
 
-  const kopfH = zeichenGr + (quer ? 26 : 34);
+  const kopfH = bandH + (quer ? 26 : 34);
   const fussH = quer ? 46 : 56;
   const oben = rand + kopfH;
   const platz = H - oben - rand - fussH;

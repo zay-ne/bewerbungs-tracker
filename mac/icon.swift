@@ -1,5 +1,7 @@
-// Erzeugt das App-Icon (blaues Squircle mit aufsteigenden Balken) als .iconset.
-// Aufruf: makeicon <ziel.iconset>
+// Erzeugt das App-Icon aus der gelieferten Logo-Datei und schneidet den Schriftzug
+// für die Oberfläche zu (nur die leeren Ränder, das Motiv bleibt unangetastet).
+//
+// Aufruf: makeicon <ziel.iconset> <logo.png> <schriftzug.png> [web-ordner]
 
 import AppKit
 import CoreGraphics
@@ -12,11 +14,38 @@ let sizes: [(px: Int, name: String)] = [
     (512, "icon_512x512.png"), (1024, "icon_512x512@2x.png"),
 ]
 
+/// Anteil der Kachel, den das Logo einnimmt. Etwas kleiner als die Kachel, damit die
+/// runden Ecken nichts vom Motiv abschneiden – das Ausrufezeichen sitzt dicht am Rand.
+let LOGO_ANTEIL: CGFloat = 0.90
+
 func roundedPath(_ rect: CGRect, _ radius: CGFloat) -> CGPath {
     CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
 }
 
-func drawIcon(size: CGFloat) -> CGImage? {
+func bild(_ pfad: String) -> CGImage? {
+    NSImage(contentsOf: URL(fileURLWithPath: pfad))?
+        .cgImage(forProposedRect: nil, context: nil, hints: nil)
+}
+
+/// Liest die Grundfarbe des Logos aus der linken oberen Ecke.
+func grundfarbe(_ image: CGImage) -> CGColor {
+    let cs = CGColorSpaceCreateDeviceRGB()
+    var pixel = [UInt8](repeating: 255, count: 4)
+    pixel.withUnsafeMutableBytes { puffer in
+        if let ctx = CGContext(data: puffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8,
+                               bytesPerRow: 4, space: cs,
+                               bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) {
+            ctx.draw(image, in: CGRect(x: 0, y: -CGFloat(image.height - 1),
+                                       width: CGFloat(image.width), height: CGFloat(image.height)))
+        }
+    }
+    let a = CGFloat(pixel[3]) / 255
+    guard a > 0.5 else { return CGColor(red: 1, green: 1, blue: 1, alpha: 1) }
+    return CGColor(red: CGFloat(pixel[0]) / 255 / a, green: CGFloat(pixel[1]) / 255 / a,
+                   blue: CGFloat(pixel[2]) / 255 / a, alpha: 1)
+}
+
+func drawIcon(size: CGFloat, logo: CGImage, grund: CGColor) -> CGImage? {
     let cs = CGColorSpaceCreateDeviceRGB()
     guard let ctx = CGContext(data: nil, width: Int(size), height: Int(size),
                               bitsPerComponent: 8, bytesPerRow: 0, space: cs,
@@ -24,100 +53,95 @@ func drawIcon(size: CGFloat) -> CGImage? {
     ctx.setAllowsAntialiasing(true)
     ctx.interpolationQuality = .high
 
-    // Grundform: gerundetes Quadrat, ganz leicht eingerückt
     let inset = size * 0.012
     let shape = CGRect(x: inset, y: inset, width: size - inset * 2, height: size - inset * 2)
-    let radius = shape.width * 0.225
 
     ctx.saveGState()
-    ctx.addPath(roundedPath(shape, radius))
+    ctx.addPath(roundedPath(shape, shape.width * 0.225))
     ctx.clip()
 
-    // Heller Verlauf: fast weiß in der Mitte, zart blau nach außen
-    let colors = [
-        CGColor(red: 0.988, green: 0.992, blue: 1.0, alpha: 1),
-        CGColor(red: 0.925, green: 0.945, blue: 0.992, alpha: 1),
-        CGColor(red: 0.855, green: 0.890, blue: 0.976, alpha: 1),
-    ] as CFArray
-    if let grad = CGGradient(colorsSpace: cs, colors: colors, locations: [0, 0.55, 1]) {
-        ctx.drawRadialGradient(grad,
-                               startCenter: CGPoint(x: shape.midX, y: shape.midY), startRadius: 0,
-                               endCenter: CGPoint(x: shape.midX, y: shape.midY), endRadius: shape.width * 0.78,
-                               options: [.drawsAfterEndLocation])
-    }
+    // Grund in der Farbe des Logos: der schmale Rand fällt dadurch nicht auf
+    ctx.setFillColor(grund)
+    ctx.fill(shape)
 
-    // Vier runde Spitzen (Kreisbögen) mit tangential anschließenden, eingezogenen Kanten
-    let cx = shape.midX, cy = shape.midY
-    let r = shape.width * 0.315          // Abstand der Spitzen zur Mitte
-    let rt = r * 0.42                    // Rundung der Spitzen
-    let c = r - rt                       // Mittelpunkt eines Spitzenbogens
-    let phi = CGFloat.pi * 65 / 180      // halbe Öffnung des Bogens
-    let reach = r * 0.25                 // Länge der Tangenten -> Tiefe der Taille
-
-    func onAxis(_ a: CGFloat) -> CGPoint { CGPoint(x: cx + c * cos(a), y: cy + c * sin(a)) }
-    func shoulder(_ axis: CGFloat, _ off: CGFloat) -> (point: CGPoint, tangent: CGPoint) {
-        let a = axis + off
-        let mid = onAxis(axis)
-        return (CGPoint(x: mid.x + rt * cos(a), y: mid.y + rt * sin(a)),
-                CGPoint(x: -sin(a), y: cos(a)))
-    }
-
-    let path = CGMutablePath()
-    let axes: [CGFloat] = [0, .pi / 2, .pi, .pi * 1.5]
-    path.move(to: shoulder(axes[0], -phi).point)
-
-    for (i, axis) in axes.enumerated() {
-        let mid = onAxis(axis)
-        path.addArc(center: mid, radius: rt, startAngle: axis - phi, endAngle: axis + phi, clockwise: false)
-
-        let out = shoulder(axis, phi)
-        let nextAxis = axes[(i + 1) % 4]
-        let inn = shoulder(nextAxis, -phi)
-        path.addCurve(to: inn.point,
-                      control1: CGPoint(x: out.point.x + out.tangent.x * reach,
-                                        y: out.point.y + out.tangent.y * reach),
-                      control2: CGPoint(x: inn.point.x - inn.tangent.x * reach,
-                                        y: inn.point.y - inn.tangent.y * reach))
-    }
-    path.closeSubpath()
-
-    ctx.addPath(path)
-    ctx.setStrokeColor(CGColor(red: 0.337, green: 0.333, blue: 0.573, alpha: 1))
-    ctx.setLineWidth(size * 0.077)
-    ctx.setLineJoin(.round)
-    ctx.setLineCap(.round)
-    ctx.strokePath()
+    // Das Logo vollständig, nur mittig verkleinert – nichts wird zugeschnitten
+    let kante = shape.width * LOGO_ANTEIL
+    ctx.draw(logo, in: CGRect(x: shape.midX - kante / 2, y: shape.midY - kante / 2,
+                              width: kante, height: kante))
     ctx.restoreGState()
 
     return ctx.makeImage()
 }
 
+/// Schneidet die vollständig durchsichtigen Ränder des Schriftzugs weg.
+func zugeschnitten(_ image: CGImage) -> CGImage? {
+    let w = image.width, h = image.height
+    let cs = CGColorSpaceCreateDeviceRGB()
+    var daten = [UInt8](repeating: 0, count: w * h * 4)
+    let ok = daten.withUnsafeMutableBytes { puffer -> Bool in
+        guard let ctx = CGContext(data: puffer.baseAddress, width: w, height: h,
+                                  bitsPerComponent: 8, bytesPerRow: w * 4, space: cs,
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: CGFloat(w), height: CGFloat(h)))
+        return true
+    }
+    guard ok else { return image }
+
+    var minX = w, minY = h, maxX = -1, maxY = -1
+    for y in 0..<h {
+        for x in 0..<w where daten[(y * w + x) * 4 + 3] > 8 {
+            if x < minX { minX = x }
+            if y < minY { minY = y }
+            if x > maxX { maxX = x }
+            if y > maxY { maxY = y }
+        }
+    }
+    guard maxX >= minX, maxY >= minY else { return image }
+    return image.cropping(to: CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1))
+}
+
+func schreibe(_ image: CGImage, breite: Int, hoehe: Int, nach url: URL) {
+    let rep = NSBitmapImageRep(cgImage: image)
+    rep.size = NSSize(width: breite, height: hoehe)
+    if let png = rep.representation(using: .png, properties: [:]) {
+        try? png.write(to: url)
+    }
+}
+
 let args = CommandLine.arguments
-guard args.count > 1 else {
-    FileHandle.standardError.write(Data("Nutzung: makeicon <ziel.iconset>\n".utf8))
+guard args.count > 3 else {
+    FileHandle.standardError.write(Data("Nutzung: makeicon <ziel.iconset> <logo.png> <schriftzug.png> [web-ordner]\n".utf8))
     exit(1)
 }
 let out = URL(fileURLWithPath: args[1])
 try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
 
-// Zweiter Pfad (optional): Icons für den Home-Bildschirm auf dem Handy
-if args.count > 2 {
-    let webDir = URL(fileURLWithPath: args[2])
+guard let logo = bild(args[2]) else {
+    FileHandle.standardError.write(Data("Logo nicht lesbar: \(args[2])\n".utf8))
+    exit(1)
+}
+guard let schriftzug = bild(args[3]) else {
+    FileHandle.standardError.write(Data("Schriftzug nicht lesbar: \(args[3])\n".utf8))
+    exit(1)
+}
+let grund = grundfarbe(logo)
+
+// Vierter Pfad (optional): Icons und Schriftzug für die Oberfläche
+if args.count > 4 {
+    let webDir = URL(fileURLWithPath: args[4])
     for px in [180, 512] {
-        guard let image = drawIcon(size: CGFloat(px)) else { exit(1) }
-        let rep = NSBitmapImageRep(cgImage: image)
-        rep.size = NSSize(width: px, height: px)
-        if let png = rep.representation(using: .png, properties: [:]) {
-            try? png.write(to: webDir.appendingPathComponent("icon-\(px).png"))
-        }
+        guard let image = drawIcon(size: CGFloat(px), logo: logo, grund: grund) else { exit(1) }
+        schreibe(image, breite: px, hoehe: px, nach: webDir.appendingPathComponent("icon-\(px).png"))
+    }
+    if let wort = zugeschnitten(schriftzug) {
+        schreibe(wort, breite: wort.width, hoehe: wort.height,
+                 nach: webDir.appendingPathComponent("wortmarke.png"))
+        print("Wortmarke: \(wort.width)×\(wort.height)")
     }
 }
 
 for entry in sizes {
-    guard let image = drawIcon(size: CGFloat(entry.px)) else { exit(1) }
-    let rep = NSBitmapImageRep(cgImage: image)
-    rep.size = NSSize(width: entry.px, height: entry.px)
-    guard let png = rep.representation(using: .png, properties: [:]) else { exit(1) }
-    try? png.write(to: out.appendingPathComponent(entry.name))
+    guard let image = drawIcon(size: CGFloat(entry.px), logo: logo, grund: grund) else { exit(1) }
+    schreibe(image, breite: entry.px, hoehe: entry.px, nach: out.appendingPathComponent(entry.name))
 }
 print("Icon erzeugt: \(out.path)")

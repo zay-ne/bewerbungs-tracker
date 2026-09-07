@@ -1,34 +1,35 @@
 #!/bin/bash
-# Baut Bewerbungen.app aus web/index.html + mac/main.swift.
+# Baut zapply.app aus web/index.html + mac/main.swift.
 # Aufruf: ./build-app.sh   (danach die App per Doppelklick starten)
 
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP="Bewerbungen.app"
+APP="zapply.app"
 BUILD=".build"
 rm -rf "$BUILD" "$APP"
 mkdir -p "$BUILD" "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 echo "› Icon zeichnen"
 xcrun swiftc -O mac/icon.swift -o "$BUILD/makeicon"
-"$BUILD/makeicon" "$BUILD/Bewerbungen.iconset" web >/dev/null
-iconutil -c icns "$BUILD/Bewerbungen.iconset" -o "$APP/Contents/Resources/AppIcon.icns"
+"$BUILD/makeicon" "$BUILD/zapply.iconset" brand/zapply-icon.png brand/zapply-schriftzug.png web
+iconutil -c icns "$BUILD/zapply.iconset" -o "$APP/Contents/Resources/AppIcon.icns"
 
 echo "› App übersetzen"
-xcrun swiftc -O mac/main.swift -o "$APP/Contents/MacOS/Bewerbungen"
+xcrun swiftc -O mac/main.swift -o "$APP/Contents/MacOS/zapply"
 
 echo "› Oberfläche einpacken"
 cp web/index.html "$APP/Contents/Resources/index.html"
+cp web/wortmarke.png web/icon-180.png web/icon-512.png "$APP/Contents/Resources/"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CFBundleName</key><string>Bewerbungen</string>
-  <key>CFBundleDisplayName</key><string>Bewerbungen</string>
-  <key>CFBundleExecutable</key><string>Bewerbungen</string>
+  <key>CFBundleName</key><string>zapply</string>
+  <key>CFBundleDisplayName</key><string>zapply</string>
+  <key>CFBundleExecutable</key><string>zapply</string>
   <key>CFBundleIdentifier</key><string>de.schedi.bewerbungen</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>

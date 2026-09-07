@@ -1,6 +1,6 @@
 {
-  "name": "Bewerbungen",
-  "short_name": "Bewerbungen",
+  "name": "zapply",
+  "short_name": "zapply",
   "description": "Bewerbungen verfolgen: Tabelle, Prozess und Sankey-Diagramm.",
   "start_url": "./",
   "scope": "./",

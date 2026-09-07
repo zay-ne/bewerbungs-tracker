@@ -1,4 +1,4 @@
-// Bewerbungen – nativer macOS-Wrapper um web/index.html.
+// zapply – nativer macOS-Wrapper um web/index.html.
 // Zeigt die Oberfläche in einem echten App-Fenster und speichert alle Daten in
 // ~/Library/Application Support/Bewerbungen/bewerbungen.json (atomar, mit Backup).
 
@@ -10,6 +10,7 @@ import WebKit
 enum Store {
     static var folder: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        // Der Ordner behält seinen Namen, damit die Daten beim Umbenennen liegen bleiben.
         let dir = base.appendingPathComponent("Bewerbungen", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
@@ -51,6 +52,9 @@ enum Store {
 
 // MARK: - Fenster & Web-Ansicht
 
+/// Der Name der App – im Fenster, im Menü und in Meldungen.
+let MARKE = "zapply"
+
 final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKNavigationDelegate, WKUIDelegate {
     var window: NSWindow!
     var web: WKWebView!
@@ -71,7 +75,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             contentRect: NSRect(x: 0, y: 0, width: 1280, height: 840),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered, defer: false)
-        window.title = "Bewerbungen"
+        window.title = MARKE
         window.isMovableByWindowBackground = true
         window.minSize = NSSize(width: 380, height: 480)
         window.contentView = web
@@ -94,7 +98,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         let sync = Store.syncURL
         if !sync.isEmpty, let url = URL(string: sync) {
             usingRemote = true
-            window.title = "Bewerbungen"
+            window.title = MARKE
             web.load(URLRequest(url: url))
         } else {
             usingRemote = false
@@ -117,7 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         guard usingRemote else { return }
         usingRemote = false
         offlineFallback = true
-        window.title = "Bewerbungen – offline"
+        window.title = "\(MARKE) – offline"
         loadBundled()
     }
 
@@ -125,7 +129,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     func applicationDidBecomeActive(_ note: Notification) {
         guard offlineFallback, !Store.syncURL.isEmpty else { return }
         offlineFallback = false
-        window.title = "Bewerbungen"
+        window.title = MARKE
         loadInterface()
     }
 
@@ -220,6 +224,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
                 let result = try? outcome.get()
                 print("OBERFLÄCHE:", result as? String ?? String(describing: outcome))
                 self.posterPruefen {
+                  // Nur schreiben, wenn wirklich Daten da sind: sonst würde der Test
+                  // eine leere Liste über die gespeicherten Bewerbungen legen.
+                  let bereit = "(() => { const g = document.querySelector('#gate'); return (!g || g.hidden) && items.length > 0; })()"
+                  self.web.evaluateJavaScript(bereit) { ok, _ in
+                    guard (ok as? Bool) == true else {
+                        print("SCHREIBTEST ÜBERSPRUNGEN: nicht angemeldet oder keine Daten")
+                        NSApp.terminate(nil)
+                        return
+                    }
                   self.web.evaluateJavaScript("items.push(normalize({company:'Selbsttest',role:'Prüfung'})); save(); items.length") { count, _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                         let saved = Store.read()
@@ -233,6 +246,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
                             }
                         }
                     }
+                  }
                   }
                 }
             }
@@ -296,7 +310,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         // Poster aus der Statistik-Ansicht sichern
         case "exportImage":
             let panel = NSSavePanel()
-            panel.nameFieldStringValue = (body["name"] as? String) ?? "bewerbungen.png"
+            panel.nameFieldStringValue = (body["name"] as? String) ?? "zapply.png"
             panel.allowedContentTypes = [.png]
             panel.beginSheetModal(for: window) { response in
                 guard response == .OK, let url = panel.url,
@@ -307,7 +321,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
         case "export":
             let panel = NSSavePanel()
-            panel.nameFieldStringValue = (body["name"] as? String) ?? "bewerbungen.json"
+            panel.nameFieldStringValue = (body["name"] as? String) ?? "zapply.json"
             panel.allowedContentTypes = [.json]
             panel.beginSheetModal(for: window) { response in
                 guard response == .OK, let url = panel.url,
@@ -332,7 +346,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
     private func fail(_ text: String) {
         let alert = NSAlert()
-        alert.messageText = "Bewerbungen konnte nicht starten"
+        alert.messageText = "\(MARKE) konnte nicht starten"
         alert.informativeText = text
         alert.alertStyle = .critical
         alert.runModal()
@@ -346,13 +360,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
-        appMenu.addItem(withTitle: "Über Bewerbungen", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(withTitle: "Über \(MARKE)", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Synchronisierung …", action: #selector(setupSync), keyEquivalent: "")
         appMenu.addItem(withTitle: "Ordner mit Daten zeigen", action: #selector(revealData), keyEquivalent: "")
         appMenu.addItem(.separator())
-        appMenu.addItem(withTitle: "Bewerbungen ausblenden", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
-        appMenu.addItem(withTitle: "Bewerbungen beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "\(MARKE) ausblenden", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        appMenu.addItem(withTitle: "\(MARKE) beenden", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         main.addItem(appItem)
 

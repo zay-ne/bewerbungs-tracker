@@ -1,7 +1,7 @@
 # Zweite, für sich stehende Auslieferung nur zum Vorzeigen:
 # gleiche Oberfläche, aber ohne Konten und ohne Datenablage.
 #   npx wrangler deploy -c wrangler.demo.toml
-name = "bewerbungen-demo"
+name = "zapply-demo"
 main = "sync/worker.js"
 compatibility_date = "2026-01-01"
 
