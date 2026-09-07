@@ -160,16 +160,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     /// Prüft ohne Zutun: Daten kommen an, Tabelle und Diagramm bauen sich auf, Speichern landet in der Datei.
     private func selfTest() {
         let probe = """
-        setView('stats');
+        // Zuerst die Übersicht: nur dort hat die Tabelle eine Ausdehnung
+        setView('list');
         await new Promise(r => setTimeout(r, 1500));   // Logos kommen übers Netz
+        const tabelle = {
+          zeilen: document.querySelectorAll('#viewList tbody tr').length,
+          logos_versucht: document.querySelectorAll('.mark img').length,
+          logos_geladen: document.querySelectorAll('.mark.has-logo').length,
+          link: linkProbe(),
+        };
+        setView('stats');
+        await new Promise(r => setTimeout(r, 400));
         return JSON.stringify({
           native: native, items: items.length,
-          zeilen: document.querySelectorAll('tbody tr').length,
+          ...tabelle,
           diagramm_stroeme: document.querySelectorAll('#sankey path.link').length,
           diagramm_knoten: document.querySelectorAll('#sankey g.nodes rect').length,
           verzeichnis: typeof COMPANY_DIR !== 'undefined' ? COMPANY_DIR.length : 0,
-          logos_versucht: document.querySelectorAll('.mark img').length,
-          logos_geladen: document.querySelectorAll('.mark.has-logo').length,
           statistik_karten: document.querySelectorAll('#board .bcard').length,
           fenster_fehlend: fehlendeFenster(),
           verlauf: await verlaufProbe()
@@ -179,6 +186,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         function fehlendeFenster(){
           return ['#ovForm','#ovHistory','#ovShare','#ovInvite','#ovConfirm']
             .filter(sel => !document.querySelector(sel)).join(' ') || 'keine';
+        }
+        // Der Pfeil zur Ausschreibung: vorhanden, groß genug zum Klicken, echtes Ziel
+        function linkProbe(){
+          if(typeof linkOeffnen !== 'function') return 'linkOeffnen fehlt';
+          const a = document.querySelector('tbody .extlink');
+          if(!a) return 'kein Eintrag mit Link';
+          const b = a.getBoundingClientRect();
+          const masse = Math.round(b.width) + '×' + Math.round(b.height);
+          if(!a.href.toLowerCase().startsWith('http')) return 'Ziel unbrauchbar: ' + a.getAttribute('href');
+          return (b.width >= 12 && b.height >= 12 ? 'Pfeil ' : 'Pfeil zu klein ') + masse;
         }
         // Verlauf des ersten Eintrags wirklich öffnen und nachsehen, ob er sichtbar wird
         async function verlaufProbe(){
@@ -202,13 +219,50 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             self.web.callAsyncJavaScript(probe, in: nil, in: .page) { outcome in
                 let result = try? outcome.get()
                 print("OBERFLÄCHE:", result as? String ?? String(describing: outcome))
-                self.web.evaluateJavaScript("items.push(normalize({company:'Selbsttest',role:'Prüfung'})); save(); items.length") { count, _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                self.posterPruefen {
+                  self.web.evaluateJavaScript("items.push(normalize({company:'Selbsttest',role:'Prüfung'})); save(); items.length") { count, _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                         let saved = Store.read()
                         print("NACH SPEICHERN: items=\(count ?? "?") datei_enthält_neuen_eintrag=\(saved.contains("Selbsttest"))")
-                        NSApp.terminate(nil)
+                        // Der Test räumt hinter sich auf – auch in der gemeinsamen Ablage
+                        self.web.evaluateJavaScript("items = items.filter(i => i.company !== 'Selbsttest'); save(); items.length") { rest, _ in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+                                let danach = Store.read()
+                                print("AUFGERÄUMT: items=\(rest ?? "?") testeintrag_weg=\(!danach.contains("Selbsttest"))")
+                                NSApp.terminate(nil)
+                            }
+                        }
                     }
+                  }
                 }
+            }
+        }
+    }
+
+    /// Zeichnet beide Poster und legt sie zum Ansehen im Temp-Ordner ab.
+    private func posterPruefen(dann: @escaping () -> Void) {
+        let js = """
+        const bilder = ['hoch', 'quer'].map(f => {
+          const c = posterZeichnen(f);
+          return {format: f, groesse: c.width + '×' + c.height, daten: c.toDataURL('image/png').split(',')[1]};
+        });
+        return JSON.stringify(bilder);
+        """
+        web.callAsyncJavaScript(js, in: nil, in: .page) { outcome in
+            defer { dann() }
+            guard let text = (try? outcome.get()) as? String,
+                  let data = text.data(using: .utf8),
+                  let liste = try? JSONSerialization.jsonObject(with: data) as? [[String: String]] else {
+                print("POSTER:", String(describing: outcome))
+                return
+            }
+            for bild in liste {
+                guard let format = bild["format"], let b64 = bild["daten"],
+                      let png = Data(base64Encoded: b64) else { continue }
+                let ziel = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("poster-\(format).png")
+                try? png.write(to: ziel, options: .atomic)
+                print("POSTER \(format): \(bild["groesse"] ?? "?") · \(png.count / 1024) kB · \(ziel.path)")
             }
         }
     }
@@ -231,6 +285,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         // Die gemeinsame Ablage ist noch leer und fragt nach dem bisherigen Bestand
         case "seed":
             hydrate(Store.read(), function: "__seedLocal")
+
+        // Stellenanzeige im Standardbrowser öffnen
+        case "openURL":
+            if let text = body["url"] as? String, let url = URL(string: text),
+               let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https" {
+                NSWorkspace.shared.open(url)
+            }
 
         // Poster aus der Statistik-Ansicht sichern
         case "exportImage":

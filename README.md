@@ -36,7 +36,10 @@ Gehalt strukturiert nach Betrag, Art und Zeitraum.
 **Teilen als Bild.** Aus den Statistiken lässt sich ein Poster im Hochformat (1080 × 1920)
 oder Querformat (1920 × 1080) erzeugen — auf eine Leinwand gezeichnet statt die Seite
 abzufotografieren, damit das Ergebnis überall gleich aussieht und ohne fremde Bausteine
-auskommt. Es zeigt bewusst nur Summen, keine Firmennamen.
+auskommt. Darauf stehen die Kennzahlen, das Sankey-Diagramm (dieselbe Geometrie wie in der
+Ansicht, nur mit Leinwand-Mitteln gezeichnet), der Monatsverlauf, der Ausgang und die Orte
+mit Gehaltsspanne. Werte von null bekommen keinen gestauchten Balken, sondern nur die Spur
+und eine gedämpfte Zahl. Es zeigt bewusst nur Summen, keine Firmennamen.
 
 **Zwei Ansichten.** Oben schaltet ein Segmentwähler zwischen *Übersicht* und *Statistiken*.
 Das Dashboard zeigt den Bewerbungsfluss als Sankey, Bewerbungen nach Monat, die Antwortzeit

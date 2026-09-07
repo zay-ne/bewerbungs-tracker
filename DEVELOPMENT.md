@@ -111,4 +111,7 @@ Ablage sie mitliefert.
 Kein „Passwort vergessen" (ohne Mailversand nicht ehrlich lösbar), kein Zusammenführen
 einzelner Zeilen bei Konflikten (stattdessen eine bewusste Entscheidung durch den Nutzer),
 keine automatisierten Tests — geprüft wurde im Browser gegen die echte Auslieferung, dazu
-ein Selbsttest in der Mac-App (`--selftest`), der Daten, Tabelle und Diagramm durchmisst.
+ein Selbsttest in der Mac-App (`--selftest`), der Daten, Tabelle und Diagramm durchmisst,
+den Verlauf eines Eintrags wirklich öffnet, den Pfeil zur Ausschreibung nachmisst, beide
+Poster zeichnet und ablegt — und den eigenen Testeintrag hinterher wieder entfernt, auch
+in der gemeinsamen Ablage.

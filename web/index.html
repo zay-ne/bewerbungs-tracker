@@ -286,8 +286,8 @@ h1{
 .bval{flex:none;font-variant-numeric:tabular-nums;color:var(--text-secondary);min-width:52px;text-align:right}
 
 /* Bewerbungen nach Monat */
-.months{display:flex;gap:8px;align-items:flex-end;overflow-x:auto;padding-bottom:2px}
-.month{flex:1 1 0;min-width:34px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.months{display:flex;gap:8px;align-items:flex-end;justify-content:center;overflow-x:auto;padding-bottom:2px}
+.month{flex:1 1 0;min-width:34px;max-width:88px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .mval{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;height:16px}
 .month.leer .mval{color:var(--text-tertiary)}
 .mtrack{width:100%;height:104px;display:flex;align-items:flex-end}
@@ -403,7 +403,7 @@ tbody tr:last-child td{border-bottom:0}
 td:first-child,th:first-child{padding-left:22px}
 td:last-child,th:last-child{padding-right:16px}
 .company{font-weight:600;letter-spacing:-.012em;display:flex;align-items:center;gap:7px;min-width:0}
-.company > :first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.company > .cname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .role{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 td:first-child{max-width:280px}
 .role{color:var(--text-secondary);font-size:13.5px;margin-top:1px}
@@ -420,9 +420,9 @@ td:first-child{max-width:280px}
 
 /* Link zur Ausschreibung */
 .extlink{color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;
-  line-height:1;padding:2px 3px;border-radius:5px;transition:background .16s}
+  line-height:1;padding:3px 5px;border-radius:6px;transition:background .16s;flex:none;cursor:pointer}
 .extlink:hover{background:var(--accent-soft)}
-.addlink{font-size:11px;font-weight:500;color:var(--text-tertiary);padding:1px 6px;
+.addlink{font-size:11px;font-weight:500;color:var(--text-tertiary);padding:1px 6px;flex:none;
   border-radius:999px;background:var(--bg-sunken);opacity:0;transition:opacity .16s,color .16s}
 tr:hover .addlink{opacity:1}
 .addlink:hover{color:var(--accent)}
@@ -2025,7 +2025,7 @@ de:{
   'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
   'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen',
   'stat.bestMonth':'Stärkster Monat: {monat} mit {n}',
-  'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.funnel':'Vom Verschicken zur Zusage','share.interview':'Im Gespräch','share.median':'Median','share.footer':'erstellt mit Bewerbungen',
+  'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.median':'Median','share.footer':'erstellt mit Bewerbungen',
  'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
  'misc.finished':'abgeschlossen','misc.badFile':'Diese Datei konnte nicht gelesen werden – erwartet wird ein JSON-Export dieser App.',
 },
@@ -2104,7 +2104,7 @@ en:{
   'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
   'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet',
   'stat.bestMonth':'Strongest month: {monat} with {n}',
-  'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.funnel':'From sending to offer','share.interview':'Interviewing','share.median':'Median','share.footer':'made with Bewerbungen',
+  'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.median':'Median','share.footer':'made with Bewerbungen',
  'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
  'misc.finished':'closed','misc.badFile':'This file could not be read – a JSON export from this app is expected.',
 },
@@ -2183,7 +2183,7 @@ fr:{
   'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
   'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos',
   'stat.bestMonth':'Mois le plus fort : {monat} avec {n}',
-  'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.funnel':'De l’envoi à la promesse','share.interview':'En entretien','share.median':'Médiane','share.footer':'créé avec Bewerbungen',
+  'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.median':'Médiane','share.footer':'créé avec Bewerbungen',
  'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
  'misc.finished':'clos','misc.badFile':'Ce fichier n’a pas pu être lu – un export JSON de cette application est attendu.',
 },
@@ -2262,7 +2262,7 @@ ar:{
   'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
   'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد',
   'stat.bestMonth':'أقوى شهر: {monat} بعدد {n}',
-  'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.funnel':'من الإرسال حتى القبول','share.interview':'في المقابلات','share.median':'الوسيط','share.footer':'أُنشئ بـ Bewerbungen',
+  'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.median':'الوسيط','share.footer':'أُنشئ بـ Bewerbungen',
  'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
  'misc.finished':'مُغلق','misc.badFile':'لم يُقرأ هذا الملف – المتوقع ملف JSON مُصدَّر من هذا التطبيق.',
 },
@@ -2759,13 +2759,14 @@ function renderTable(){
     head.append(companyMark(it.company));
     const names = el('div','names');
     const line = el('div','company');
-    line.append(document.createTextNode(it.company || '—'));
+    line.append(el('span','cname', it.company || '—'));
     if(it.url){
       const a = el('a','extlink','↗');
       a.href = it.url;
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
       a.title = t('row.openLink');
+      a.onclick = e => { e.preventDefault(); linkOeffnen(it.url); };
       line.append(a);
     }else{
       const add = el('button','addlink', t('row.addLink'));
@@ -2902,6 +2903,22 @@ function renderTable(){
   }
   table.append(tb);
   host.append(table);
+}
+
+/** Öffnet eine Ausschreibung – in jeder Umgebung auf dem passenden Weg.
+ *  In der Mac-App übernimmt das Betriebssystem, im Browser ein neuer Tab.
+ *  Als App auf dem Home-Bildschirm öffnet target="_blank" nichts, dort führt
+ *  nur der direkte Weg zum Ziel. */
+function linkOeffnen(url){
+  const ziel = String(url || '').trim();
+  if(!/^https?:\/\//i.test(ziel)) return;
+  if(native){ toApp({type:'openURL', url: ziel}); return; }
+  const homescreen = navigator.standalone === true ||
+    (matchMedia && matchMedia('(display-mode: standalone)').matches);
+  if(homescreen){ location.href = ziel; return; }
+  let fenster = null;
+  try{ fenster = window.open(ziel, '_blank', 'noopener'); }catch{}
+  if(!fenster) location.href = ziel;
 }
 
 /* ═══════════════════════════  Status  ═══════════════════════════ */
@@ -3415,7 +3432,7 @@ function monatsSaeulen(reihe){
     spalte.append(spur);
     const beschriftung = el('span','mname');
     beschriftung.append(el('b', null, r.name));
-    beschriftung.append(el('i', null, r.jahr));
+    if(i === 0 || r.jahr !== reihe[i-1].jahr) beschriftung.append(el('i', null, r.jahr));
     spalte.append(beschriftung);
     spalte.title = `${r.name} ${r.jahr}: ${r.wert}`;
     box.append(spalte);
@@ -3633,7 +3650,14 @@ const PFARBE = {
   sand:    '#a9852f',
   grau:    '#9aa0ad',
   violett: '#6a4ce0',
+  orange:  '#d97a1a',
 };
+
+/* Das Poster ist immer hell – die Stufenfarben kommen darum aus dieser Tafel
+   und nicht aus den CSS-Variablen der gerade eingestellten Ansicht. */
+const PSTUFE = {'--accent':PFARBE.akzent, '--purple':PFARBE.violett, '--orange':PFARBE.orange,
+                '--green':PFARBE.gruen, '--red':PFARBE.rot, '--sand':PFARBE.sand, '--gray':PFARBE.grau};
+const pstufe = stage => PSTUFE[STAGE[stage]?.color] || PFARBE.grau;
 
 const schrift = (groesse, gewicht = 400) =>
   `${gewicht} ${groesse}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Inter, system-ui, sans-serif`;
@@ -3720,6 +3744,14 @@ function posterZeichnen(format = 'hoch'){
   const platz = H - oben - rand - fussH;
 
   /* ── Bausteine ── */
+  // Text, der nicht in seine Spalte passt, wird beschnitten statt überzuschreiben
+  const kuerzen = (text, breite) => {
+    if(ctx.measureText(text).width <= breite) return text;
+    let kurz = text;
+    while(kurz.length > 1 && ctx.measureText(kurz + '…').width > breite) kurz = kurz.slice(0, -1);
+    return kurz + '…';
+  };
+
   const karteMalen = (x, y, b, h, titel) => {
     ctx.fillStyle = PFARBE.karte;
     rundesRechteck(ctx, x, y, b, h, quer ? 26 : 32);
@@ -3759,60 +3791,111 @@ function posterZeichnen(format = 'hoch'){
     const r = karteMalen(x, y, b, h, t('stat.overTime'));
     if(!reihe.length) return;
     const max = Math.max(1, ...reihe.map(m => m.wert));
-    const basis = r.iy + r.ih - 52;
-    const hoehe = r.ih - 84;
+    // Knappe Karte: kleinere Schrift und engere Abstände, damit die Säulen Höhe behalten
+    const eng = r.ih < 170;
+    const zahlGr = eng ? 18 : 22, nameGr = eng ? 17 : 20, jahrGr = eng ? 14 : 17;
+    const fussH = nameGr + jahrGr + 14;
+    const basis = r.iy + r.ih - fussH;
+    const hoehe = Math.max(14, r.ih - fussH - zahlGr - 10);
     const spalte = r.ib / reihe.length;
     reihe.forEach((m, i) => {
-      const bh = Math.max(m.wert / max * hoehe, 4);
-      const bx = r.ix + i * spalte + spalte * 0.16;
-      const bb = spalte * 0.68;
-      ctx.fillStyle = m.wert ? PFARBE.akzent : '#e3e7ef';
-      rundesRechteck(ctx, bx, basis - bh, bb, bh, Math.min(bb / 2, 10));
+      const bb = Math.min(spalte * 0.68, quer ? 56 : 78);
+      const bx = r.ix + i * spalte + (spalte - bb) / 2;
+      // Monate ohne Bewerbung bekommen nur eine flache Spur, keinen gestauchten Balken
+      const bh = m.wert ? Math.max(m.wert / max * hoehe, 8) : 3;
+      ctx.fillStyle = m.wert ? PFARBE.akzent : '#e1e5ee';
+      rundesRechteck(ctx, bx, basis - bh, bb, bh, Math.min(bb / 2, bh / 2, 10));
       ctx.fill();
       ctx.textAlign = 'center';
       if(m.wert){
         ctx.fillStyle = PFARBE.text;
-        ctx.font = schrift(22, 600);
-        ctx.fillText(String(m.wert), bx + bb / 2, basis - bh - 12);
+        ctx.font = schrift(zahlGr, 600);
+        ctx.fillText(String(m.wert), bx + bb / 2, basis - bh - 10);
       }
       ctx.fillStyle = PFARBE.leise;
-      ctx.font = schrift(20, 500);
-      ctx.fillText(m.name, bx + bb / 2, basis + 28);
-      ctx.fillStyle = PFARBE.zart;
-      ctx.font = schrift(17, 500);
-      ctx.fillText(m.jahr, bx + bb / 2, basis + 50);
+      ctx.font = schrift(nameGr, 500);
+      ctx.fillText(m.name, bx + bb / 2, basis + nameGr + 6);
+      if(i === 0 || m.jahr !== reihe[i-1].jahr){
+        ctx.fillStyle = PFARBE.zart;
+        ctx.font = schrift(jahrGr, 500);
+        ctx.fillText(m.jahr, bx + bb / 2, basis + nameGr + jahrGr + 10);
+      }
       ctx.textAlign = 'left';
     });
   };
 
-  const trichterMalen = (x, y, b, h) => {
-    const r = karteMalen(x, y, b, h, t('share.funnel'));
-    const stufen = [
-      [t('stage.applied'), verschickt.length, PFARBE.akzent],
-      [t('share.interview'), mitGespraech.length, PFARBE.violett],
-      [t('stage.offer'), daten.filter(i => i.history.some(h2 => h2.status === 'offer')).length, PFARBE.sand],
-      [t('stage.accepted'), zusagen.length, PFARBE.gruen],
-    ];
-    const max = Math.max(1, ...stufen.map(s => s[1]));
-    const schritt = r.ih / stufen.length;
-    // Bei knapper Höhe steht die Beschriftung neben dem Balken statt darüber
-    const eng = schritt < 62;
-    stufen.forEach(([name, wert, farbe], i) => {
-      const zy = r.iy + i * schritt + schritt * (eng ? 0.5 : 0.46);
-      const spurX = eng ? r.ix + r.ib * 0.42 : r.ix;
-      const spurB = eng ? r.ib * 0.58 : r.ib;
-      ctx.fillStyle = PFARBE.text;
-      ctx.font = schrift(eng ? 20 : 21, 600);
-      if(eng) ctx.fillText(`${name}  ${wert}`, r.ix, zy + 6);
-      else ctx.fillText(`${name}  ${wert}`, r.ix, zy - 12);
-      const bh = eng ? 18 : 26;
-      ctx.fillStyle = '#eef1f7';
-      rundesRechteck(ctx, spurX, zy - bh / 2, spurB, bh, bh / 2);
+  /* Das Flussbild – dieselbe Geometrie wie in der Statistik-Ansicht,
+     hier auf die Leinwand gezeichnet. */
+  const flussMalen = (x, y, b, h) => {
+    const r = karteMalen(x, y, b, h, t('chart.title'));
+    const gr = quer ? 21 : 24;                       // Schriftgröße der Beschriftung
+    const zeile = gr * 1.2;
+    const geo = flussGeometrie(r.ib, r.ih, {
+      NW: quer ? 14 : 16,
+      GAP: quer ? 24 : 30,
+      MAXUNIT: quer ? 30 : 40,
+      labelW: Math.min(quer ? 200 : 240, r.ib * 0.3),
+      padT: zeile * 0.8, padB: zeile * 0.8,
+    });
+    if(geo.leer){
+      ctx.fillStyle = PFARBE.zart;
+      ctx.font = schrift(22, 500);
+      ctx.fillText(t('chart.emptyAll'), r.ix, r.iy + 30);
+      return;
+    }
+
+    ctx.save();
+    ctx.translate(r.ix, r.iy + Math.max(0, (r.ih - geo.hoehe) / 2));
+
+    // Ströme: eingefärbt nach Ziel, wenn dort der Vorgang endet, sonst nach Herkunft
+    geo.kanten.forEach(l => {
+      const th = Math.max(2, l.v * geo.scale);
+      const x0 = l.sn.x + geo.NW, x1 = l.tn.x, cx = (x1 - x0) * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(x0, l.sy);
+      ctx.bezierCurveTo(x0 + cx, l.sy, x1 - cx, l.ty, x1, l.ty);
+      ctx.lineTo(x1, l.ty + th);
+      ctx.bezierCurveTo(x1 - cx, l.ty + th, x0 + cx, l.sy + th, x0, l.sy + th);
+      ctx.closePath();
+      ctx.globalAlpha = 0.42;
+      ctx.fillStyle = pstufe(STAGE[l.tn.stage].terminal ? l.tn.stage : l.sn.stage);
       ctx.fill();
-      ctx.fillStyle = farbe;
-      rundesRechteck(ctx, spurX, zy - bh / 2, Math.max(spurB * (wert / max), 8), bh, bh / 2);
+      ctx.globalAlpha = 1;
+    });
+
+    // Knoten
+    geo.knoten.forEach(n => {
+      ctx.fillStyle = pstufe(n.stage);
+      rundesRechteck(ctx, n.x, n.y, geo.NW, n.h, Math.min(5, geo.NW / 2));
       ctx.fill();
     });
+
+    // Beschriftung je Spalte, bei Bedarf nach unten ausweichend
+    const spalten = new Map();
+    geo.knoten.forEach(n => spalten.set(n.ci, [...(spalten.get(n.ci) || []), n]));
+    spalten.forEach(liste => {
+      liste.sort((p1, p2) => p1.y - p2.y);
+      let belegtBis = -1e9;
+      liste.forEach(n => {
+        const st = STAGE[n.stage];
+        const oben = Math.max(n.y + n.h / 2 - zeile * 0.2, belegtBis + zeile * 0.5);
+        belegtBis = oben + zeile;
+        const tx = n.x + geo.NW + 11;
+        const name = `${st.emoji} ${st.short}`;
+        const wert = String(n.ever);
+        ctx.font = schrift(gr, 600);
+        const bb = Math.max(ctx.measureText(name).width, ctx.measureText(wert).width) + 18;
+        ctx.fillStyle = 'rgba(255,255,255,.86)';
+        rundesRechteck(ctx, tx - 8, oben - gr, bb, zeile * 2 + 4, 9);
+        ctx.fill();
+        ctx.fillStyle = PFARBE.text;
+        ctx.fillText(name, tx, oben);
+        ctx.fillStyle = PFARBE.leise;
+        ctx.font = schrift(gr - 2, 500);
+        ctx.fillText(wert, tx, oben + zeile);
+      });
+    });
+    ctx.restore();
   };
 
   const ausgangMalen = (x, y, b, h) => {
@@ -3865,66 +3948,71 @@ function posterZeichnen(format = 'hoch'){
       const o = (it.location || '').trim();
       if(o) orte.set(o, (orte.get(o) || 0) + 1);
     }
-    const gehaltZeile = gehaelter.length ? 54 : 0;
+    const gehaltZeile = gehaelter.length ? 44 : 0;
     const platzOrte = r.ih - gehaltZeile;
-    const wieViele = Math.max(1, Math.min(orte.size, Math.floor(platzOrte / 44)));
+    // Zeilen so hoch wie nötig: bei knappem Platz rücken sie zusammen, statt zu verschwinden
+    const wieViele = Math.max(1, Math.min(orte.size, 6, Math.floor(platzOrte / 28)));
     const top = [...orte.entries()].sort((a, b2) => b2[1] - a[1]).slice(0, wieViele);
     const max = Math.max(1, ...top.map(o => o[1]));
+    const zeilenH = Math.min(44, platzOrte / top.length);
     top.forEach(([name, wert], i) => {
-      const zy = r.iy + 18 + i * (platzOrte / Math.max(top.length, 1));
+      const zy = r.iy + zeilenH * 0.55 + i * zeilenH;
       ctx.fillStyle = PFARBE.leise;
       ctx.font = schrift(22, 500);
-      ctx.fillText(name, r.ix, zy + 6);
-      const spurX = r.ix + r.ib * 0.34, spurB = r.ib * 0.52;
+      ctx.fillText(kuerzen(name, r.ib * 0.38 - 14), r.ix, zy + 6);
+      const spurX = r.ix + r.ib * 0.4, spurB = r.ib * 0.46;
       ctx.fillStyle = '#eef1f7';
       rundesRechteck(ctx, spurX, zy - 12, spurB, 18, 9);
       ctx.fill();
-      ctx.fillStyle = PFARBE.akzent;
-      rundesRechteck(ctx, spurX, zy - 12, Math.max(spurB * (wert / max), 8), 18, 9);
-      ctx.fill();
-      ctx.fillStyle = PFARBE.text;
+      if(wert){
+        ctx.fillStyle = PFARBE.akzent;
+        rundesRechteck(ctx, spurX, zy - 12, Math.max(spurB * (wert / max), 18), 18, 9);
+        ctx.fill();
+      }
+      ctx.fillStyle = wert ? PFARBE.text : PFARBE.zart;
       ctx.font = schrift(21, 600);
       ctx.fillText(String(wert), spurX + spurB + 16, zy + 5);
     });
     if(gehaelter.length){
       const gy = r.iy + r.ih - 6;
       const fmt = n => nfEur().format(n) + ' €';
+      const zeile = `${t('stat.salary')}  ${fmt(Math.min(...gehaelter))} – ${fmt(Math.max(...gehaelter))}`
+                  + `  ·  ${t('share.median')} ${fmt(median(gehaelter))}`;
+      let gr = 21;
+      ctx.font = schrift(gr, 500);
+      while(gr > 14 && ctx.measureText(zeile).width > r.ib){ gr -= 1; ctx.font = schrift(gr, 500); }
       ctx.fillStyle = PFARBE.leise;
-      ctx.font = schrift(21, 500);
-      ctx.fillText(`${t('stat.salary')}  ${fmt(Math.min(...gehaelter))} – ${fmt(Math.max(...gehaelter))}`, r.ix, gy);
-      ctx.fillStyle = PFARBE.text;
-      ctx.font = schrift(21, 600);
-      ctx.textAlign = 'right';
-      ctx.fillText(`${t('share.median')} ${fmt(median(gehaelter))}`, r.ix + r.ib, gy);
-      ctx.textAlign = 'left';
+      ctx.fillText(zeile, r.ix, gy);
     }
   };
 
   /* ── Anordnung ── */
   if(quer){
-    const kpiH = platz * 0.2;
+    // Oben Flussbild und Monate, unten Ausgang und Orte
+    const kpiH = platz * 0.19;
     const restH = platz - kpiH - luecke * 2;
-    const obenH = restH * 0.52, untenH = restH - obenH;
-    const linksB = innen * 0.58, rechtsB = innen - linksB - luecke;
+    const obenH = restH * 0.56, untenH = restH - obenH;
     kpiMalen(rand, oben, innen, kpiH);
     const y2 = oben + kpiH + luecke;
-    monateMalen(rand, y2, linksB, obenH);
-    ausgangMalen(rand + linksB + luecke, y2, rechtsB, obenH);
+    const flussB = innen * 0.6, monateB = innen - flussB - luecke;
+    flussMalen(rand, y2, flussB, obenH);
+    monateMalen(rand + flussB + luecke, y2, monateB, obenH);
     const y3 = y2 + obenH + luecke;
-    trichterMalen(rand, y3, linksB, untenH);
-    orteMalen(rand + linksB + luecke, y3, rechtsB, untenH);
+    const ausgangB = innen * 0.4, orteB = innen - ausgangB - luecke;
+    ausgangMalen(rand, y3, ausgangB, untenH);
+    orteMalen(rand + ausgangB + luecke, y3, orteB, untenH);
   }else{
-    const anteile = [0.155, 0.265, 0.285, 0.295];
-    const gesamtLuecke = luecke * 3;
-    const hoehen = anteile.map(a => (platz - gesamtLuecke) * a / anteile.reduce((x, z) => x + z, 0));
+    // Kennzahlen, Flussbild, Monate, darunter Ausgang und Orte nebeneinander
+    const anteile = [0.14, 0.33, 0.245, 0.285];
+    const summe = anteile.reduce((x, z) => x + z, 0);
+    const hoehen = anteile.map(a => (platz - luecke * 3) * a / summe);
     let y = oben;
     kpiMalen(rand, y, innen, hoehen[0]); y += hoehen[0] + luecke;
-    monateMalen(rand, y, innen, hoehen[1]); y += hoehen[1] + luecke;
+    flussMalen(rand, y, innen, hoehen[1]); y += hoehen[1] + luecke;
+    monateMalen(rand, y, innen, hoehen[2]); y += hoehen[2] + luecke;
     const halb = (innen - luecke) / 2;
-    trichterMalen(rand, y, halb, hoehen[2]);
-    ausgangMalen(rand + halb + luecke, y, halb, hoehen[2]);
-    y += hoehen[2] + luecke;
-    orteMalen(rand, y, innen, hoehen[3]);
+    ausgangMalen(rand, y, halb, hoehen[3]);
+    orteMalen(rand + halb + luecke, y, halb, hoehen[3]);
   }
 
   /* ── Fuß ── */
@@ -4036,31 +4124,17 @@ function buildFlow(){
   return {nodes, links};
 }
 
-function renderChart(){
-  const svg = $('#sankey');
+/** Geometrie des Flussbildes: Knoten mit Lage und Höhe, Kanten mit Ein- und
+ *  Austrittshöhe. Ansicht (SVG) und Poster (Leinwand) rechnen mit denselben Zahlen. */
+function flussGeometrie(W, MAXH, opt = {}){
   const {nodes, links} = buildFlow();
-  svg.innerHTML = '';
-  svg.style.height = '';
-  renderConversions();
+  const NW = opt.NW ?? 11;                                 // Knotenbreite
+  if(!nodes.size) return {leer:true, knoten:[], kanten:[], hoehe:MAXH, NW, scale:1};
 
-  if(!nodes.size){
-    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-    txt.setAttribute('x','50%'); txt.setAttribute('y','48%');
-    txt.setAttribute('text-anchor','middle');
-    txt.setAttribute('font-size','14');
-    txt.textContent = chartScope === 'done' ? t('chart.emptyDone') : t('chart.emptyAll');
-    svg.append(txt);
-    return;
-  }
-
-  const host = svg.parentElement;
-  const W = Math.max(520, host.clientWidth - 8);
-  const MAXH = matchMedia('(max-width:720px)').matches ? 520 : 430;
-
-  const NW = 11;                       // Knotenbreite
-  const GAP = 22;                      // vertikaler Abstand zwischen Knoten einer Spalte
-  const MINH = 5;                      // Mindesthöhe eines Knotens
-  const MAXUNIT = 26;                  // px pro Bewerbung – hält Ströme bei wenig Daten elegant
+  const GAP = opt.GAP ?? 22;                               // Abstand zwischen Knoten einer Spalte
+  const MINH = 5;                                          // Mindesthöhe eines Knotens
+  const MAXUNIT = opt.MAXUNIT ?? 26;                       // px pro Bewerbung
+  const PAD = {t: opt.padT ?? 26, b: opt.padB ?? 20, l: 2, r: 2};
 
   // Spalten verdichten (leere Stufen überspringen)
   const usedCols = [...new Set([...nodes.values()].map(n => n.col))].sort((a,b) => a-b);
@@ -4068,8 +4142,8 @@ function renderChart(){
   const nCols = usedCols.length;
 
   // Rechts Platz für die Beschriftung der letzten Spalte reservieren
-  const LABEL_W = Math.min(132, Math.max(76, W * .17));
-  const PAD = {t:26, b:20, l:2, r: nCols > 1 ? LABEL_W : 2};
+  const labelW = opt.labelW ?? Math.min(132, Math.max(76, W * .17));
+  if(nCols > 1) PAD.r = labelW;
 
   // In jeder Spalte zuerst die laufenden Stufen, darunter die Abzweige ins Aus
   const byCol = usedCols.map(() => []);
@@ -4086,10 +4160,7 @@ function renderChart(){
 
   // Höhe an den Inhalt anpassen, damit keine toten Flächen entstehen
   const avail = maxSum * scale + maxGaps;
-  const H = avail + PAD.t + PAD.b;
-  svg.style.height = H + 'px';
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  const hoehe = avail + PAD.t + PAD.b;
 
   // Positionen
   const colW = nCols > 1 ? (W - PAD.l - PAD.r - NW) / (nCols - 1) : 0;
@@ -4107,23 +4178,52 @@ function renderChart(){
   });
 
   // Kanten mit Geometrie
-  const list = [...links.entries()].map(([k,v]) => {
+  const kanten = [...links.entries()].map(([k,v]) => {
     const [s,t] = k.split('>');
     return {s, t, v, sn: nodes.get(s), tn: nodes.get(t)};
   }).filter(l => l.sn && l.tn);
 
   // Stapelung an Quelle (nach Ziel-y) und Ziel (nach Quell-y)
   const outAt = new Map(), inAt = new Map();
-  list.slice().sort((a,b) => a.tn.y - b.tn.y || a.tn.ci - b.tn.ci).forEach(l => {
+  kanten.slice().sort((a,b) => a.tn.y - b.tn.y || a.tn.ci - b.tn.ci).forEach(l => {
     const o = outAt.get(l.s) || 0;
     l.sy = l.sn.y + o;
     outAt.set(l.s, o + l.v * scale);
   });
-  list.slice().sort((a,b) => a.sn.ci - b.sn.ci || a.sn.y - b.sn.y).forEach(l => {
+  kanten.slice().sort((a,b) => a.sn.ci - b.sn.ci || a.sn.y - b.sn.y).forEach(l => {
     const o = inAt.get(l.t) || 0;
     l.ty = l.tn.y + o;
     inAt.set(l.t, o + l.v * scale);
   });
+
+  return {leer:false, knoten:[...nodes.values()], kanten, hoehe, NW, scale};
+}
+
+function renderChart(){
+  const svg = $('#sankey');
+  svg.innerHTML = '';
+  svg.style.height = '';
+  renderConversions();
+
+  const host = svg.parentElement;
+  const W = Math.max(520, host.clientWidth - 8);
+  const MAXH = matchMedia('(max-width:720px)').matches ? 520 : 430;
+  const geo = flussGeometrie(W, MAXH);
+
+  if(geo.leer){
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x','50%'); txt.setAttribute('y','48%');
+    txt.setAttribute('text-anchor','middle');
+    txt.setAttribute('font-size','14');
+    txt.textContent = chartScope === 'done' ? t('chart.emptyDone') : t('chart.emptyAll');
+    svg.append(txt);
+    return;
+  }
+
+  const {knoten, kanten: list, hoehe: H, NW, scale} = geo;
+  svg.style.height = H + 'px';
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
 
   const NS = 'http://www.w3.org/2000/svg';
   const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for(const k in attrs) n.setAttribute(k, attrs[k]); return n; };
@@ -4158,7 +4258,7 @@ function renderChart(){
     gLinks.append(p);
   }
 
-  for(const n of nodes.values()){
+  for(const n of knoten){
     const s = STAGE[n.stage];
     const c = cssVar(s.color);
     const woher = n.from ? ` ${t('chart.after')} „${STAGE[n.from].label}"` : '';
