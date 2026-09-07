@@ -1,5 +1,7 @@
-// Erzeugt das App-Icon aus der gelieferten Logo-Datei und schneidet den Schriftzug
-// für die Oberfläche zu (nur die leeren Ränder, das Motiv bleibt unangetastet).
+// Erzeugt das App-Icon aus dem Schriftzug und schneidet ihn für die Oberfläche zu.
+//
+// Große Größen tragen den ganzen Schriftzug, kleine nur das türkise „zap":
+// bei 16 oder 32 Punkten wären sieben Zeichen nur noch ein Fleck.
 //
 // Aufruf: makeicon <ziel.iconset> <logo.png> <schriftzug.png> [web-ordner]
 
@@ -14,9 +16,11 @@ let sizes: [(px: Int, name: String)] = [
     (512, "icon_512x512.png"), (1024, "icon_512x512@2x.png"),
 ]
 
-/// Anteil der Kachel, den das Logo einnimmt. Etwas kleiner als die Kachel, damit die
-/// runden Ecken nichts vom Motiv abschneiden – das Ausrufezeichen sitzt dicht am Rand.
-let LOGO_ANTEIL: CGFloat = 0.90
+/// Ab dieser Kantenlänge trägt das Icon den vollen Schriftzug.
+let VOLL_AB = 128
+/// Anteil der Kachelbreite, den das Motiv einnimmt.
+let BREITE_VOLL: CGFloat = 0.88
+let BREITE_KURZ: CGFloat = 0.66
 
 func roundedPath(_ rect: CGRect, _ radius: CGFloat) -> CGPath {
     CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
@@ -27,25 +31,73 @@ func bild(_ pfad: String) -> CGImage? {
         .cgImage(forProposedRect: nil, context: nil, hints: nil)
 }
 
-/// Liest die Grundfarbe des Logos aus der linken oberen Ecke.
-func grundfarbe(_ image: CGImage) -> CGColor {
-    let cs = CGColorSpaceCreateDeviceRGB()
-    var pixel = [UInt8](repeating: 255, count: 4)
-    pixel.withUnsafeMutableBytes { puffer in
-        if let ctx = CGContext(data: puffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8,
-                               bytesPerRow: 4, space: cs,
-                               bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) {
-            ctx.draw(image, in: CGRect(x: 0, y: -CGFloat(image.height - 1),
-                                       width: CGFloat(image.width), height: CGFloat(image.height)))
-        }
+/// Bildpunkte eines Bildes als RGBA-Feld.
+func punkte(_ image: CGImage) -> [UInt8]? {
+    let w = image.width, h = image.height
+    var daten = [UInt8](repeating: 0, count: w * h * 4)
+    let ok = daten.withUnsafeMutableBytes { puffer -> Bool in
+        guard let ctx = CGContext(data: puffer.baseAddress, width: w, height: h,
+                                  bitsPerComponent: 8, bytesPerRow: w * 4,
+                                  space: CGColorSpaceCreateDeviceRGB(),
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: CGFloat(w), height: CGFloat(h)))
+        return true
     }
-    let a = CGFloat(pixel[3]) / 255
-    guard a > 0.5 else { return CGColor(red: 1, green: 1, blue: 1, alpha: 1) }
-    return CGColor(red: CGFloat(pixel[0]) / 255 / a, green: CGFloat(pixel[1]) / 255 / a,
-                   blue: CGFloat(pixel[2]) / 255 / a, alpha: 1)
+    return ok ? daten : nil
 }
 
-func drawIcon(size: CGFloat, logo: CGImage, grund: CGColor) -> CGImage? {
+/// Liest die Grundfarbe des Logos aus der linken oberen Ecke.
+func grundfarbe(_ image: CGImage) -> CGColor {
+    guard let d = punkte(image), d.count >= 4, d[3] > 127 else {
+        return CGColor(red: 1, green: 1, blue: 1, alpha: 1)
+    }
+    let a = CGFloat(d[3]) / 255
+    return CGColor(red: CGFloat(d[0]) / 255 / a, green: CGFloat(d[1]) / 255 / a,
+                   blue: CGFloat(d[2]) / 255 / a, alpha: 1)
+}
+
+/// Schneidet die durchsichtigen Ränder weg.
+func zugeschnitten(_ image: CGImage) -> CGImage? {
+    guard let d = punkte(image) else { return image }
+    let w = image.width, h = image.height
+    var minX = w, minY = h, maxX = -1, maxY = -1
+    for y in 0..<h {
+        for x in 0..<w where d[(y * w + x) * 4 + 3] > 8 {
+            if x < minX { minX = x }
+            if y < minY { minY = y }
+            if x > maxX { maxX = x }
+            if y > maxY { maxY = y }
+        }
+    }
+    guard maxX >= minX, maxY >= minY else { return image }
+    return image.cropping(to: CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1))
+}
+
+/// Nur das türkise „zap": alles links der ersten schwarzen Spalte.
+func kurzform(_ image: CGImage) -> CGImage? {
+    guard let d = punkte(image) else { return nil }
+    let w = image.width, h = image.height
+    var grenze = w
+    suche: for x in 0..<w {
+        for y in 0..<h {
+            let o = (y * w + x) * 4
+            // Nur voll deckende Punkte prüfen: halbdurchsichtiges Türkis wirkt im
+            // vormultiplizierten Feld dunkel und würde als Schwarz gelten.
+            guard d[o + 3] > 235 else { continue }
+            if d[o] < 70 && d[o + 1] < 70 && d[o + 2] < 70 {
+                grenze = x
+                break suche
+            }
+        }
+    }
+    // Ein Hauch Abstand, damit von der weichen Kante des schwarzen „p" nichts stehen bleibt
+    grenze -= max(2, w / 150)
+    guard grenze > 16 else { return nil }
+    return image.cropping(to: CGRect(x: 0, y: 0, width: grenze, height: h))
+        .flatMap { zugeschnitten($0) }
+}
+
+func drawIcon(size: CGFloat, motiv: CGImage, anteil: CGFloat, grund: CGColor) -> CGImage? {
     let cs = CGColorSpaceCreateDeviceRGB()
     guard let ctx = CGContext(data: nil, width: Int(size), height: Int(size),
                               bitsPerComponent: 8, bytesPerRow: 0, space: cs,
@@ -59,45 +111,16 @@ func drawIcon(size: CGFloat, logo: CGImage, grund: CGColor) -> CGImage? {
     ctx.saveGState()
     ctx.addPath(roundedPath(shape, shape.width * 0.225))
     ctx.clip()
-
-    // Grund in der Farbe des Logos: der schmale Rand fällt dadurch nicht auf
     ctx.setFillColor(grund)
     ctx.fill(shape)
 
-    // Das Logo vollständig, nur mittig verkleinert – nichts wird zugeschnitten
-    let kante = shape.width * LOGO_ANTEIL
-    ctx.draw(logo, in: CGRect(x: shape.midX - kante / 2, y: shape.midY - kante / 2,
-                              width: kante, height: kante))
+    let breite = shape.width * anteil
+    let hoehe = breite * CGFloat(motiv.height) / CGFloat(motiv.width)
+    ctx.draw(motiv, in: CGRect(x: shape.midX - breite / 2, y: shape.midY - hoehe / 2,
+                               width: breite, height: hoehe))
     ctx.restoreGState()
 
     return ctx.makeImage()
-}
-
-/// Schneidet die vollständig durchsichtigen Ränder des Schriftzugs weg.
-func zugeschnitten(_ image: CGImage) -> CGImage? {
-    let w = image.width, h = image.height
-    let cs = CGColorSpaceCreateDeviceRGB()
-    var daten = [UInt8](repeating: 0, count: w * h * 4)
-    let ok = daten.withUnsafeMutableBytes { puffer -> Bool in
-        guard let ctx = CGContext(data: puffer.baseAddress, width: w, height: h,
-                                  bitsPerComponent: 8, bytesPerRow: w * 4, space: cs,
-                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
-        ctx.draw(image, in: CGRect(x: 0, y: 0, width: CGFloat(w), height: CGFloat(h)))
-        return true
-    }
-    guard ok else { return image }
-
-    var minX = w, minY = h, maxX = -1, maxY = -1
-    for y in 0..<h {
-        for x in 0..<w where daten[(y * w + x) * 4 + 3] > 8 {
-            if x < minX { minX = x }
-            if y < minY { minY = y }
-            if x > maxX { maxX = x }
-            if y > maxY { maxY = y }
-        }
-    }
-    guard maxX >= minX, maxY >= minY else { return image }
-    return image.cropping(to: CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1))
 }
 
 func schreibe(_ image: CGImage, breite: Int, hoehe: Int, nach url: URL) {
@@ -120,28 +143,37 @@ guard let logo = bild(args[2]) else {
     FileHandle.standardError.write(Data("Logo nicht lesbar: \(args[2])\n".utf8))
     exit(1)
 }
-guard let schriftzug = bild(args[3]) else {
+guard let rohSchrift = bild(args[3]), let schriftzug = zugeschnitten(rohSchrift) else {
     FileHandle.standardError.write(Data("Schriftzug nicht lesbar: \(args[3])\n".utf8))
     exit(1)
 }
 let grund = grundfarbe(logo)
+let kurz = kurzform(schriftzug) ?? schriftzug
+
+func motivFür(_ px: Int) -> (CGImage, CGFloat) {
+    px >= VOLL_AB ? (schriftzug, BREITE_VOLL) : (kurz, BREITE_KURZ)
+}
 
 // Vierter Pfad (optional): Icons und Schriftzug für die Oberfläche
 if args.count > 4 {
     let webDir = URL(fileURLWithPath: args[4])
     for px in [180, 512] {
-        guard let image = drawIcon(size: CGFloat(px), logo: logo, grund: grund) else { exit(1) }
+        let (motiv, anteil) = motivFür(px)
+        guard let image = drawIcon(size: CGFloat(px), motiv: motiv, anteil: anteil, grund: grund) else { exit(1) }
         schreibe(image, breite: px, hoehe: px, nach: webDir.appendingPathComponent("icon-\(px).png"))
     }
-    if let wort = zugeschnitten(schriftzug) {
-        schreibe(wort, breite: wort.width, hoehe: wort.height,
-                 nach: webDir.appendingPathComponent("wortmarke.png"))
-        print("Wortmarke: \(wort.width)×\(wort.height)")
+    // Für den Reiter im Browser reicht das kurze Motiv
+    if let klein = drawIcon(size: 64, motiv: kurz, anteil: BREITE_KURZ, grund: grund) {
+        schreibe(klein, breite: 64, hoehe: 64, nach: webDir.appendingPathComponent("icon-64.png"))
     }
+    schreibe(schriftzug, breite: schriftzug.width, hoehe: schriftzug.height,
+             nach: webDir.appendingPathComponent("wortmarke.png"))
+    print("Wortmarke: \(schriftzug.width)×\(schriftzug.height) · Kurzform: \(kurz.width)×\(kurz.height)")
 }
 
 for entry in sizes {
-    guard let image = drawIcon(size: CGFloat(entry.px), logo: logo, grund: grund) else { exit(1) }
+    let (motiv, anteil) = motivFür(entry.px)
+    guard let image = drawIcon(size: CGFloat(entry.px), motiv: motiv, anteil: anteil, grund: grund) else { exit(1) }
     schreibe(image, breite: entry.px, hoehe: entry.px, nach: out.appendingPathComponent(entry.name))
 }
 print("Icon erzeugt: \(out.path)")
