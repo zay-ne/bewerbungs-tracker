@@ -33,6 +33,12 @@ Firmenlogos über einen öffentlichen Favicon-Dienst mit farbiger Monogramm-Kach
 Bewerbungskanäle als Icon (LinkedIn, Indeed, StepStone, Xing, Website, E-Mail) und
 Gehalt strukturiert nach Betrag, Art und Zeitraum.
 
+**Statistiken als Einstieg, nicht als Endstation.** Jede Karte im Dashboard führt in die
+Liste: eine Monatssäule setzt einen Zeitraum-Filter, ein Ort oder Kanal füllt die Suche, ein
+Balken im Ausgang setzt den Statusfilter, ein Sankey-Knoten zeigt alle Bewerbungen, die
+diese Stufe je erreicht haben. Balken und Säulen sind echte Knöpfe – mit Tastatur
+erreichbar, mit einem Fähnchen für die genauen Zahlen.
+
 **Passwort ändern statt Zurücksetzen.** Ohne Mailversand gibt es kein „Passwort vergessen".
 Wer angemeldet ist, setzt darum über einen Knopf im Kopf ein neues Passwort – der Browser
 leitet daraus wie bei der Anmeldung einen Schlüssel ab, der Server tauscht Salz und

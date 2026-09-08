@@ -182,6 +182,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           diagramm_knoten: document.querySelectorAll('#sankey g.nodes rect').length,
           verzeichnis: typeof COMPANY_DIR !== 'undefined' ? COMPANY_DIR.length : 0,
           statistik_karten: document.querySelectorAll('#board .bcard').length,
+          saeulen: saeulenProbe(),
+          klickbar: document.querySelectorAll('#board .klick').length
+                  + ' · Hinweise ' + document.querySelectorAll('#board [data-tip]').length,
           fenster_fehlend: fehlendeFenster(),
           verlauf: await verlaufProbe(),
           passwortknopf: (() => {
@@ -197,6 +200,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         function fehlendeFenster(){
           return ['#ovForm','#ovHistory','#ovShare','#ovInvite','#ovConfirm','#ovPass']
             .filter(sel => !document.querySelector(sel)).join(' ') || 'keine';
+        }
+        // Alle Monatssäulen müssen auf derselben Grundlinie stehen
+        function saeulenProbe(){
+          const spuren = [...document.querySelectorAll('#board .month .mtrack')];
+          if(!spuren.length) return 'keine';
+          const unten = spuren.map(s => Math.round(s.getBoundingClientRect().bottom));
+          const spanne = Math.max(...unten) - Math.min(...unten);
+          return spuren.length + ' Säulen, Grundlinie ' + (spanne <= 1 ? 'bündig' : 'um ' + spanne + ' px versetzt');
         }
         // Der Pfeil zur Ausschreibung: vorhanden, groß genug zum Klicken, echtes Ziel
         function linkProbe(){

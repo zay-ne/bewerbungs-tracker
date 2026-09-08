@@ -304,7 +304,9 @@ h1{
 @keyframes saeuleHoch{to{height:var(--hoehe)}}
 .mname{display:flex;flex-direction:column;align-items:center;line-height:1.15}
 .mname b{font-size:11.5px;font-weight:600;color:var(--text-secondary)}
-.mname i{font-size:10px;font-style:normal;color:var(--text-tertiary)}
+/* Der Platz für das Jahr steht immer, auch wenn nichts darin steht:
+   sonst stünde die erste Säule höher als die übrigen. */
+.mname i{font-size:10px;font-style:normal;color:var(--text-tertiary);min-height:12px;line-height:1.15}
 
 /* Säulen über die Zeit */
 .colwrap{margin-top:2px}
@@ -374,6 +376,10 @@ svg.cols rect{
 .fchip:active{transform:scale(.97)}
 .fchip.on{background:var(--text);color:var(--bg-elevated)}
 .fchip .n{font-size:11.5px;opacity:.65;font-variant-numeric:tabular-nums}
+/* Chip für den Monat aus den Statistiken – mit Kreuz zum Aufheben */
+.fchip.zeit{background:var(--accent);color:#fff}
+.fchip.zeit .x{font-size:11px;opacity:.8}
+.fchip.zeit:hover{color:#fff;filter:brightness(1.06)}
 .sortbox{display:flex;align-items:center;gap:8px;flex:none;justify-content:flex-end}
 .sortlabel{font-size:12.5px;color:var(--text-tertiary);font-weight:500}
 .minisel{
@@ -647,6 +653,26 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   transform:translate(-50%,-118%);white-space:nowrap;
 }
 .tip.show{opacity:1}
+.tip .tiphint{display:block;opacity:.7;font-size:11.5px;margin-top:2px}
+
+/* Anklickbare Statistiken */
+.bar.klick,.month.klick{cursor:pointer;text-align:inherit;font:inherit;color:inherit;background:none}
+.bar.klick{border-radius:9px;margin:0 -6px;padding:0 6px;transition:background .16s}
+.bar.klick:hover{background:var(--bg-sunken)}
+.bar.klick:active{transform:scale(.995)}
+.month.klick .mtrack{transition:filter .16s,transform .16s var(--ease)}
+.month.klick:hover .mfill{filter:brightness(1.08) saturate(1.05)}
+.month.klick:hover .mval{color:var(--accent)}
+.month.klick:active{transform:scale(.98)}
+#sankey rect.klick{cursor:pointer}
+
+/* Fähnchen mit den genauen Zahlen */
+.btip{
+  position:fixed;z-index:120;pointer-events:none;max-width:260px;
+  background:var(--text);color:var(--bg-elevated);
+  padding:8px 11px;border-radius:10px;font-size:12.5px;font-weight:500;line-height:1.35;
+  box-shadow:var(--shadow-pop);white-space:pre-line;
+}
 .conv{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:22px}
 .conv .c{background:var(--bg-sunken);border-radius:var(--r-md);padding:13px 15px}
 .conv .c .k{font-size:12px;color:var(--text-secondary);font-weight:500}
@@ -2068,7 +2094,7 @@ de:{
   'flt.all':'Alle','flt.planned':'Geplant','flt.applied':'Beworben','flt.talking':'Im Gespräch','flt.accepted':'Zusage','flt.rejected':'Absage','flt.noreply':'Keine Antwort','flt.emptyTitle':'Keine Einträge in dieser Auswahl','flt.emptyText':'Wähle einen anderen Filter oder zeige alle Einträge.','sort.by':'Sortieren','sort.date':'Datum','sort.status':'Status','sort.company':'Firma','sort.salary':'Gehalt','sort.toggle':'Richtung umschalten',
   'demo.tag':'Demo','demo.open':'Ohne Konto ansehen – Demo mit Beispieldaten','demo.note':'Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.','demo.reset':'Zurücksetzen','demo.leave':'Zur Anmeldung','demo.subtitle':'Demo mit Beispieldaten – nichts wird gespeichert.',
   'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
-  'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen',
+  'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen','stat.showList':'Klick zeigt die Liste','stat.replies':'Antworten','stat.withTalk':'mit Gespräch','stat.ofClosed':'der abgeschlossenen','stat.clearMonth':'Monat aufheben',
   'stat.bestMonth':'Stärkster Monat: {monat} mit {n}',
   'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.median':'Median','share.footer':'erstellt mit zapply',
  'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
@@ -2148,7 +2174,7 @@ en:{
   'flt.all':'All','flt.planned':'Planned','flt.applied':'Applied','flt.talking':'Interviewing','flt.accepted':'Accepted','flt.rejected':'Rejected','flt.noreply':'No reply','flt.emptyTitle':'Nothing in this selection','flt.emptyText':'Pick another filter or show all entries.','sort.by':'Sort by','sort.date':'Date','sort.status':'Status','sort.company':'Company','sort.salary':'Salary','sort.toggle':'Switch direction',
   'demo.tag':'Demo','demo.open':'Try it without an account – demo with sample data','demo.note':'Sample data to play with. Changes stay in this tab and are never saved.','demo.reset':'Reset','demo.leave':'To sign-in','demo.subtitle':'Demo with sample data – nothing is saved.',
   'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
-  'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet',
+  'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet','stat.showList':'Click to see the list','stat.replies':'replies','stat.withTalk':'with interview','stat.ofClosed':'of those closed','stat.clearMonth':'Clear month',
   'stat.bestMonth':'Strongest month: {monat} with {n}',
   'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.median':'Median','share.footer':'made with zapply',
  'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
@@ -2228,7 +2254,7 @@ fr:{
   'flt.all':'Toutes','flt.planned':'Prévues','flt.applied':'Envoyées','flt.talking':'En entretien','flt.accepted':'Acceptées','flt.rejected':'Refus','flt.noreply':'Sans réponse','flt.emptyTitle':'Rien dans cette sélection','flt.emptyText':'Choisissez un autre filtre ou affichez tout.','sort.by':'Trier par','sort.date':'Date','sort.status':'Statut','sort.company':'Entreprise','sort.salary':'Salaire','sort.toggle':'Inverser le sens',
   'demo.tag':'Démo','demo.open':'Essayer sans compte – démo avec des données d’exemple','demo.note':'Données d’exemple pour essayer. Les modifications restent dans cet onglet et ne sont jamais enregistrées.','demo.reset':'Réinitialiser','demo.leave':'Vers la connexion','demo.subtitle':'Démo avec données d’exemple – rien n’est enregistré.',
   'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
-  'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos',
+  'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos','stat.showList':'Cliquez pour voir la liste','stat.replies':'réponses','stat.withTalk':'avec entretien','stat.ofClosed':'des dossiers clos','stat.clearMonth':'Retirer le mois',
   'stat.bestMonth':'Mois le plus fort : {monat} avec {n}',
   'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.median':'Médiane','share.footer':'créé avec zapply',
  'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
@@ -2308,7 +2334,7 @@ ar:{
   'flt.all':'الكل','flt.planned':'مُخطَّط','flt.applied':'تم التقديم','flt.talking':'في المقابلات','flt.accepted':'قبول','flt.rejected':'رفض','flt.noreply':'بلا رد','flt.emptyTitle':'لا نتائج في هذا التصفية','flt.emptyText':'اختر تصفية أخرى أو اعرض كل الطلبات.','sort.by':'ترتيب','sort.date':'التاريخ','sort.status':'الحالة','sort.company':'الشركة','sort.salary':'الراتب','sort.toggle':'عكس الاتجاه',
   'demo.tag':'تجربة','demo.open':'جرّب بدون حساب – عرض ببيانات نموذجية','demo.note':'بيانات نموذجية للتجربة. التغييرات تبقى في هذه النافذة ولا تُحفظ.','demo.reset':'إعادة تعيين','demo.leave':'إلى تسجيل الدخول','demo.subtitle':'عرض ببيانات نموذجية – لا يُحفظ شيء.',
   'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
-  'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد',
+  'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد','stat.showList':'انقر لعرض القائمة','stat.replies':'ردود','stat.withTalk':'مع مقابلة','stat.ofClosed':'من الطلبات المغلقة','stat.clearMonth':'إلغاء الشهر',
   'stat.bestMonth':'أقوى شهر: {monat} بعدد {n}',
   'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.median':'الوسيط','share.footer':'أُنشئ بـ zapply',
  'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
@@ -2660,13 +2686,38 @@ function passtSuche(it){
 
 let filter = 'all';
 try{ filter = localStorage.getItem('bewerbungen.filter') || 'all'; }catch{}
+
+/* Ein einzelner Monat, aus den Statistiken heraus gesetzt. Bewusst nicht gemerkt:
+   er gehört zu einem Klick, nicht zur dauerhaften Einstellung. */
+let zeitFilter = null;                       // {monat:'2026-08', titel:'August 2026'}
+const passtZeit = it => {
+  if(!zeitFilter) return true;
+  const d = appliedDate(it);
+  return !!d && d.slice(0, 7) === zeitFilter.monat;
+};
 try{
   const gemerkt = JSON.parse(localStorage.getItem('bewerbungen.sort') || 'null');
   if(gemerkt?.key) sort = gemerkt;
 }catch{}
 
 const activeFilter = () => FILTERS.find(f => f.id === filter) || FILTERS[0];
-const filtered = () => items.filter(passtSuche).filter(activeFilter().passt);
+const filtered = () => items.filter(passtZeit).filter(passtSuche).filter(activeFilter().passt);
+
+/** Aus einer Statistik in die Übersicht springen: Auswahl setzen und dorthin scrollen. */
+function zeigeInListe({zeit = null, titel = '', text = '', status = ''} = {}){
+  // Auf dem Handy bleibt das Fähnchen sonst stehen, weil kein Zeiger es verlässt
+  const tip = $('#btip');
+  if(tip) tip.hidden = true;
+  zeitFilter = zeit ? {monat: zeit, titel} : null;
+  suche = text.toLowerCase();
+  $('#search').value = text;
+  filter = FILTERS.some(f => f.id === status) ? status : 'all';
+  try{ localStorage.setItem('bewerbungen.filter', filter); }catch{}
+  setView('list');
+  renderTable();
+  const ziel = $('#viewList');
+  if(ziel) ziel.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
 
 function setFilter(id){
   filter = id;
@@ -2685,8 +2736,15 @@ function zeigeAnzahl(){
 function renderChips(){
   const host = $('#chips');
   host.innerHTML = '';
+  if(zeitFilter){
+    const b = el('button','fchip zeit on');
+    b.append(el('span', null, zeitFilter.titel), el('span','x','✕'));
+    b.title = t('stat.clearMonth');
+    b.onclick = () => { zeitFilter = null; renderTable(); };
+    host.append(b);
+  }
   for(const f of FILTERS){
-    const anzahl = items.filter(passtSuche).filter(f.passt).length;
+    const anzahl = items.filter(passtZeit).filter(passtSuche).filter(f.passt).length;
     if(f.id !== 'all' && !anzahl) continue;      // leere Gruppen weglassen
     const b = el('button', 'fchip' + (f.id === filter ? ' on' : ''));
     b.append(el('span', null, t(f.tk)));
@@ -3428,7 +3486,10 @@ function balkenListe(zeilen, farbe){
   const box = el('div','bars');
   const max = Math.max(1, ...zeilen.map(z => z.wert));
   zeilen.forEach((z, i) => {
-    const zeile = el('div','bar');
+    // Mit Klickziel wird die Zeile ein Knopf – auch für die Tastatur erreichbar
+    const zeile = el(z.klick ? 'button' : 'div', 'bar' + (z.klick ? ' klick' : ''));
+    if(z.tip) zeile.dataset.tip = z.tip;
+    if(z.klick){ zeile.type = 'button'; zeile.onclick = z.klick; }
     zeile.append(el('span','blabel', z.name));
     const spur = el('span','btrack');
     const fuell = el('span','bfill');
@@ -3458,8 +3519,10 @@ function monatsReihe(){
   const reihe = [];
   for(let j = jaA, m = moA; j < jaE || (j === jaE && m <= moE); m === 12 ? (m = 1, j++) : m++){
     const key = `${j}-${String(m).padStart(2, '0')}`;
+    const erster = new Date(key + '-01T00:00:00');
     reihe.push({key, wert: zaehler.get(key) || 0,
-                name: new Date(key + '-01T00:00:00').toLocaleDateString(locale(), {month:'short'}),
+                name: erster.toLocaleDateString(locale(), {month:'short'}),
+                lang: erster.toLocaleDateString(locale(), {month:'long', year:'numeric'}),
                 jahr: String(j).slice(2)});
   }
   return reihe;
@@ -3469,8 +3532,15 @@ function monatsReihe(){
 function monatsSaeulen(reihe){
   const box = el('div','months');
   const max = Math.max(1, ...reihe.map(r => r.wert));
+  const summe = reihe.reduce((a, b) => a + b.wert, 0);
   reihe.forEach((r, i) => {
-    const spalte = el('div','month' + (r.wert ? '' : ' leer'));
+    const spalte = el(r.wert ? 'button' : 'div', 'month' + (r.wert ? ' klick' : ' leer'));
+    if(r.wert){
+      spalte.type = 'button';
+      spalte.dataset.tip = `${r.name} ${r.jahr} · ${r.wert} ${r.wert === 1 ? t('chart.one') : t('chart.many')}`
+                         + (summe ? ` · ${Math.round(r.wert / summe * 100)} %` : '') + `\n${t('stat.showList')}`;
+      spalte.onclick = () => zeigeInListe({zeit: r.key, titel: r.lang});
+    }
     spalte.append(el('span','mval', r.wert ? String(r.wert) : ''));
     const spur = el('span','mtrack');
     const saeule = el('span','mfill');
@@ -3480,7 +3550,9 @@ function monatsSaeulen(reihe){
     spalte.append(spur);
     const beschriftung = el('span','mname');
     beschriftung.append(el('b', null, r.name));
-    if(i === 0 || r.jahr !== reihe[i-1].jahr) beschriftung.append(el('i', null, r.jahr));
+    // Das Jahr steht nur beim Wechsel, der Platz dafür aber immer:
+    // sonst stünde die erste Säule höher als die übrigen.
+    beschriftung.append(el('i', null, i === 0 || r.jahr !== reihe[i-1].jahr ? r.jahr : ''));
     spalte.append(beschriftung);
     spalte.title = `${r.name} ${r.jahr}: ${r.wert}`;
     box.append(spalte);
@@ -3522,10 +3594,47 @@ function saeulen(werte, beschriftung){
 
 /* ─────────── Das Dashboard ─────────── */
 
+/* Ein Hinweisfähnchen für alle Karten: folgt dem Zeiger und erscheint auch,
+   wenn man mit der Tastatur durch die Balken geht. Wird einmal eingehängt. */
+let tippsGebunden = false;
+function tippsBinden(){
+  if(tippsGebunden) return;
+  tippsGebunden = true;
+  const board = $('#board');
+  const tip = el('div','btip');
+  tip.id = 'btip';
+  tip.hidden = true;
+  document.body.append(tip);
+
+  const zeigen = (ziel, x, y) => {
+    tip.textContent = ziel.dataset.tip;
+    tip.hidden = false;
+    const b = tip.getBoundingClientRect();
+    tip.style.left = Math.min(Math.max(8, x - b.width / 2), innerWidth - b.width - 8) + 'px';
+    tip.style.top = Math.max(8, y - b.height - 14) + 'px';
+  };
+  const verbergen = () => { tip.hidden = true; };
+
+  board.addEventListener('pointermove', e => {
+    const ziel = e.target.closest?.('[data-tip]');
+    if(ziel) zeigen(ziel, e.clientX, e.clientY); else verbergen();
+  });
+  board.addEventListener('pointerleave', verbergen);
+  board.addEventListener('focusin', e => {
+    const ziel = e.target.closest?.('[data-tip]');
+    if(!ziel) return verbergen();
+    const b = ziel.getBoundingClientRect();
+    zeigen(ziel, b.left + b.width / 2, b.top);
+  });
+  board.addEventListener('focusout', verbergen);
+  addEventListener('scroll', verbergen, {passive: true});
+}
+
 function renderBoard(){
   const board = $('#board');
   board.innerHTML = '';
   const daten = chartItems();
+  const anteil = (a, b) => b ? ` · ${Math.round(a / b * 100)} %` : '';
 
   if(!items.length){
     const leer = el('div','empty');
@@ -3580,7 +3689,7 @@ function renderBoard(){
       {name: t('stat.week2'), wert: tage.filter(d => d > 7 && d <= 14).length},
       {name: t('stat.week4'), wert: tage.filter(d => d > 14 && d <= 28).length},
       {name: t('stat.later'), wert: tage.filter(d => d > 28).length},
-    ];
+    ].map(f => ({...f, tip: `${f.name} · ${f.wert} ${t('stat.replies')}${anteil(f.wert, tage.length)}`}));
     kAntwort.append(balkenListe(faecher, 'var(--purple)'));
   }else kAntwort.append(el('p','bempty', t('stat.noReplyYet')));
   board.append(kAntwort);
@@ -3617,7 +3726,11 @@ function renderBoard(){
   const kOrt = karte(t('stat.places'), t('stat.placesHint'));
   if(orte.size){
     const zeilen = [...orte.entries()].sort((a,b) => b[1] - a[1]).slice(0, 7)
-      .map(([name, wert]) => ({name, wert}));
+      .map(([name, wert]) => ({
+        name, wert,
+        tip: `${name} · ${wert}${anteil(wert, items.length)}\n${t('stat.showList')}`,
+        klick: () => zeigeInListe({text: name}),
+      }));
     kOrt.append(balkenListe(zeilen, 'var(--accent)'));
   }else kOrt.append(el('p','bempty', t('stat.noPlaces')));
   board.append(kOrt);
@@ -3634,11 +3747,17 @@ function renderBoard(){
   const kKanal = karte(t('stat.channels'), t('stat.channelsHint'));
   if(kanaele.size){
     const zeilen = [...kanaele.entries()].sort((a,b) => b[1].gesamt - a[1].gesamt).slice(0, 6)
-      .map(([k, e]) => ({
-        name: channelLabel(k) || t('stat.unknown'),
-        wert: e.gesamt,
-        text: `${e.gesamt} · ${Math.round(e.gespraech / e.gesamt * 100)} %`,
-      }));
+      .map(([k, e]) => {
+        const name = channelLabel(k) || t('stat.unknown');
+        return {
+          name, wert: e.gesamt,
+          text: `${e.gesamt} · ${Math.round(e.gespraech / e.gesamt * 100)} %`,
+          tip: `${name} · ${e.gesamt}${anteil(e.gesamt, items.length)}\n`
+             + `${e.gespraech} ${t('stat.withTalk')}${anteil(e.gespraech, e.gesamt)}`
+             + (channelLabel(k) ? `\n${t('stat.showList')}` : ''),
+          klick: channelLabel(k) ? () => zeigeInListe({text: name}) : null,
+        };
+      });
     kKanal.append(balkenListe(zeilen, 'var(--green)'));
   }else kKanal.append(el('p','bempty', t('stat.none')));
   board.append(kKanal);
@@ -3648,11 +3767,19 @@ function renderBoard(){
   const kAusgang = karte(t('stat.outcome'), t('stat.outcomeHint'));
   if(abgeschlossen.length){
     const zeilen = ['accepted','rejected','noreply','withdrawn']
-      .map(id => ({
-        name: `${STAGE[id].emoji} ${STAGE[id].label}`,
-        wert: abgeschlossen.filter(i => i.status === id).length,
-        farbe: cssVar(STAGE[id].color),
-      }))
+      .map(id => {
+        const wert = abgeschlossen.filter(i => i.status === id).length;
+        return {
+          id, wert,
+          name: `${STAGE[id].emoji} ${STAGE[id].label}`,
+          farbe: cssVar(STAGE[id].color),
+          tip: `${STAGE[id].label} · ${wert}${anteil(wert, abgeschlossen.length)} `
+             + `${t('stat.ofClosed')}\n${t('stat.showList')}`,
+          klick: () => FILTERS.some(f => f.id === id)
+            ? zeigeInListe({status: id})
+            : zeigeInListe({text: STAGE[id].label}),
+        };
+      })
       .filter(z => z.wert);
     kAusgang.append(balkenListe(zeilen));
   }else kAusgang.append(el('p','bempty', t('stat.noneClosed')));
@@ -3660,6 +3787,7 @@ function renderBoard(){
 
   // Karten gestaffelt einblenden
   [...board.children].forEach((k, i) => k.style.animationDelay = (i * 60) + 'ms');
+  tippsBinden();
   renderChart();
 }
 
@@ -4308,7 +4436,9 @@ function renderChart(){
     rect.addEventListener('pointerenter', ev => {
       svg.classList.add('hovering');
       [...gLinks.children].forEach((p,i) => p.classList.toggle('hot', list[i].s === n.id || list[i].t === n.id));
-      showTip(ev, `<b>${s.label}${woher}</b> · ${n.ever} ${n.ever===1?t('chart.one'):t('chart.many')}${n.here && !s.terminal ? ` · ${n.here} ${t('chart.open')}` : ''}`);
+      showTip(ev, `<b>${s.label}${woher}</b> · ${n.ever} ${n.ever===1?t('chart.one'):t('chart.many')}`
+                + `${n.here && !s.terminal ? ` · ${n.here} ${t('chart.open')}` : ''}`
+                + `<span class="tiphint">${esc(t('stat.showList'))}</span>`);
     });
     rect.addEventListener('pointermove', ev => showTip(ev));
     rect.addEventListener('pointerleave', () => {
@@ -4316,6 +4446,9 @@ function renderChart(){
       [...gLinks.children].forEach(p => p.classList.remove('hot'));
       hideTip();
     });
+    // Klick auf eine Stufe zeigt die Bewerbungen, die dort je gestanden haben
+    rect.classList.add('klick');
+    rect.addEventListener('click', () => { hideTip(); zeigeInListe({text: s.short}); });
     gNodes.append(rect);
 
     // Beschriftung rechts neben dem Knoten, mit dezenter Hinterlegung über den Strömen
