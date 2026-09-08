@@ -21,6 +21,12 @@
 const SESSION_DAYS = 30;
 const LEGACY_SLOT = 'bewerbungen';        // Datenbestand aus der Zeit vor den Konten
 const MAX_ITEMS = 20000;
+
+/* Tarife: wer sich mit Einladungscode registriert, bekommt den vollen Zugang.
+   Wer ohne Code kommt, führt bis zu FREI_GRENZE Bewerbungen. Konten aus der Zeit
+   vor den Tarifen gelten als voll (kein Feld = pro). */
+const FREI_GRENZE = 10;
+const istPro = user => (user?.plan ?? 'pro') === 'pro';
 const FAILS_ALLOWED = 20;                 // Fehlversuche je Viertelstunde und Herkunft
 
 const te = new TextEncoder();
@@ -125,13 +131,15 @@ async function register(req, env) {
 
   if (!looksLikeMail(mail)) return json({error: 'Bitte eine gültige E-Mail-Adresse angeben.'}, 400);
   if (sentKey.length < 32) return json({error: 'Passwort zu kurz.'}, 400);
-  if (!code) return json({error: 'Einladungscode fehlt.'}, 400);
 
-  const inviteRaw = await env.DB.get(`invite:${code}`);
-  if (!inviteRaw) { await noteFail(env, gate); return json({error: 'Dieser Einladungscode ist unbekannt.'}, 403); }
-  let invite;
-  try { invite = JSON.parse(inviteRaw); } catch { invite = {}; }
-  if (invite.usedBy) return json({error: 'Dieser Einladungscode wurde schon eingelöst.'}, 403);
+  // Der Code ist freiwillig – er entscheidet nur über den Tarif
+  let invite = null;
+  if (code) {
+    const inviteRaw = await env.DB.get(`invite:${code}`);
+    if (!inviteRaw) { await noteFail(env, gate); return json({error: 'Dieser Einladungscode ist unbekannt.'}, 403); }
+    try { invite = JSON.parse(inviteRaw); } catch { invite = {}; }
+    if (invite.usedBy) return json({error: 'Dieser Einladungscode wurde schon eingelöst.'}, 403);
+  }
 
   if (await readUser(env, mail)) return json({error: 'Für diese Adresse gibt es schon ein Konto.'}, 409);
 
@@ -140,10 +148,13 @@ async function register(req, env) {
   const user = {
     id, email: mail, salt,
     hash: await sha256(sentKey + ':' + salt),
+    plan: invite ? 'pro' : 'free',
     created: new Date().toISOString(),
   };
   await env.DB.put(userKey(mail), JSON.stringify(user));
-  await env.DB.put(`invite:${code}`, JSON.stringify({...invite, usedBy: mail, usedAt: user.created}));
+  if (invite) {
+    await env.DB.put(`invite:${code}`, JSON.stringify({...invite, usedBy: mail, usedAt: user.created}));
+  }
 
   // Das erste Konto erbt den Bestand aus der Zeit vor den Konten
   const legacy = await env.DB.get(LEGACY_SLOT);
@@ -152,7 +163,8 @@ async function register(req, env) {
     await env.DB.delete(LEGACY_SLOT);
   }
 
-  return json({email: mail, inherited: !!legacy, admin: isAdmin(env, {email: mail})},
+  return json({email: mail, inherited: !!legacy, plan: user.plan, limit: FREI_GRENZE,
+               admin: isAdmin(env, {email: mail})},
               200, {'set-cookie': await makeCookie(env, id, mail)});
 }
 
@@ -192,7 +204,8 @@ async function login(req, env) {
     await noteFail(env, gate);
     return json({error: 'E-Mail-Adresse oder Passwort stimmt nicht.'}, 401);
   }
-  return json({email: user.email, admin: isAdmin(env, {email: user.email})},
+  return json({email: user.email, plan: istPro(user) ? 'pro' : 'free', limit: FREI_GRENZE,
+               admin: isAdmin(env, {email: user.email})},
               200, {'set-cookie': await makeCookie(env, user.id, user.email)});
 }
 
@@ -207,7 +220,8 @@ async function readData(env, id) {
   } catch { return {rev: 0, updated: null, items: []}; }
 }
 
-async function handleData(req, env, id) {
+async function handleData(req, env, me) {
+  const id = me.id;
   if (req.method === 'GET') return json(await readData(env, id));
 
   if (req.method === 'PUT') {
@@ -215,6 +229,12 @@ async function handleData(req, env, id) {
     try { body = await req.json(); } catch { return json({error: 'invalid json'}, 400); }
     if (!Array.isArray(body?.items)) return json({error: 'items expected'}, 400);
     if (body.items.length > MAX_ITEMS) return json({error: 'too many items'}, 413);
+
+    // Die Grenze des freien Zugangs gilt hier, nicht erst in der Oberfläche
+    const konto = await readUser(env, me.email);
+    if (!istPro(konto) && body.items.length > FREI_GRENZE) {
+      return json({error: 'limit', limit: FREI_GRENZE}, 402);
+    }
 
     const current = await readData(env, id);
     if (Number(body.rev) !== current.rev) return json({error: 'conflict', ...current}, 409);
@@ -306,10 +326,14 @@ export default {
     const me = await currentUser(req, env);
     if (!me) return json({error: 'unauthorized'}, 401);
 
-    if (pathname === '/api/me') return json({email: me.email, admin: isAdmin(env, me)});
+    if (pathname === '/api/me') {
+      const konto = await readUser(env, me.email);
+      return json({email: me.email, plan: istPro(konto) ? 'pro' : 'free', limit: FREI_GRENZE,
+                   admin: isAdmin(env, me)});
+    }
     if (pathname === '/api/password' && req.method === 'POST')
       return watched('password', setPassword(req, env, me));
-    if (pathname === '/api/data') return handleData(req, env, me.id);
+    if (pathname === '/api/data') return handleData(req, env, me);
     if (pathname === '/api/invites') return handleInvites(req, env, me);
 
     return json({error: 'not found'}, 404);

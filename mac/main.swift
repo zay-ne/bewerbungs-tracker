@@ -238,6 +238,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         }
         """
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+          self.breiteProbe(320) { winzig in
+            print("WINZIG:", winzig)
+            self.breiteProbe(390) { schmal in
+            print("SCHMAL:", schmal)
+            self.breiteProbe(1280) { breit in
+              print("BREIT:", breit)
             self.web.callAsyncJavaScript(probe, in: nil, in: .page) { outcome in
                 let result = try? outcome.get()
                 print("OBERFLÄCHE:", result as? String ?? String(describing: outcome))
@@ -268,6 +274,78 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
                   }
                 }
             }
+            }
+            }
+          }
+        }
+    }
+
+    /// Setzt das Fenster auf eine Breite und misst, wie sich die Oberfläche ordnet.
+    /// So fällt auf, wenn auf dem Handy Reihen umbrechen oder etwas seitlich hinausläuft.
+    private func breiteProbe(_ breite: CGFloat, dann: @escaping (String) -> Void) {
+        var rahmen = window.frame
+        rahmen.size = NSSize(width: breite, height: 900)
+        window.setFrame(rahmen, display: true)
+        let js = """
+        // Gemessen wird die Übersicht: in der Statistik-Ansicht ist die Liste verborgen
+        if(typeof setView === 'function') setView('list');
+        // Warten, bis die Liste wirklich steht – sonst misst man den leeren Aufbau
+        for(let i = 0; i < 40; i++){
+          const bereit = document.querySelector('#chips')?.children.length
+                      || !document.querySelector('#gate')?.hidden;
+          if(bereit) break;
+          await new Promise(r => setTimeout(r, 100));
+        }
+        await new Promise(r => setTimeout(r, 400));
+        // Reihen zählen über Umbrüche: eine neue Reihe beginnt, wenn ein Kind
+        // weiter links sitzt als sein Vorgänger. Leere Kinder bleiben außen vor.
+        const reihen = el => {
+          if(!el) return 0;
+          const kinder = [...el.children]
+            .map(k => k.getBoundingClientRect())
+            .filter(b => b.width > 0 && b.height > 0);
+          if(!kinder.length) return 0;
+          let n = 1, links = kinder[0].left;
+          for(const b of kinder.slice(1)){
+            if(b.left <= links + 0.5) n++;
+            links = b.left;
+          }
+          return n;
+        };
+        const sichtbar = sel => {
+          const k = document.querySelector(sel);
+          return !!k && getComputedStyle(k).display !== 'none';
+        };
+        // Wer läuft seitlich hinaus? Die drei breitesten Übeltäter benennen
+        // Was in einer schiebbaren Reihe steckt, darf hinausragen – das ist gewollt
+        const inSchiebereihe = k => {
+          for(let e = k.parentElement; e; e = e.parentElement){
+            const ux = getComputedStyle(e).overflowX;
+            if(ux === 'auto' || ux === 'scroll') return true;
+          }
+          return false;
+        };
+        const raus = [...document.querySelectorAll('body *')]
+          .map(k => ({k, b: k.getBoundingClientRect()}))
+          .filter(({k, b}) => b.width > 0 && b.right > innerWidth + 1
+                           && getComputedStyle(k).position !== 'fixed' && !inSchiebereihe(k))
+          .sort((a, b) => b.b.right - a.b.right)
+          .slice(0, 3)
+          .map(({k, b}) => `${k.tagName.toLowerCase()}${k.id ? '#' + k.id : (k.className ? '.' + String(k.className).split(' ')[0] : '')}`
+                         + ` bis ${Math.round(b.right)}`);
+        return JSON.stringify({
+          fenster: innerWidth,
+          ueberlauf: document.documentElement.scrollWidth - innerWidth,
+          raus: raus.length ? raus : 'nichts',
+          kopfreihen: reihen(document.querySelector('.top-actions')),
+          kartenkopf: reihen(document.querySelector('.card-head')),
+          filterreihen: reihen(document.querySelector('#chips')),
+          mehrknopf: sichtbar('#btnMore'),
+          export_sichtbar: sichtbar('#btnExport'),
+        });
+        """
+        web.callAsyncJavaScript(js, in: nil, in: .page) { outcome in
+            dann((try? outcome.get()) as? String ?? String(describing: outcome))
         }
     }
 

@@ -33,6 +33,15 @@ Firmenlogos über einen öffentlichen Favicon-Dienst mit farbiger Monogramm-Kach
 Bewerbungskanäle als Icon (LinkedIn, Indeed, StepStone, Xing, Website, E-Mail) und
 Gehalt strukturiert nach Betrag, Art und Zeitraum.
 
+**Zwei Zugänge, im Server verankert.** Mit Einladungscode registriert man sich in den
+vollen Zugang, ohne Code in einen freien mit zehn Bewerbungen. Die Grenze prüft der Worker
+beim Speichern (402), nicht die Oberfläche – die zeigt nur den Zähler und erklärt ihn.
+
+**Aufgeräumt auf kleinen Fenstern.** Unter 760 px liegen Export, Import, Einladen, Passwort
+und Abmelden in einem Mehr-Fenster; im Kopf bleiben Sprache, Zähler und *Neue Bewerbung*.
+Kennzahlen und Filter werden zu schiebbaren Reihen, damit die Liste früh beginnt. Nachgemessen
+wird das im Selbsttest bei 380, 390 und 1280 px – inklusive Suche nach seitlichem Überlauf.
+
 **Statistiken als Einstieg, nicht als Endstation.** Jede Karte im Dashboard führt in die
 Liste: eine Monatssäule setzt einen Zeitraum-Filter, ein Ort oder Kanal füllt die Suche, ein
 Balken im Ausgang setzt den Statusfilter, ein Sankey-Knoten zeigt alle Bewerbungen, die

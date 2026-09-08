@@ -380,6 +380,35 @@ svg.cols rect{
 .fchip.zeit{background:var(--accent);color:#fff}
 .fchip.zeit .x{font-size:11px;opacity:.8}
 .fchip.zeit:hover{color:#fff;filter:brightness(1.06)}
+
+/* Tarif: Zähler im Kopf und die beiden Zeilen im Fenster */
+.planchip{
+  height:30px;padding:0 11px;border-radius:999px;flex:none;
+  font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;
+  background:var(--bg-sunken);color:var(--text-secondary);
+  transition:background .16s,color .16s,transform .16s var(--ease);
+}
+.planchip:hover{color:var(--text)}
+/* Der Mehr-Knopf erscheint erst, wenn der Platz knapp wird */
+.more{display:none;font-size:17px;line-height:1;padding:0 12px}
+.morelist{display:flex;flex-direction:column;gap:2px}
+.moreitem{
+  display:flex;align-items:center;gap:12px;height:46px;padding:0 12px;border-radius:12px;
+  font-size:15px;font-weight:500;text-align:left;transition:background .16s;
+}
+.moreitem:hover{background:var(--bg-sunken)}
+.moreitem .ico{width:20px;text-align:center;font-size:15px;opacity:.8}
+.planchip:active{transform:scale(.97)}
+.planchip.warn{background:color-mix(in srgb,var(--orange) 16%,transparent);color:var(--orange)}
+.planchip.full{background:var(--orange);color:#fff}
+.planrow{
+  display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:14px;
+  background:var(--bg-sunken);margin-bottom:10px;
+}
+.planrow.pro{background:var(--accent-soft)}
+.planname{flex:0 0 74px;font-weight:650;font-size:14.5px}
+.planrow.pro .planname{color:var(--accent)}
+.plandesc{font-size:13.5px;color:var(--text-secondary);line-height:1.45}
 .sortbox{display:flex;align-items:center;gap:8px;flex:none;justify-content:flex-end}
 .sortlabel{font-size:12.5px;color:var(--text-tertiary);font-weight:500}
 .minisel{
@@ -763,12 +792,42 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 @media (max-width:760px){
   body{padding:0 14px 80px}
   h1{font-size:31px}
-  header.top{padding:34px 2px 22px;gap:16px}
-  .top-actions{flex-wrap:wrap;width:100%;gap:8px}
-  .top-actions .btn.primary{margin-left:auto}
-  /* Beschriftungen bleiben lesbar, die Reihe bricht stattdessen um */
+  header.top{padding:34px 2px 20px;gap:14px}
+
+  /* Aufgeräumter Kopf: eine Reihe mit Sprache, Tarif und „Mehr",
+     darunter die neue Bewerbung über die ganze Breite. */
+  .top-actions{flex-wrap:wrap;width:100%;gap:8px;justify-content:flex-end;align-items:center}
+  .top-actions #btnExport,.top-actions #btnImport,.top-actions #btnInvite,
+  .top-actions #btnPass,.top-actions #btnLogout{display:none}
+  .top-actions .more{display:inline-flex}
+  .top-actions .btn.primary{order:9;flex:1 1 100%;justify-content:center;height:42px;font-size:15px;margin-left:0}
   .top-actions .btn{font-size:13.5px;height:34px;padding:0 12px}
+  .account{display:inline-flex;align-items:center;gap:8px}
   .account .mail{display:none}
+
+  /* Suche in eigener Zeile, Zähler neben der Überschrift */
+  .card-head{align-items:baseline;gap:10px 12px}
+  .card-head h2{flex:1 1 auto}
+  .card-head #count{order:2;flex:0 0 auto}
+  .searchbox{order:3;flex:1 1 100%;max-width:none}
+  /* Filter in einer Reihe, die sich schieben lässt – statt drei Zeilen Umbruch.
+     flex:1 1 100% bindet die Reihe an die Fensterbreite, sonst wächst sie hinaus. */
+  .chips{flex:1 1 100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .chips::-webkit-scrollbar{display:none}
+  /* Kennzahlen als schiebbare Reihe: fünf Karten im Raster kosten sonst
+     einen halben Bildschirm, bevor die erste Bewerbung sichtbar wird. */
+  .stats{
+    display:flex;gap:9px;margin-bottom:16px;overflow-x:auto;
+    scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  }
+  .stats::-webkit-scrollbar{display:none}
+  .stat{flex:0 0 43%;scroll-snap-align:start;padding:12px 14px 13px}
+  .stat .v{font-size:25px}
+  .stat .v small{display:inline;margin-left:4px;margin-top:0}
+  /* Kopf und Leiste enger, damit die Liste früher beginnt */
+  .card-head{padding:12px 0 8px}
+  .toolbar{padding:8px 0 9px;gap:9px}
   .stat .v small{display:block;margin-left:0;margin-top:2px}
   .conflictbar{flex-direction:column;align-items:stretch}
   .cb-acts{flex-wrap:wrap}
@@ -794,10 +853,12 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
       <button class="btn quiet" id="btnInvite" style="display:none" data-i18n-title="inv.title"><span class="ico">✉</span><span data-i18n="inv.short">Einladen</span></button>
       <span class="account" id="account" style="display:none">
         <span class="mail" id="accountMail"></span>
+        <button class="planchip" id="btnPlan" style="display:none"></button>
         <button class="btn quiet" id="btnPass" data-i18n-title="pw.title"><span class="ico">🔑</span><span data-i18n="pw.short">Passwort</span></button>
         <button class="btn quiet" id="btnLogout" data-i18n-title="nav.logout"><span class="ico">⇥</span><span data-i18n="nav.logout">Abmelden</span></button>
       </span>
       <button class="flagbtn" id="btnLang" data-i18n-title="nav.lang" aria-label="Sprache"><span id="langFlag">🇩🇪</span></button>
+      <button class="btn quiet more" id="btnMore" data-i18n-title="nav.more" data-i18n-aria="nav.more">⋯</button>
       <button class="btn primary" id="btnNew"><span class="ico">+</span><span data-i18n="nav.new">Neue Bewerbung</span></button>
     </div>
   </header>
@@ -1012,8 +1073,10 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
         <input type="password" id="a-pass" autocomplete="current-password" required>
       </div>
       <div class="field" id="inviteField" style="display:none">
-        <label for="a-invite" data-i18n="gate.invite">Einladungscode</label>
+        <label for="a-invite"><span data-i18n="gate.invite">Einladungscode</span>
+          <span class="muted" style="font-weight:400" data-i18n="form.optional">(optional)</span></label>
         <input type="text" id="a-invite" autocomplete="off" spellcheck="false" data-i18n-ph="gate.phInvite">
+        <p class="sub" style="margin-top:7px" data-i18n="gate.inviteNote">Mit Code: voller Zugang. Ohne Code: bis zu 10 Bewerbungen.</p>
       </div>
       <div class="gateerr" id="gateErr" hidden></div>
       <button type="submit" class="btn primary gatebtn" id="gateGo">Anmelden</button>
@@ -1025,6 +1088,50 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 </div>
 
 <!-- ── Einladungen ──────────────────────────────────────────── -->
+<!-- ── Mehr (nur auf schmalen Fenstern) ─────────────────────── -->
+<div class="overlay" id="ovMore">
+  <div class="sheet" style="max-width:380px" role="dialog" aria-modal="true" aria-labelledby="moreTitle">
+    <div class="sheet-head">
+      <h2 id="moreTitle" data-i18n="nav.more">Mehr</h2>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
+    </div>
+    <div class="sheet-body morelist">
+      <button class="moreitem" id="moreExport"><span class="ico">↓</span><span data-i18n="nav.export">Export</span></button>
+      <button class="moreitem" id="moreImport"><span class="ico">↑</span><span data-i18n="nav.import">Import</span></button>
+      <button class="moreitem" id="moreInvite" style="display:none"><span class="ico">✉</span><span data-i18n="inv.short">Einladen</span></button>
+      <button class="moreitem" id="morePass"><span class="ico">🔑</span><span data-i18n="pw.short">Passwort</span></button>
+      <button class="moreitem" id="moreLogout"><span class="ico">⇥</span><span data-i18n="nav.logout">Abmelden</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Tarif ────────────────────────────────────────────────── -->
+<div class="overlay" id="ovPlan">
+  <div class="sheet" style="max-width:440px" role="dialog" aria-modal="true" aria-labelledby="planTitle">
+    <div class="sheet-head">
+      <div>
+        <h2 id="planTitle" data-i18n="plan.title">Freier Zugang</h2>
+        <div class="hint" id="planHint"></div>
+      </div>
+      <button class="close" data-close data-i18n-aria="misc.close">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="planrow">
+        <div class="planname" data-i18n="plan.free">Frei</div>
+        <div class="plandesc" id="planFreeDesc"></div>
+      </div>
+      <div class="planrow pro">
+        <div class="planname" data-i18n="plan.pro">Voll</div>
+        <div class="plandesc" data-i18n="plan.proDesc">Unbegrenzt viele Bewerbungen, alle Auswertungen, alle Geräte.</div>
+      </div>
+      <p class="sub" style="margin-top:16px" data-i18n="plan.howto">Einen Einladungscode bekommst du von jemandem, der schon dabei ist.</p>
+    </div>
+    <div class="sheet-foot">
+      <button class="btn primary" data-close data-i18n="plan.ok">Verstanden</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Passwort ändern ──────────────────────────────────────── -->
 <div class="overlay" id="ovPass">
   <div class="sheet" style="max-width:430px" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
@@ -1674,7 +1781,14 @@ const KDF_ROUNDS = 400000;          // Runden der Passwort-Ableitung im Browser
 const toApp = msg => { try{ window.webkit.messageHandlers.bewerbungen.postMessage(msg); }catch{ localOk = false; } };
 const fromB64 = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64), c => c.charCodeAt(0)));
 
-let account = null;          // {email}, sobald angemeldet
+let account = null;          // {email, plan, limit, admin}, sobald angemeldet
+
+/* Tarife: „pro" ist unbegrenzt (Einladungscode oder Konto von früher),
+   „free" führt bis zu account.limit Bewerbungen. */
+const FREI_STANDARD = 10;
+const grenze = () => account?.limit ?? FREI_STANDARD;
+const freiTarif = () => !!account && account.plan === 'free';
+const platzFrei = () => !freiTarif() || items.length < grenze();
 let rev = 0;                 // Stand, auf dem unsere Daten beruhen
 let dirty = false;           // lokale Änderung noch nicht hochgeladen
 let syncState = 'local';     // local | ok | offline | conflict | signedout
@@ -1757,6 +1871,7 @@ function showGate(on){
   $('#btnInvite').style.display = account?.admin && !demo ? '' : 'none';
   $('#btnPass').style.display = account && !demo ? '' : 'none';
   if(account) $('#accountMail').textContent = account.email;
+  tarifZeigen();
 }
 
 /** Passwort niemals im Klartext senden: der Browser rechnet daraus einen Schlüssel. */
@@ -1845,6 +1960,13 @@ async function push(force = false){
       body: JSON.stringify({rev, items}),
     });
     if(res.status === 401){ return signedOut(); }
+    else if(res.status === 402){
+      // Der Server hält die Grenze – die Oberfläche sagt, was das bedeutet
+      syncState = 'limit';
+      if(account) account.plan = 'free';
+      tarifZeigen();
+      tarifFensterOeffnen();
+    }
     else if(res.status === 409){
       serverCopy = await res.json();
       syncState = 'conflict';
@@ -1898,7 +2020,10 @@ function paintSync(){
     $('#subtitle').style.color = '';
     return;
   }
-  if(syncState === 'conflict'){
+  if(syncState === 'limit'){
+    text = t('plan.reached', {max: grenze()});
+    color = 'var(--orange)';
+  }else if(syncState === 'conflict'){
     text = t('conflict.line');
     color = 'var(--orange)';
   }else if(hosted && syncState === 'offline' && !account){
@@ -2081,12 +2206,12 @@ de:{
  'conflict.line':'Auf einem anderen Gerät wurde geändert – bitte unten entscheiden.',
  'conflict.server':'Anderen Stand laden','conflict.mine':'Diesen Stand hochladen',
  'gate.login':'Anmelden','gate.register':'Konto anlegen','gate.hintLogin':'Deine Bewerbungen, auf allen Geräten.',
- 'gate.hintReg':'Mit Einladungscode. Deine Bewerbungen bleiben nur für dich sichtbar.',
+ 'gate.hintReg':'Deine Bewerbungen bleiben nur für dich sichtbar.',
  'gate.mail':'E-Mail','gate.pass':'Passwort','gate.invite':'Einladungscode','gate.phInvite':'Code eintragen',
- 'gate.toReg':'Noch kein Konto? Mit Einladung registrieren','gate.toLogin':'Zurück zur Anmeldung',
+ 'gate.toReg':'Noch kein Konto? Jetzt registrieren','gate.toLogin':'Zurück zur Anmeldung',
  'gate.working':'Einen Moment …','gate.needBoth':'Bitte E-Mail und Passwort angeben.',
  'gate.shortPass':'Bitte ein Passwort mit mindestens 10 Zeichen wählen.',
- 'gate.needInvite':'Ohne Einladungscode geht es nicht.','gate.failed':'Das hat nicht funktioniert.',
+ 'gate.failed':'Das hat nicht funktioniert.',
  'gate.noServer':'Keine Verbindung zum Server.',
  'gate.alreadyThere':'Dieses Konto gibt es schon – bitte mit dem Passwort anmelden.',
   'pw.title':'Passwort ändern','pw.short':'Passwort','pw.hint':'Gilt sofort auf allen Geräten. Angemeldet bleibst du.','pw.new':'Neues Passwort','pw.again':'Noch einmal','pw.save':'Passwort setzen','pw.note':'Mindestens 10 Zeichen. Das Passwort verlässt dieses Gerät nicht – der Server bekommt nur einen daraus abgeleiteten Wert.','pw.mismatch':'Die beiden Eingaben sind nicht gleich.','pw.needLogin':'Dafür musst du angemeldet sein.','pw.done':'Passwort geändert ✓',
@@ -2094,7 +2219,7 @@ de:{
   'flt.all':'Alle','flt.planned':'Geplant','flt.applied':'Beworben','flt.talking':'Im Gespräch','flt.accepted':'Zusage','flt.rejected':'Absage','flt.noreply':'Keine Antwort','flt.emptyTitle':'Keine Einträge in dieser Auswahl','flt.emptyText':'Wähle einen anderen Filter oder zeige alle Einträge.','sort.by':'Sortieren','sort.date':'Datum','sort.status':'Status','sort.company':'Firma','sort.salary':'Gehalt','sort.toggle':'Richtung umschalten',
   'demo.tag':'Demo','demo.open':'Ohne Konto ansehen – Demo mit Beispieldaten','demo.note':'Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.','demo.reset':'Zurücksetzen','demo.leave':'Zur Anmeldung','demo.subtitle':'Demo mit Beispieldaten – nichts wird gespeichert.',
   'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
-  'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen','stat.showList':'Klick zeigt die Liste','stat.replies':'Antworten','stat.withTalk':'mit Gespräch','stat.ofClosed':'der abgeschlossenen','stat.clearMonth':'Monat aufheben',
+  'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen','nav.more':'Mehr','plan.title':'Freier Zugang','plan.titlePro':'Voller Zugang','plan.free':'Frei','plan.freeDesc':'Bis zu {max} Bewerbungen, alle Funktionen, alle Geräte.','plan.pro':'Voll','plan.proDesc':'Unbegrenzt viele Bewerbungen, alle Auswertungen, alle Geräte.','plan.proHint':'Dein Konto hat den vollen Zugang.','plan.left':'Noch {n} von {max} Plätzen frei.','plan.reached':'Die {max} Plätze des freien Zugangs sind belegt.','plan.importBlocked':'Der Import ergäbe {n} Einträge – im freien Zugang sind {max} möglich.','plan.howto':'Einen Einladungscode bekommst du von jemandem, der schon dabei ist.','plan.ok':'Verstanden','plan.chipTip':'Freier Zugang: bis zu {max} Bewerbungen','gate.inviteNote':'Mit Code: voller Zugang. Ohne Code: bis zu 10 Bewerbungen.','stat.showList':'Klick zeigt die Liste','stat.replies':'Antworten','stat.withTalk':'mit Gespräch','stat.ofClosed':'der abgeschlossenen','stat.clearMonth':'Monat aufheben',
   'stat.bestMonth':'Stärkster Monat: {monat} mit {n}',
   'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.median':'Median','share.footer':'erstellt mit zapply',
  'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
@@ -2161,12 +2286,12 @@ en:{
  'conflict.line':'Another device made changes – please decide below.',
  'conflict.server':'Load the other version','conflict.mine':'Upload this version',
  'gate.login':'Sign in','gate.register':'Create account','gate.hintLogin':'Your applications, on every device.',
- 'gate.hintReg':'With an invitation code. Your applications stay visible to you alone.',
+ 'gate.hintReg':'Your applications stay visible to you alone.',
  'gate.mail':'Email','gate.pass':'Password','gate.invite':'Invitation code','gate.phInvite':'enter your code',
- 'gate.toReg':'No account yet? Register with an invitation','gate.toLogin':'Back to sign in',
+ 'gate.toReg':'No account yet? Sign up now','gate.toLogin':'Back to sign in',
  'gate.working':'One moment …','gate.needBoth':'Please enter email and password.',
  'gate.shortPass':'Please choose a password with at least 10 characters.',
- 'gate.needInvite':'An invitation code is required.','gate.failed':'That did not work.',
+ 'gate.failed':'That did not work.',
  'gate.noServer':'No connection to the server.',
  'gate.alreadyThere':'This account already exists – please sign in with your password.',
   'pw.title':'Change password','pw.short':'Password','pw.hint':'Takes effect on every device right away. You stay signed in.','pw.new':'New password','pw.again':'Once more','pw.save':'Set password','pw.note':'At least 10 characters. The password never leaves this device – the server only receives a value derived from it.','pw.mismatch':'The two entries do not match.','pw.needLogin':'You need to be signed in for that.','pw.done':'Password changed ✓',
@@ -2174,7 +2299,7 @@ en:{
   'flt.all':'All','flt.planned':'Planned','flt.applied':'Applied','flt.talking':'Interviewing','flt.accepted':'Accepted','flt.rejected':'Rejected','flt.noreply':'No reply','flt.emptyTitle':'Nothing in this selection','flt.emptyText':'Pick another filter or show all entries.','sort.by':'Sort by','sort.date':'Date','sort.status':'Status','sort.company':'Company','sort.salary':'Salary','sort.toggle':'Switch direction',
   'demo.tag':'Demo','demo.open':'Try it without an account – demo with sample data','demo.note':'Sample data to play with. Changes stay in this tab and are never saved.','demo.reset':'Reset','demo.leave':'To sign-in','demo.subtitle':'Demo with sample data – nothing is saved.',
   'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
-  'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet','stat.showList':'Click to see the list','stat.replies':'replies','stat.withTalk':'with interview','stat.ofClosed':'of those closed','stat.clearMonth':'Clear month',
+  'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet','nav.more':'More','plan.title':'Free access','plan.titlePro':'Full access','plan.free':'Free','plan.freeDesc':'Up to {max} applications, every feature, every device.','plan.pro':'Full','plan.proDesc':'Unlimited applications, all charts, every device.','plan.proHint':'Your account has full access.','plan.left':'{n} of {max} slots left.','plan.reached':'All {max} slots of the free access are taken.','plan.importBlocked':'The import would make {n} entries – free access allows {max}.','plan.howto':'An invitation code comes from someone who is already on board.','plan.ok':'Got it','plan.chipTip':'Free access: up to {max} applications','gate.inviteNote':'With a code: full access. Without: up to 10 applications.','stat.showList':'Click to see the list','stat.replies':'replies','stat.withTalk':'with interview','stat.ofClosed':'of those closed','stat.clearMonth':'Clear month',
   'stat.bestMonth':'Strongest month: {monat} with {n}',
   'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.median':'Median','share.footer':'made with zapply',
  'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
@@ -2241,12 +2366,12 @@ fr:{
  'conflict.line':'Un autre appareil a fait des modifications – décidez ci-dessous.',
  'conflict.server':'Charger l’autre version','conflict.mine':'Envoyer cette version',
  'gate.login':'Se connecter','gate.register':'Créer un compte','gate.hintLogin':'Vos candidatures, sur tous vos appareils.',
- 'gate.hintReg':'Avec un code d’invitation. Vos candidatures ne sont visibles que par vous.',
+ 'gate.hintReg':'Vos candidatures ne sont visibles que par vous.',
  'gate.mail':'E-mail','gate.pass':'Mot de passe','gate.invite':'Code d’invitation','gate.phInvite':'saisir le code',
- 'gate.toReg':'Pas de compte ? S’inscrire avec une invitation','gate.toLogin':'Retour à la connexion',
+ 'gate.toReg':'Pas de compte ? S’inscrire','gate.toLogin':'Retour à la connexion',
  'gate.working':'Un instant …','gate.needBoth':'Veuillez saisir e-mail et mot de passe.',
  'gate.shortPass':'Choisissez un mot de passe d’au moins 10 caractères.',
- 'gate.needInvite':'Un code d’invitation est nécessaire.','gate.failed':'Cela n’a pas fonctionné.',
+ 'gate.failed':'Cela n’a pas fonctionné.',
  'gate.noServer':'Pas de connexion au serveur.',
  'gate.alreadyThere':'Ce compte existe déjà – connectez-vous avec votre mot de passe.',
   'pw.title':'Changer le mot de passe','pw.short':'Mot de passe','pw.hint':'Effet immédiat sur tous les appareils. Vous restez connecté.','pw.new':'Nouveau mot de passe','pw.again':'Encore une fois','pw.save':'Définir','pw.note':'Au moins 10 caractères. Le mot de passe ne quitte pas cet appareil – le serveur ne reçoit qu’une valeur dérivée.','pw.mismatch':'Les deux saisies diffèrent.','pw.needLogin':'Il faut être connecté pour cela.','pw.done':'Mot de passe changé ✓',
@@ -2254,7 +2379,7 @@ fr:{
   'flt.all':'Toutes','flt.planned':'Prévues','flt.applied':'Envoyées','flt.talking':'En entretien','flt.accepted':'Acceptées','flt.rejected':'Refus','flt.noreply':'Sans réponse','flt.emptyTitle':'Rien dans cette sélection','flt.emptyText':'Choisissez un autre filtre ou affichez tout.','sort.by':'Trier par','sort.date':'Date','sort.status':'Statut','sort.company':'Entreprise','sort.salary':'Salaire','sort.toggle':'Inverser le sens',
   'demo.tag':'Démo','demo.open':'Essayer sans compte – démo avec des données d’exemple','demo.note':'Données d’exemple pour essayer. Les modifications restent dans cet onglet et ne sont jamais enregistrées.','demo.reset':'Réinitialiser','demo.leave':'Vers la connexion','demo.subtitle':'Démo avec données d’exemple – rien n’est enregistré.',
   'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
-  'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos','stat.showList':'Cliquez pour voir la liste','stat.replies':'réponses','stat.withTalk':'avec entretien','stat.ofClosed':'des dossiers clos','stat.clearMonth':'Retirer le mois',
+  'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos','nav.more':'Plus','plan.title':'Accès libre','plan.titlePro':'Accès complet','plan.free':'Libre','plan.freeDesc':'Jusqu’à {max} candidatures, toutes les fonctions, tous les appareils.','plan.pro':'Complet','plan.proDesc':'Candidatures illimitées, toutes les analyses, tous les appareils.','plan.proHint':'Votre compte a l’accès complet.','plan.left':'Encore {n} places sur {max}.','plan.reached':'Les {max} places de l’accès libre sont prises.','plan.importBlocked':'L’import ferait {n} entrées – l’accès libre en permet {max}.','plan.howto':'Un code d’invitation vient de quelqu’un qui utilise déjà l’app.','plan.ok':'Compris','plan.chipTip':'Accès libre : jusqu’à {max} candidatures','gate.inviteNote':'Avec un code : accès complet. Sans : jusqu’à 10 candidatures.','stat.showList':'Cliquez pour voir la liste','stat.replies':'réponses','stat.withTalk':'avec entretien','stat.ofClosed':'des dossiers clos','stat.clearMonth':'Retirer le mois',
   'stat.bestMonth':'Mois le plus fort : {monat} avec {n}',
   'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.median':'Médiane','share.footer':'créé avec zapply',
  'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
@@ -2321,12 +2446,12 @@ ar:{
  'conflict.line':'جهاز آخر أجرى تغييرات – اختر أدناه.',
  'conflict.server':'تحميل النسخة الأخرى','conflict.mine':'رفع هذه النسخة',
  'gate.login':'تسجيل الدخول','gate.register':'إنشاء حساب','gate.hintLogin':'طلباتك على كل أجهزتك.',
- 'gate.hintReg':'برمز دعوة. طلباتك تبقى مرئية لك وحدك.',
+ 'gate.hintReg':'طلباتك تبقى مرئية لك وحدك.',
  'gate.mail':'البريد الإلكتروني','gate.pass':'كلمة المرور','gate.invite':'رمز الدعوة','gate.phInvite':'أدخل الرمز',
- 'gate.toReg':'لا حساب لديك؟ سجّل برمز دعوة','gate.toLogin':'رجوع إلى تسجيل الدخول',
+ 'gate.toReg':'لا حساب لديك؟ سجّل الآن','gate.toLogin':'رجوع إلى تسجيل الدخول',
  'gate.working':'لحظة …','gate.needBoth':'أدخل البريد وكلمة المرور.',
  'gate.shortPass':'اختر كلمة مرور من ١٠ أحرف على الأقل.',
- 'gate.needInvite':'رمز الدعوة مطلوب.','gate.failed':'لم ينجح ذلك.',
+ 'gate.failed':'لم ينجح ذلك.',
  'gate.noServer':'لا اتصال بالخادم.',
  'gate.alreadyThere':'هذا الحساب موجود بالفعل – سجّل الدخول بكلمة المرور.',
   'pw.title':'تغيير كلمة المرور','pw.short':'كلمة المرور','pw.hint':'يسري فوراً على كل الأجهزة، وتبقى مسجّلاً.','pw.new':'كلمة مرور جديدة','pw.again':'مرة أخرى','pw.save':'تعيين','pw.note':'عشرة أحرف على الأقل. كلمة المرور لا تترك هذا الجهاز – الخادم يستلم قيمة مشتقّة منها فقط.','pw.mismatch':'الإدخالان غير متطابقين.','pw.needLogin':'يجب تسجيل الدخول لذلك.','pw.done':'تم تغيير كلمة المرور ✓',
@@ -2334,7 +2459,7 @@ ar:{
   'flt.all':'الكل','flt.planned':'مُخطَّط','flt.applied':'تم التقديم','flt.talking':'في المقابلات','flt.accepted':'قبول','flt.rejected':'رفض','flt.noreply':'بلا رد','flt.emptyTitle':'لا نتائج في هذا التصفية','flt.emptyText':'اختر تصفية أخرى أو اعرض كل الطلبات.','sort.by':'ترتيب','sort.date':'التاريخ','sort.status':'الحالة','sort.company':'الشركة','sort.salary':'الراتب','sort.toggle':'عكس الاتجاه',
   'demo.tag':'تجربة','demo.open':'جرّب بدون حساب – عرض ببيانات نموذجية','demo.note':'بيانات نموذجية للتجربة. التغييرات تبقى في هذه النافذة ولا تُحفظ.','demo.reset':'إعادة تعيين','demo.leave':'إلى تسجيل الدخول','demo.subtitle':'عرض ببيانات نموذجية – لا يُحفظ شيء.',
   'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
-  'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد','stat.showList':'انقر لعرض القائمة','stat.replies':'ردود','stat.withTalk':'مع مقابلة','stat.ofClosed':'من الطلبات المغلقة','stat.clearMonth':'إلغاء الشهر',
+  'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد','nav.more':'المزيد','plan.title':'وصول مجاني','plan.titlePro':'وصول كامل','plan.free':'مجاني','plan.freeDesc':'حتى {max} طلبات، كل الوظائف، كل الأجهزة.','plan.pro':'كامل','plan.proDesc':'طلبات بلا حدود، كل التحليلات، كل الأجهزة.','plan.proHint':'حسابك يملك الوصول الكامل.','plan.left':'بقي {n} من {max}.','plan.reached':'كل الأماكن ({max}) في الوصول المجاني مشغولة.','plan.importBlocked':'الاستيراد سينتج {n} مدخلات – المجاني يسمح بـ {max}.','plan.howto':'تحصل على رمز دعوة من شخص يستخدم التطبيق.','plan.ok':'فهمت','plan.chipTip':'الوصول المجاني: حتى {max} طلبات','gate.inviteNote':'مع رمز: وصول كامل. بدونه: حتى 10 طلبات.','stat.showList':'انقر لعرض القائمة','stat.replies':'ردود','stat.withTalk':'مع مقابلة','stat.ofClosed':'من الطلبات المغلقة','stat.clearMonth':'إلغاء الشهر',
   'stat.bestMonth':'أقوى شهر: {monat} بعدد {n}',
   'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.median':'الوسيط','share.footer':'أُنشئ بـ zapply',
  'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
@@ -2611,6 +2736,7 @@ function pillStyle(id){
 function render(){
   renderStats();
   renderTable();
+  tarifZeigen();
   if(view === 'stats') renderBoard();
 }
 
@@ -3292,6 +3418,8 @@ function zeigeDatumsfeld(){
 $('#f-status').addEventListener('change', zeigeDatumsfeld);
 
 function openForm(item = null, focus = 'f-company'){
+  // Neue Einträge nur, solange im freien Zugang noch Platz ist
+  if(!item && !platzFrei()) return tarifFensterOeffnen();
   const f = $('#form');
   f.reset();
   editId = item?.id || null;
@@ -3412,7 +3540,11 @@ $('#filePick').addEventListener('change', async e => {
 /** Import ergänzt nur, was noch nicht da ist – nichts wird überschrieben. */
 function merge(incoming){
   const known = new Set(items.map(i => i.id));
-  items = items.concat(incoming.filter(i => !known.has(i.id)));
+  const neue = incoming.filter(i => !known.has(i.id));
+  if(freiTarif() && items.length + neue.length > grenze()){
+    return tarifFensterOeffnen(t('plan.importBlocked', {n: items.length + neue.length, max: grenze()}));
+  }
+  items = items.concat(neue);
   save();
   render();
 }
@@ -4565,8 +4697,6 @@ $('#authForm').addEventListener('submit', async e => {
   if(!mail || !pass) return gateError(t('gate.needBoth'));
   if(gateMode === 'register' && pass.length < 10)
     return gateError(t('gate.shortPass'));
-  if(gateMode === 'register' && !invite)
-    return gateError(t('gate.needInvite'));
 
   const btn = $('#gateGo');
   btn.disabled = true;
@@ -4592,7 +4722,7 @@ $('#authForm').addEventListener('submit', async e => {
       gateError(data.error || t('gate.failed'));
       return;
     }
-    account = {email: data.email};
+    account = data;                       // enthält Tarif, Grenze und Hauptkonto-Kennung
     $('#a-pass').value = '';
     showGate(false);
     rev = 0; dirty = false; serverCopy = null;
@@ -4604,6 +4734,48 @@ $('#authForm').addEventListener('submit', async e => {
     btn.textContent = gateMode === 'register' ? t('gate.register') : t('gate.login');
   }
 });
+
+/* ─────────── Mehr-Fenster (schmale Fenster) ─────────── */
+
+/* Die Einträge lösen dieselben Knöpfe aus, damit es nur eine Wahrheit gibt. */
+$('#btnMore').onclick = () => {
+  $('#moreInvite').style.display = account?.admin && !demo ? '' : 'none';
+  $('#morePass').style.display = account && !demo ? '' : 'none';
+  $('#moreLogout').style.display = account ? '' : 'none';
+  openOverlay('#ovMore');
+};
+for(const [eintrag, knopf] of [['#moreExport','#btnExport'], ['#moreImport','#btnImport'],
+                               ['#moreInvite','#btnInvite'], ['#morePass','#btnPass'],
+                               ['#moreLogout','#btnLogout']]){
+  $(eintrag).onclick = () => { closeOverlay($('#ovMore')); $(knopf).click(); };
+}
+
+/* ─────────── Tarif ─────────── */
+
+/** Der kleine Zähler im Kopf: nur im freien Zugang, mit Warnung ab drei Restplätzen. */
+function tarifZeigen(){
+  const chip = $('#btnPlan');
+  if(!chip) return;
+  if(!freiTarif() || demo){ chip.style.display = 'none'; return; }
+  const rest = grenze() - items.length;
+  chip.style.display = '';
+  chip.textContent = `${Math.min(items.length, grenze())}/${grenze()}`;
+  chip.title = t('plan.chipTip', {max: grenze()});
+  chip.classList.toggle('warn', rest <= 3);
+  chip.classList.toggle('full', rest <= 0);
+}
+
+function tarifFensterOeffnen(hinweis = ''){
+  const rest = Math.max(0, grenze() - items.length);
+  $('#planTitle').textContent = freiTarif() ? t('plan.title') : t('plan.titlePro');
+  $('#planHint').textContent = hinweis || (freiTarif()
+    ? (rest ? t('plan.left', {n: rest, max: grenze()}) : t('plan.reached', {max: grenze()}))
+    : t('plan.proHint'));
+  $('#planFreeDesc').textContent = t('plan.freeDesc', {max: grenze()});
+  openOverlay('#ovPlan');
+}
+
+$('#btnPlan').onclick = () => tarifFensterOeffnen();
 
 /* ─────────── Passwort ändern ─────────── */
 
