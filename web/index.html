@@ -458,6 +458,14 @@ td:first-child{max-width:280px}
 .mark.has-logo img{opacity:1}
 
 /* Link zur Ausschreibung */
+/* Pfeil zum Aufklappen – nur in der Kartenansicht auf schmalen Fenstern */
+.aufklapp{
+  display:none;margin-left:auto;flex:none;width:28px;height:28px;border-radius:9px;
+  align-items:center;justify-content:center;font-size:17px;color:var(--text-tertiary);
+  background:var(--bg-sunken);transition:transform .2s var(--ease);
+}
+tr.offen .aufklapp{transform:rotate(90deg)}
+
 .extlink{color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;
   line-height:1;padding:3px 5px;border-radius:6px;transition:background .16s;flex:none;cursor:pointer}
 .extlink:hover{background:var(--accent-soft)}
@@ -763,6 +771,22 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .endbtns{flex-wrap:wrap;justify-content:flex-end;row-gap:8px;margin-left:auto}
   .toolbar{padding:12px 0 14px}
   .rowacts{justify-content:flex-start;padding-top:10px}
+
+  /* Kompakte Karte: Firma mit Rolle, Datum, Status – alles Weitere auf Tippen.
+     Der Pfeil rechts zeigt, dass mehr dahinter steckt. */
+  tbody tr{cursor:pointer}
+  .aufklapp{display:inline-flex}
+  tbody tr:not(.offen) td.c-location,
+  tbody tr:not(.offen) td.c-channel,
+  tbody tr:not(.offen) td.c-salary,
+  tbody tr:not(.offen) td.c-employment,
+  tbody tr:not(.offen) td.c-deadline,
+  tbody tr:not(.offen) td.c-proc,
+  tbody tr:not(.offen) td.c-end,
+  tbody tr:not(.offen) td.c-acts,
+  tbody tr:not(.offen) .pathline{display:none}
+  tbody tr.offen td[data-label],tbody tr.offen td.c-acts{animation:zeileAuf .2s var(--ease)}
+  @keyframes zeileAuf{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
   .end,.step{height:36px;font-size:13.5px}
   .iconbtn{width:36px;height:36px}
   .endbtns{gap:8px}
@@ -790,6 +814,14 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 }
 
 @media (max-width:760px){
+  /* Unter 16 px zoomt iOS beim Tippen in ein Feld hinein – danach lässt sich die
+     Seite seitlich schieben. Darum sind Felder hier mindestens 16 px groß. */
+  input,select,textarea,#search,.minisel,.tl input[type=date],
+  input[type=text],input[type=number],input[type=date],input[type=email],input[type=password]{font-size:16px}
+  /* Höhen mitwachsen lassen, damit die größere Schrift nicht anstößt */
+  #search{height:38px}
+  .minisel{height:34px}
+  .tl input[type=date]{height:36px;width:auto;min-width:132px}
   body{padding:0 14px 80px}
   h1{font-size:31px}
   header.top{padding:34px 2px 20px;gap:14px}
@@ -2920,6 +2952,23 @@ function sorted(){
   }
 }
 
+/* Welche Karten auf dem Handy ausgeklappt sind – überlebt das Neuzeichnen. */
+const offeneZeilen = new Set();
+let klappenGebunden = false;
+function klappenBinden(){
+  if(klappenGebunden) return;
+  klappenGebunden = true;
+  $('#tableHost').addEventListener('click', e => {
+    if(!matchMedia('(max-width:960px)').matches) return;
+    // Knöpfe, Links und die Status-Pille machen ihr eigenes Ding
+    if(e.target.closest('button,a,input,select,label,.click')) return;
+    const tr = e.target.closest('tbody tr');
+    if(!tr?.dataset.id) return;
+    if(tr.classList.toggle('offen')) offeneZeilen.add(tr.dataset.id);
+    else offeneZeilen.delete(tr.dataset.id);
+  });
+}
+
 function renderTable(){
   const host = $('#tableHost');
   host.innerHTML = '';
@@ -2979,6 +3028,7 @@ function renderTable(){
   for(const it of sorted()){
     const tr = el('tr');
     tr.dataset.id = it.id;
+    if(offeneZeilen.has(it.id)) tr.classList.add('offen');
     const label = (cell, key) => {
       const col = COLS.find(c => c.key === key);
       if(col?.tk) cell.dataset.label = t(col.tk);
@@ -3009,6 +3059,10 @@ function renderTable(){
     names.append(line);
     if(it.role) names.append(el('div','role', it.role));
     head.append(names);
+    // Auf dem Handy zeigt der Pfeil, dass die Karte mehr enthält
+    const auf = el('span','aufklapp','›');
+    auf.setAttribute('aria-hidden', 'true');
+    head.append(auf);
     c1.append(head);
     tr.append(c1);
 
@@ -3054,7 +3108,7 @@ function renderTable(){
     tr.append(label(c5, 'deadline'));
 
     // Status – klickbar, öffnet den Verlauf
-    const c6 = el('td');
+    const c6 = el('td','c-status');
     const p = el('button','pill click');
     p.setAttribute('style', pillStyle(it.status));
     p.title = t('row.historyTip');
@@ -3070,7 +3124,7 @@ function renderTable(){
     tr.append(label(c6, 'status'));
 
     // Prozess: Bewerbung abschicken bzw. Gespräche ansetzen
-    const c7 = el('td');
+    const c7 = el('td','c-proc');
     const done = STAGE[it.status].terminal;
     if(it.status === 'planned'){
       const b = el('button','step', t('row.toApplied'));
@@ -3089,7 +3143,7 @@ function renderTable(){
     tr.append(label(c7, '_proc'));
 
     // Abschluss: Prozess mit Zusage oder Absage beenden
-    const c8 = el('td');
+    const c8 = el('td','c-end');
     if(done){
       const p = el('span','pill');
       p.setAttribute('style', pillStyle(it.status));
@@ -3115,7 +3169,7 @@ function renderTable(){
     tr.append(label(c8, '_end'));
 
     // Weitere Aktionen
-    const c9 = el('td');
+    const c9 = el('td','c-acts');
     const acts = el('div','rowacts');
     const more = el('button','iconbtn','⋯');
     more.title = t('row.more');
@@ -3135,6 +3189,7 @@ function renderTable(){
   }
   table.append(tb);
   host.append(table);
+  klappenBinden();
 }
 
 /** Öffnet eine Ausschreibung – in jeder Umgebung auf dem passenden Weg.

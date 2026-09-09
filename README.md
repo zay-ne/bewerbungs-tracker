@@ -37,6 +37,10 @@ Gehalt strukturiert nach Betrag, Art und Zeitraum.
 vollen Zugang, ohne Code in einen freien mit zehn Bewerbungen. Die Grenze prüft der Worker
 beim Speichern (402), nicht die Oberfläche – die zeigt nur den Zähler und erklärt ihn.
 
+**Karten, die sich öffnen.** Auf dem Handy trägt jede Karte drei Angaben: Firma mit Rolle,
+Bewerbungsdatum, Status. Ein Tippen klappt den Rest aus. Eingabefelder sind dort 16 px groß,
+weil iOS sonst beim Tippen hineinzoomt und die Seite danach seitlich verschiebbar bleibt.
+
 **Aufgeräumt auf kleinen Fenstern.** Unter 760 px liegen Export, Import, Einladen, Passwort
 und Abmelden in einem Mehr-Fenster; im Kopf bleiben Sprache, Zähler und *Neue Bewerbung*.
 Kennzahlen und Filter werden zu schiebbaren Reihen, damit die Liste früh beginnt. Nachgemessen

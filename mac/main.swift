@@ -238,6 +238,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         }
         """
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+          self.zustandProbe { zustaende in
+            print("ZUSTÄNDE:", zustaende)
           self.breiteProbe(320) { winzig in
             print("WINZIG:", winzig)
             self.breiteProbe(390) { schmal in
@@ -276,6 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             }
             }
             }
+          }
           }
         }
     }
@@ -343,6 +346,81 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           mehrknopf: sichtbar('#btnMore'),
           export_sichtbar: sichtbar('#btnExport'),
         });
+        """
+        web.callAsyncJavaScript(js, in: nil, in: .page) { outcome in
+            dann((try? outcome.get()) as? String ?? String(describing: outcome))
+        }
+    }
+
+    /// Prüft bei Handybreite mehrere Zustände auf seitlichen Überlauf – im Ruhezustand
+    /// fällt so etwas nicht auf, beim Benutzen schon.
+    private func zustandProbe(dann: @escaping (String) -> Void) {
+        var rahmen = window.frame
+        rahmen.size = NSSize(width: 390, height: 860)
+        window.setFrame(rahmen, display: true)
+        let js = """
+        const warte = ms => new Promise(r => setTimeout(r, ms));
+        const inSchiebereihe = k => {
+          for(let e = k.parentElement; e; e = e.parentElement){
+            const ux = getComputedStyle(e).overflowX;
+            if(ux === 'auto' || ux === 'scroll') return true;
+          }
+          return false;
+        };
+        const ueber = () => {
+          const rand = document.documentElement.scrollWidth - innerWidth;
+          if(rand <= 1) return 0;
+          const schuld = [...document.querySelectorAll('body *')]
+            .map(k => ({k, b: k.getBoundingClientRect()}))
+            .filter(({k, b}) => b.width > 0 && b.right > innerWidth + 1 && !inSchiebereihe(k))
+            .sort((a, b) => b.b.right - a.b.right)[0];
+          const name = schuld ? `${schuld.k.tagName.toLowerCase()}${schuld.k.id ? '#' + schuld.k.id
+                        : (schuld.k.className ? '.' + String(schuld.k.className).split(' ')[0] : '')}` : '?';
+          return `${rand} px (${name})`;
+        };
+        const zu = () => {
+          document.querySelectorAll('.overlay.show').forEach(o => o.classList.remove('show'));
+          document.querySelector('#menu')?.classList.remove('show');
+          document.body.style.overflow = '';
+        };
+
+        const stand = {};
+        setView('list'); await warte(500);
+        stand.liste = ueber();
+
+        const zeile = document.querySelector('tbody tr');
+        if(zeile){
+          const zellen = () => [...zeile.querySelectorAll('td')]
+            .filter(td => getComputedStyle(td).display !== 'none').length;
+          stand.karte_zu = zellen() + ' Angaben';
+          zeile.click(); await warte(300);
+          stand.karte_auf = zellen() + ' Angaben';
+          stand.zeile_offen = ueber();
+          zeile.click(); await warte(200);
+        }
+
+        const punkte = document.querySelector('tbody tr .rowacts button');
+        if(punkte){ punkte.click(); await warte(300); stand.zeilenmenue = ueber(); zu(); await warte(200); }
+
+        if(items.length){ openHistory(items[0]); await warte(400); stand.verlauf = ueber(); zu(); await warte(200); }
+
+        openForm(); await warte(400); stand.formular = ueber(); zu(); await warte(200);
+
+        const feld = document.querySelector('#search');
+        feld.value = 'Bundesinstitut für Arzneimittel und Medizinprodukte';
+        feld.dispatchEvent(new Event('input', {bubbles: true}));
+        await warte(400);
+        stand.lange_suche = ueber();
+        feld.value = ''; feld.dispatchEvent(new Event('input', {bubbles: true}));
+        await warte(300);
+
+        setView('stats'); await warte(700);
+        stand.statistiken = ueber();
+        const teilen = document.querySelector('#btnShare');
+        if(teilen){ teilen.click(); await warte(900); stand.teilen = ueber(); zu(); await warte(200); }
+        setView('list'); await warte(400);
+
+        return JSON.stringify(stand);
         """
         web.callAsyncJavaScript(js, in: nil, in: .page) { outcome in
             dann((try? outcome.get()) as? String ?? String(describing: outcome))
