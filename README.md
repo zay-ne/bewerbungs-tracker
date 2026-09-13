@@ -37,8 +37,8 @@ Gehalt strukturiert nach Betrag, Art und Zeitraum.
 vollen Zugang, ohne Code in einen freien mit zehn Bewerbungen. Die Grenze prüft der Worker
 beim Speichern (402), nicht die Oberfläche – die zeigt nur den Zähler und erklärt ihn.
 
-**Oberfläche in Apple-Manier.** Durchscheinende Leisten mit Unschärfe, Haarlinien statt
-Rahmen, ein ruhiger Lichtschein im Hintergrund. Beim Scrollen fährt oben eine schlanke
+**Oberfläche in Apple-Manier.** Haarlinien statt Rahmen, ein ruhiger Lichtschein direkt im
+Seitenhintergrund, durchscheinende Kopfleiste dort, wo sie flüssig läuft. Beim Scrollen fährt oben eine schlanke
 Leiste ein und die Filterzeile bleibt darunter stehen; neue Zeilen laufen versetzt ein,
 Kennzahlen zählen hoch, Ansichten blenden um. Jede Bewegung hält sich an die
 Systemeinstellung „Bewegung reduzieren". Klang gibt es an genau einer Stelle: ein kurzer,

@@ -81,13 +81,15 @@
 *{box-sizing:border-box;margin:0;padding:0}
 ::selection{background:var(--accent-soft);color:var(--text)}
 
-/* Ein sehr leiser Lichtschein oben, damit die Fläche nicht tot wirkt.
-   Liegt hinter allem und nimmt keine Klicks an. */
-body::before{
-  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+/* Ein sehr leiser Lichtschein oben. Bewusst direkt im Seitenhintergrund und nicht
+   als eigene, fest stehende Ebene: eine solche Ebene lässt unscharfe Leisten auf
+   dem iPhone weiß aufblitzen, weil sie getrennt gezeichnet wird. */
+html{
   background:
-    radial-gradient(900px 460px at 12% -6%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%),
-    radial-gradient(760px 420px at 92% 2%, color-mix(in srgb, var(--purple) 9%, transparent), transparent 72%);
+    radial-gradient(900px 460px at 12% 0, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%),
+    radial-gradient(760px 420px at 92% 60px, color-mix(in srgb, var(--purple) 9%, transparent), transparent 72%),
+    var(--bg);
+  background-repeat:no-repeat;
 }
 
 /* Schmale, zurückhaltende Rollbalken auf dem Mac */
@@ -108,8 +110,7 @@ body::before{
 html{-webkit-text-size-adjust:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Inter,system-ui,sans-serif;
-  background:var(--bg); color:var(--text);
-  position:relative;
+  background:transparent; color:var(--text);
   font-size:15px; line-height:1.45;
   -webkit-font-smoothing:antialiased;
   letter-spacing:-.01em;
@@ -125,9 +126,7 @@ button{background:none;border:0;cursor:pointer}
    Durchscheinendes Material mit Haarlinie, wie die Leisten in iOS und macOS. */
 .chrome{
   position:fixed;top:0;left:0;right:0;z-index:40;
-  background:var(--material);
-  backdrop-filter:saturate(180%) blur(22px);
-  -webkit-backdrop-filter:saturate(180%) blur(22px);
+  background:var(--bg-elevated);
   border-bottom:1px solid transparent;
   transform:translateY(-101%);opacity:0;pointer-events:none;
   transition:transform .34s var(--ease),opacity .24s var(--ruhig),border-color .24s;
@@ -141,6 +140,15 @@ button{background:none;border:0;cursor:pointer}
 .chrome-brand{font-size:19px;font-weight:700;letter-spacing:-.045em}
 .chrome-brand span{color:var(--accent)}
 .chrome-new{margin-left:auto;height:34px;padding:0 14px;font-size:14px}
+/* Durchscheinend nur mit Zeiger, also auf dem Mac: dort läuft es rund.
+   Auf Geräten mit Finger bleibt die Leiste deckend und damit flüssig. */
+@media (hover:hover) and (min-width:761px){
+  .chrome{
+    background:var(--material);
+    backdrop-filter:saturate(180%) blur(22px);
+    -webkit-backdrop-filter:saturate(180%) blur(22px);
+  }
+}
 @media (max-width:760px){
   .chrome-inner{height:50px;padding:0 14px}
   .chrome-brand{font-size:17px}
@@ -459,9 +467,7 @@ svg.cols rect{
   /* Bleibt beim Scrollen oben stehen: Filter sind immer erreichbar, und das
      durchscheinende Material zeigt, dass die Liste darunter weiterläuft. */
   position:sticky;top:calc(54px + env(safe-area-inset-top));z-index:6;
-  background:var(--material-stark);
-  backdrop-filter:saturate(180%) blur(20px);
-  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  background:var(--bg-elevated);
 }
 .chips{display:flex;gap:7px;flex-wrap:wrap;min-width:0}
 .fchip{
@@ -887,30 +893,47 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .toolbar{padding:12px 0 14px}
   .rowacts{justify-content:flex-start;padding-top:10px}
 
-  /* Kompakte Karte: Firma mit Rolle, Datum, Status – alles Weitere auf Tippen.
-     Der Pfeil rechts zeigt, dass mehr dahinter steckt. */
+  /* Ruhige Liste statt schwebender Einzelkarten: ein Block mit Trennlinien,
+     wie die gruppierten Listen in iOS. Weniger Schatten, weniger Unruhe. */
+  tbody{
+    display:block;background:var(--bg-elevated);border-radius:var(--r-lg);
+    box-shadow:var(--shadow-card),var(--kante);overflow:clip;
+  }
+  tbody tr{
+    background:transparent;border-radius:0;box-shadow:none;margin:0;
+    padding:13px 16px;border-top:1px solid var(--separator);
+  }
+  tbody tr:first-child{border-top:0}
+  tbody tr.offen{background:var(--surface-hover);box-shadow:none}
+
+  /* Kurzzeile: Datum und Status ohne Spaltennamen */
+  .kurz{display:flex;align-items:center;gap:9px;margin:7px 0 0 47px;font-size:13.5px}
+  .kdatum{color:var(--text-secondary);font-variant-numeric:tabular-nums}
+  .kstatus{
+    display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;
+    border-radius:999px;font-size:12.5px;font-weight:550;
+    background:var(--tint);color:var(--tone);
+  }
+  .kdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+  tbody tr.offen .kurz{display:none}
+
   tbody tr{cursor:pointer}
   .aufklapp{display:inline-flex}
   tbody tr{transition:transform .22s var(--ease),box-shadow .22s var(--ruhig)}
   tbody tr:active{transform:scale(.995)}
   /* Auf- und Zuklappen läuft in beide Richtungen weich. Statt display zu schalten
      (das lässt sich nicht bewegen) wächst die Höhe der Zellen. */
-  td.c-location,td.c-channel,td.c-salary,td.c-employment,
-  td.c-deadline,td.c-proc,td.c-end,td.c-acts{
+  td[data-label],td.c-proc,td.c-end,td.c-acts{
     overflow:hidden;max-height:220px;
     transition:max-height .32s var(--ease),opacity .24s var(--ruhig),
                padding .32s var(--ease),border-top-width .2s;
   }
-  tbody tr:not(.offen) td.c-location,
-  tbody tr:not(.offen) td.c-channel,
-  tbody tr:not(.offen) td.c-salary,
-  tbody tr:not(.offen) td.c-employment,
-  tbody tr:not(.offen) td.c-deadline,
+  tbody tr:not(.offen) td[data-label],
   tbody tr:not(.offen) td.c-proc,
   tbody tr:not(.offen) td.c-end,
   tbody tr:not(.offen) td.c-acts{
     max-height:0;opacity:0;padding-top:0;padding-bottom:0;min-height:0;
-    /* Auch die Haarlinie verschwindet, sonst bleiben acht dünne Streifen stehen */
+    /* Auch die Haarlinie verschwindet, sonst bleiben dünne Streifen stehen */
     border-top-width:0;
   }
   tbody tr:not(.offen) .pathline{display:none}
@@ -934,9 +957,12 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 }
 
 @media (max-width:600px){
-  .toolbar{flex-direction:column;align-items:stretch;gap:10px}
-  .sortbox{width:100%}
-  .minisel{flex:1 1 auto;min-width:0}
+  /* Filter und Sortierung teilen sich eine Zeile. Zwei Zeilen, die beim Scrollen
+     oben stehen bleiben, nehmen auf einem Handy zu viel vom Bild weg. */
+  .toolbar{flex-direction:row;align-items:center;gap:10px;flex-wrap:nowrap}
+  .sortlabel{display:none}
+  .sortbox{width:auto;flex:none;gap:6px}
+  .minisel{flex:none;min-width:104px;max-width:132px}
   .endbtns{width:100%}
 }
 
@@ -971,11 +997,17 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .searchbox{order:3;flex:1 1 100%;max-width:none}
   /* Filter in einer Reihe, die sich schieben lässt – statt drei Zeilen Umbruch.
      flex:1 1 100% bindet die Reihe an die Fensterbreite, sonst wächst sie hinaus. */
-  .chips{flex:1 1 100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;
-    scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .chips{flex:1 1 0;min-width:0;max-width:100%;flex-wrap:nowrap;overflow-x:auto;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px;
+    /* Weiche Kante rechts: zeigt, dass die Reihe weitergeht, statt hart abzuschneiden */
+    mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent)}
   .chips::-webkit-scrollbar{display:none}
-  /* Kennzahlen als schiebbare Reihe: fünf Karten im Raster kosten sonst
-     einen halben Bildschirm, bevor die erste Bewerbung sichtbar wird. */
+  /* Die fünf Kennzahlen stehen auf dem Handy nur noch in den Statistiken.
+     Über der Liste kosteten sie einen halben Bildschirm und wiederholten nur,
+     was einen Fingertipp weiter ohnehin steht. */
+  #viewList > #stats{display:none}
+  /* (Regel bleibt für breitere Fenster erhalten) */
   .stats{
     display:flex;gap:9px;margin-bottom:16px;overflow-x:auto;
     scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;
@@ -3239,6 +3271,19 @@ function renderTable(){
     auf.setAttribute('aria-hidden', 'true');
     head.append(auf);
     c1.append(head);
+
+    /* Kurzzeile für die zugeklappte Karte: Datum und Status ohne Spaltennamen.
+       Zwei beschriftete Zeilen brauchen dreimal so viel Platz und sagen nicht mehr. */
+    const kurz = el('div','kurz');
+    const losAm = appliedDate(it);
+    kurz.append(el('span','kdatum', losAm ? fmtDate(losAm) : STAGE[it.status].label));
+    if(losAm){
+      const marke = el('span','kstatus');
+      marke.setAttribute('style', pillStyle(it.status));
+      marke.append(el('i','kdot'), document.createTextNode(STAGE[it.status].label));
+      kurz.append(marke);
+    }
+    c1.append(kurz);
     tr.append(c1);
 
     // Ort
