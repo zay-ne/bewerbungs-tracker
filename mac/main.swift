@@ -390,8 +390,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
         const zeile = document.querySelector('tbody tr');
         if(zeile){
+          // Nach Höhe zählen, nicht nach display: zugeklappte Zellen bleiben im
+          // Dokument stehen, damit sich das Auf- und Zuklappen bewegen lässt.
           const zellen = () => [...zeile.querySelectorAll('td')]
-            .filter(td => getComputedStyle(td).display !== 'none').length;
+            .filter(td => td.offsetHeight > 4).length;
           stand.karte_zu = zellen() + ' Angaben';
           zeile.click(); await warte(300);
           stand.karte_auf = zellen() + ' Angaben';

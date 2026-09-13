@@ -293,6 +293,12 @@ async function handleInvites(req, env, me) {
 
 /** Die Oberfläche darf nicht im Cache festhängen, sonst laufen Geräte auf einer alten Fassung. */
 async function serveAsset(req, env) {
+  // Browser fragen ungefragt nach /favicon.ico. Statt einer 404 bekommen sie das Icon.
+  const weg = new URL(req.url);
+  if (weg.pathname === '/favicon.ico') {
+    weg.pathname = '/icon-180.png';
+    return env.ASSETS.fetch(new Request(weg.toString(), req));
+  }
   const res = await env.ASSETS.fetch(req);
   const type = res.headers.get('content-type') || '';
   if (!type.includes('text/html')) return res;

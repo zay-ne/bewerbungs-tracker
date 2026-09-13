@@ -37,8 +37,15 @@
   --shadow-card:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
   --shadow-pop:0 8px 20px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.08);
   --shadow-sheet:0 30px 90px rgba(0,0,0,.28), 0 4px 12px rgba(0,0,0,.12);
-  --r-lg:20px; --r-md:14px; --r-sm:9px;
+  --r-xl:26px; --r-lg:20px; --r-md:14px; --r-sm:9px;
   --ease:cubic-bezier(.32,.72,0,1);
+  --feder:cubic-bezier(.34,1.46,.64,1);      /* schwingt leicht über, für Knöpfe und Pillen */
+  --ruhig:cubic-bezier(.4,0,.2,1);
+  /* Haarlinie auf Karten: die feine Kante, die Tiefe erzeugt, ohne Rahmen zu ziehen */
+  --kante:inset 0 0 0 .5px rgba(0,0,0,.055);
+  --material:rgba(255,255,255,.72);          /* durchscheinende Leisten */
+  --material-stark:rgba(255,255,255,.86);
+  --glanz:rgba(255,255,255,.6);
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -64,10 +71,35 @@
     --shadow-card:0 1px 2px rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0,.4);
     --shadow-pop:0 10px 30px rgba(0,0,0,.6);
     --shadow-sheet:0 40px 100px rgba(0,0,0,.7);
+    --kante:inset 0 0 0 .5px rgba(255,255,255,.09);
+    --material:rgba(28,28,30,.72);
+    --material-stark:rgba(28,28,30,.88);
+    --glanz:rgba(255,255,255,.06);
   }
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
+::selection{background:var(--accent-soft);color:var(--text)}
+
+/* Ein sehr leiser Lichtschein oben, damit die Fläche nicht tot wirkt.
+   Liegt hinter allem und nimmt keine Klicks an. */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(900px 460px at 12% -6%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%),
+    radial-gradient(760px 420px at 92% 2%, color-mix(in srgb, var(--purple) 9%, transparent), transparent 72%);
+}
+
+/* Schmale, zurückhaltende Rollbalken auf dem Mac */
+@media (hover:hover){
+  *::-webkit-scrollbar{width:10px;height:10px}
+  *::-webkit-scrollbar-thumb{
+    background:var(--separator-strong);border-radius:999px;
+    border:3px solid transparent;background-clip:content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover{background:var(--text-tertiary);background-clip:content-box}
+  *::-webkit-scrollbar-track{background:transparent}
+}
 /* Muss über allen Klassenregeln stehen: sonst überstimmt ein display aus einer Klasse
    das hidden-Attribut, und ausgeblendete Bereiche bleiben sichtbar. */
 [hidden]{display:none !important}
@@ -77,6 +109,7 @@ html{-webkit-text-size-adjust:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Inter,system-ui,sans-serif;
   background:var(--bg); color:var(--text);
+  position:relative;
   font-size:15px; line-height:1.45;
   -webkit-font-smoothing:antialiased;
   letter-spacing:-.01em;
@@ -87,6 +120,31 @@ body{
 button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
 button{background:none;border:0;cursor:pointer}
 :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* Mitlaufende Kopfleiste: erscheint, sobald der große Titel weggescrollt ist.
+   Durchscheinendes Material mit Haarlinie, wie die Leisten in iOS und macOS. */
+.chrome{
+  position:fixed;top:0;left:0;right:0;z-index:40;
+  background:var(--material);
+  backdrop-filter:saturate(180%) blur(22px);
+  -webkit-backdrop-filter:saturate(180%) blur(22px);
+  border-bottom:1px solid transparent;
+  transform:translateY(-101%);opacity:0;pointer-events:none;
+  transition:transform .34s var(--ease),opacity .24s var(--ruhig),border-color .24s;
+  padding-top:env(safe-area-inset-top);
+}
+.chrome.an{transform:none;opacity:1;pointer-events:auto;border-bottom-color:var(--separator)}
+.chrome-inner{
+  max-width:1440px;margin:0 auto;height:54px;padding:0 24px;
+  display:flex;align-items:center;gap:14px;
+}
+.chrome-brand{font-size:19px;font-weight:700;letter-spacing:-.045em}
+.chrome-brand span{color:var(--accent)}
+.chrome-new{margin-left:auto;height:34px;padding:0 14px;font-size:14px}
+@media (max-width:760px){
+  .chrome-inner{height:50px;padding:0 14px}
+  .chrome-brand{font-size:17px}
+}
 
 /* ─────────────────────────────  Layout  ───────────────────────────── */
 .wrap{max-width:1440px;margin:0 auto}
@@ -119,11 +177,15 @@ h1{
   display:inline-flex;align-items:center;gap:7px;
   height:38px;padding:0 17px;border-radius:999px;
   font-size:14.5px;font-weight:500;
-  background:var(--bg-elevated);box-shadow:0 1px 2px rgba(0,0,0,.06);
-  transition:transform .18s var(--ease), background .18s, opacity .18s;
+  background:var(--bg-elevated);box-shadow:0 1px 2px rgba(0,0,0,.06),var(--kante);
+  transition:transform .24s var(--feder), background .18s, box-shadow .24s var(--ruhig), opacity .18s;
   white-space:nowrap;
 }
-.btn:hover{background:var(--bg-elevated);filter:brightness(.98)}
+@media (hover:hover){
+  .btn:hover{background:var(--bg-elevated);filter:brightness(.98);
+    transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.09),var(--kante)}
+}
+.btn:active{transform:translateY(0) scale(.96)}
 .btn:active{transform:scale(.97)}
 .btn.primary{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12)}
 .btn.primary:hover{background:var(--accent-hover);filter:none}
@@ -137,7 +199,12 @@ h1{
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
 .stat{
   background:var(--bg-elevated);border-radius:var(--r-md);padding:15px 17px 16px;
-  box-shadow:var(--shadow-card);
+  box-shadow:var(--shadow-card),var(--kante);
+  transition:transform .3s var(--ease),box-shadow .3s var(--ruhig);
+}
+@media (hover:hover){
+  .stat:hover{transform:translateY(-2px);
+    box-shadow:0 2px 4px rgba(0,0,0,.05),0 14px 36px rgba(0,0,0,.09),var(--kante)}
 }
 .stat .k{font-size:12.5px;font-weight:500;color:var(--text-secondary);letter-spacing:0}
 .stat .v{font-size:29px;font-weight:600;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
@@ -215,7 +282,10 @@ h1{
 /* Card / table */
 .card{
   background:var(--bg-elevated);border-radius:var(--r-lg);
-  box-shadow:var(--shadow-card);overflow:hidden;
+  box-shadow:var(--shadow-card),var(--kante);
+  /* clip statt hidden: schneidet die Ecken genauso ab, nimmt der Filterleiste
+     darin aber nicht die Fähigkeit, beim Scrollen oben stehen zu bleiben. */
+  overflow:clip;
 }
 .card-head{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
@@ -247,21 +317,41 @@ h1{
 .board{
   display:grid;gap:16px;
   grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
-  align-items:start;
+  /* Gleiche Höhe je Reihe: sonst franst die Reihe unten unterschiedlich aus */
+  align-items:stretch;
 }
 .bcard{
-  background:var(--bg-elevated);border-radius:var(--r-lg);box-shadow:var(--shadow-card);
+  background:var(--bg-elevated);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-card),var(--kante);
   padding:18px 20px 20px;opacity:0;transform:translateY(10px);
   animation:kartenAuf .5s var(--ease) forwards;
+  transition:box-shadow .3s var(--ruhig);
+  display:flex;flex-direction:column;
+}
+/* Was auf einer Grundlinie steht, gehört nach unten. Listen dagegen schließen
+   direkt an die Überschrift an, sonst klafft in der Mitte eine Lücke. */
+.bcard > .months,.bcard > .range{margin-top:auto}
+@media (hover:hover){
+  .bcard:hover{box-shadow:0 2px 4px rgba(0,0,0,.05),0 14px 40px rgba(0,0,0,.09),var(--kante)}
 }
 .bcard.wide{grid-column:1/-1}
 .bcard.wide2{grid-column:span 2}
 @media (max-width:1000px){.bcard.wide2{grid-column:1/-1}}
 @keyframes kartenAuf{to{opacity:1;transform:none}}
-.bhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+
+/* Wechsel zwischen Übersicht und Statistiken */
+@keyframes ansichtEin{from{opacity:0;transform:translateY(10px) scale(.994)}to{opacity:1;transform:none}}
+#viewList.wechsel,#viewStats.wechsel{animation:ansichtEin .38s var(--ease)}
+
+/* Neue Zeilen laufen versetzt ein, bestehende bleiben ruhig stehen */
+@keyframes zeileEin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+tbody tr.neu{animation:zeileEin .34s var(--ease) both;animation-delay:var(--takt,0ms)}
+.bhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .bhead h3{font-size:15.5px;font-weight:600;letter-spacing:-.015em}
-.bhint{font-size:12.5px;color:var(--text-tertiary);flex:1;min-width:120px}
-.bhead .seg.small{padding:2px;flex:none;margin-left:auto}
+/* Der Hinweis steht immer in einer eigenen Zeile: sonst sitzt er mal neben,
+   mal unter dem Titel, und die Karten wirken ungleich gesetzt. */
+.bhint{order:3;flex:1 0 100%;font-size:12.5px;color:var(--text-tertiary);min-width:0;line-height:1.35}
+.bhead .seg.small{padding:2px;flex:none;margin-left:auto;order:2}
 .bhead .seg.small label{font-size:12px;padding:5px 10px;flex:0 0 auto}
 @media (max-width:560px){
   .bhead{gap:8px}
@@ -350,8 +440,9 @@ svg.cols rect{
   width:100%;height:32px;padding:0 30px 0 30px;border-radius:999px;font-size:13.5px;
   background:var(--bg-sunken);border:1px solid transparent;color:var(--text);
 }
+#search{transition:background .2s var(--ruhig),border-color .2s,box-shadow .24s var(--ruhig)}
 #search:focus{outline:none;background:var(--bg-elevated);border-color:var(--accent);
-  box-shadow:0 0 0 3.5px var(--accent-soft)}
+  box-shadow:0 0 0 4px var(--accent-soft)}
 #search::-webkit-search-cancel-button,#search::-webkit-search-decoration{-webkit-appearance:none}
 .searchclear{
   position:absolute;right:6px;width:22px;height:22px;border-radius:50%;
@@ -365,6 +456,12 @@ svg.cols rect{
 .toolbar{
   display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
   padding:12px 16px 13px 22px;border-bottom:1px solid var(--separator);
+  /* Bleibt beim Scrollen oben stehen: Filter sind immer erreichbar, und das
+     durchscheinende Material zeigt, dass die Liste darunter weiterläuft. */
+  position:sticky;top:calc(54px + env(safe-area-inset-top));z-index:6;
+  background:var(--material-stark);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
 }
 .chips{display:flex;gap:7px;flex-wrap:wrap;min-width:0}
 .fchip{
@@ -372,8 +469,9 @@ svg.cols rect{
   font-size:13px;font-weight:550;white-space:nowrap;background:var(--bg-sunken);color:var(--text-secondary);
   transition:background .16s,color .16s,transform .16s var(--ease);
 }
-.fchip:hover{color:var(--text)}
-.fchip:active{transform:scale(.97)}
+.fchip{transition:background .16s,color .16s,transform .24s var(--feder)}
+@media (hover:hover){ .fchip:hover{color:var(--text);background:var(--surface-hover)} }
+.fchip:active{transform:scale(.94)}
 .fchip.on{background:var(--text);color:var(--bg-elevated)}
 .fchip .n{font-size:11.5px;opacity:.65;font-variant-numeric:tabular-nums}
 /* Chip für den Monat aus den Statistiken – mit Kreuz zum Aufheben */
@@ -508,6 +606,9 @@ tr:hover .addlink{opacity:1}
   background:var(--tint,var(--bg-sunken));color:var(--tone,var(--text-secondary));
 }
 .pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+.pill.click{transition:transform .24s var(--feder),filter .16s}
+@media (hover:hover){ .pill.click:hover{filter:brightness(1.04) saturate(1.1)} }
+.pill.click:active{transform:scale(.94)}
 .pill.click{cursor:pointer;transition:transform .16s var(--ease),filter .16s}
 .pill.click:hover{filter:brightness(1.06) saturate(1.1)}
 .pill.click:active{transform:scale(.96)}
@@ -516,6 +617,12 @@ tr:hover .addlink{opacity:1}
 
 /* Row actions */
 .rowacts{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+/* Auf dem Mac treten die Zeilenknöpfe erst hervor, wenn die Zeile gemeint ist.
+   Auf Geräten ohne Zeiger bleiben sie sichtbar, dort gibt es kein Überfahren. */
+@media (hover:hover) and (min-width:961px){
+  .rowacts{opacity:0;transition:opacity .18s var(--ruhig)}
+  tbody tr:hover .rowacts,tbody tr:focus-within .rowacts{opacity:1}
+}
 .step{
   height:31px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:500;
   background:var(--accent-soft);color:var(--accent);
@@ -547,8 +654,13 @@ tr:hover .addlink{opacity:1}
 .iconbtn.trash:hover{color:var(--red)}
 
 /* Empty state */
-.empty{padding:70px 24px 78px;text-align:center}
-.empty .glyph{font-size:40px;opacity:.35}
+.empty{padding:70px 24px 78px;text-align:center;animation:leerEin .4s var(--ease) both}
+@keyframes leerEin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.empty .glyph{
+  font-size:40px;opacity:.9;display:inline-grid;place-items:center;
+  width:76px;height:76px;border-radius:26px;margin-bottom:4px;
+  background:var(--bg-sunken);box-shadow:var(--kante);
+}
 .empty h3{font-size:17px;font-weight:600;margin-top:14px}
 .empty p{color:var(--text-secondary);font-size:14px;margin-top:6px}
 
@@ -562,9 +674,10 @@ tr:hover .addlink{opacity:1}
 .overlay.show{opacity:1;pointer-events:auto}
 .sheet{
   width:100%;max-width:520px;max-height:calc(100vh - 48px);overflow:auto;
-  background:var(--bg-elevated);border-radius:22px;box-shadow:var(--shadow-sheet);
-  transform:translateY(14px) scale(.97);opacity:.6;
-  transition:transform .34s var(--ease),opacity .24s var(--ease);
+  background:var(--bg-elevated);border-radius:var(--r-xl);
+  box-shadow:var(--shadow-sheet),var(--kante);
+  transform:translateY(18px) scale(.96);opacity:.5;
+  transition:transform .42s var(--feder),opacity .26s var(--ruhig);
 }
 .overlay.show .sheet{transform:none;opacity:1}
 .sheet.wide{max-width:1040px}
@@ -751,10 +864,12 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   table,tbody,tr,td{display:block;width:auto}
   thead{display:none}
   tbody tr{
-    background:var(--bg-elevated);border-radius:var(--r-md);box-shadow:var(--shadow-card);
+    background:var(--bg-elevated);border-radius:var(--r-md);
+    box-shadow:var(--shadow-card),var(--kante);
     padding:14px 16px 12px;margin-bottom:12px;
   }
   tbody tr:hover{background:var(--bg-elevated)}
+  tbody tr.offen{box-shadow:0 2px 6px rgba(0,0,0,.06),0 16px 40px rgba(0,0,0,.1),var(--kante)}
   td,td:first-child,td:last-child{padding:0;border-bottom:0}
   td[data-label]{display:flex;align-items:center;justify-content:space-between;gap:14px;
     padding:7px 0;border-top:1px solid var(--separator);min-height:34px}
@@ -776,6 +891,16 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
      Der Pfeil rechts zeigt, dass mehr dahinter steckt. */
   tbody tr{cursor:pointer}
   .aufklapp{display:inline-flex}
+  tbody tr{transition:transform .22s var(--ease),box-shadow .22s var(--ruhig)}
+  tbody tr:active{transform:scale(.995)}
+  /* Auf- und Zuklappen läuft in beide Richtungen weich. Statt display zu schalten
+     (das lässt sich nicht bewegen) wächst die Höhe der Zellen. */
+  td.c-location,td.c-channel,td.c-salary,td.c-employment,
+  td.c-deadline,td.c-proc,td.c-end,td.c-acts{
+    overflow:hidden;max-height:220px;
+    transition:max-height .32s var(--ease),opacity .24s var(--ruhig),
+               padding .32s var(--ease),border-top-width .2s;
+  }
   tbody tr:not(.offen) td.c-location,
   tbody tr:not(.offen) td.c-channel,
   tbody tr:not(.offen) td.c-salary,
@@ -783,10 +908,12 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   tbody tr:not(.offen) td.c-deadline,
   tbody tr:not(.offen) td.c-proc,
   tbody tr:not(.offen) td.c-end,
-  tbody tr:not(.offen) td.c-acts,
+  tbody tr:not(.offen) td.c-acts{
+    max-height:0;opacity:0;padding-top:0;padding-bottom:0;min-height:0;
+    /* Auch die Haarlinie verschwindet, sonst bleiben acht dünne Streifen stehen */
+    border-top-width:0;
+  }
   tbody tr:not(.offen) .pathline{display:none}
-  tbody tr.offen td[data-label],tbody tr.offen td.c-acts{animation:zeileAuf .2s var(--ease)}
-  @keyframes zeileAuf{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
   .end,.step{height:36px;font-size:13.5px}
   .iconbtn{width:36px;height:36px}
   .endbtns{gap:8px}
@@ -872,6 +999,14 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 </style>
 </head>
 <body>
+<!-- Schlanke Leiste, die beim Scrollen erscheint: Marke links, Hauptknopf rechts -->
+<div class="chrome" id="chrome">
+  <div class="chrome-inner">
+    <span class="chrome-brand"><span>zap</span>ply!</span>
+    <button class="btn primary chrome-new" id="btnNewTop"><span class="ico">+</span><span data-i18n="nav.new">Neue Bewerbung</span></button>
+  </div>
+</div>
+
 <div class="wrap">
 
   <header class="top">
@@ -2793,11 +2928,40 @@ function renderStats(){
   for(const [k,v,note] of cards){
     const c = el('div','stat');
     c.append(el('div','k',k));
-    const val = el('div','v', String(v));
+    const val = el('div','v');
+    const zahl = el('span','vnum');
+    val.append(zahl);
+    zaehlen(zahl, k, String(v));
     if(note){ const s = el('small', null, note); val.append(s); }
     c.append(val);
     host.append(c);
   }
+}
+
+/* Zuletzt gezeigte Kennzahlen, damit nur echte Änderungen hochzählen. */
+const letzteZahlen = new Map();
+
+/** Zählt von der zuletzt gezeigten Zahl zur neuen. Alles, was keine reine Zahl
+ *  ist (etwa „–" oder „53 %"), wird einfach gesetzt. */
+function zaehlen(knoten, schluessel, text){
+  const treffer = /^(\d+)(\D*)$/.exec(text);
+  const vorher = letzteZahlen.get(schluessel);
+  letzteZahlen.set(schluessel, text);
+  const ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!treffer || ruhig || vorher === text){ knoten.textContent = text; return; }
+
+  const ziel = Number(treffer[1]), einheit = treffer[2] || '';
+  const startWert = /^(\d+)/.test(vorher || '') ? Number(RegExp.$1) : 0;
+  if(startWert === ziel){ knoten.textContent = text; return; }
+  const dauer = Math.min(700, 260 + Math.abs(ziel - startWert) * 26);
+  const start = performance.now();
+  const schritt = jetzt => {
+    const p = Math.min(1, (jetzt - start) / dauer);
+    const weich = 1 - Math.pow(1 - p, 3);
+    knoten.textContent = Math.round(startWert + (ziel - startWert) * weich) + einheit;
+    if(p < 1) requestAnimationFrame(schritt);
+  };
+  requestAnimationFrame(schritt);
 }
 
 const COLS = [
@@ -2954,6 +3118,8 @@ function sorted(){
 
 /* Welche Karten auf dem Handy ausgeklappt sind – überlebt das Neuzeichnen. */
 const offeneZeilen = new Set();
+/* Welche Zeilen schon standen: nur neue laufen beim Zeichnen ein. */
+let gezeigteZeilen = new Set();
 let klappenGebunden = false;
 function klappenBinden(){
   if(klappenGebunden) return;
@@ -3025,9 +3191,18 @@ function renderTable(){
   table.append(thead);
 
   const tb = el('tbody');
+  const vorher = gezeigteZeilen;
+  gezeigteZeilen = new Set();
+  let neuGezaehlt = 0;
   for(const it of sorted()){
     const tr = el('tr');
     tr.dataset.id = it.id;
+    gezeigteZeilen.add(it.id);
+    // Nur wirklich neue Zeilen laufen ein. Wer schon dastand, bleibt ruhig.
+    if(!vorher.has(it.id) && neuGezaehlt < 14){
+      tr.classList.add('neu');
+      tr.style.setProperty('--takt', (neuGezaehlt++ * 22) + 'ms');
+    }
     if(offeneZeilen.has(it.id)) tr.classList.add('offen');
     const label = (cell, key) => {
       const col = COLS.find(c => c.key === key);
@@ -3610,10 +3785,12 @@ let view = 'list';
 try{ view = localStorage.getItem('bewerbungen.view') || 'list'; }catch{}
 
 function setView(neu){
+  const vorher = view;
   view = neu === 'stats' ? 'stats' : 'list';
   try{ localStorage.setItem('bewerbungen.view', view); }catch{}
   $('#viewList').hidden = view !== 'list';
   $('#viewStats').hidden = view !== 'stats';
+  if(vorher !== view) ansichtEinblenden(view === 'list' ? $('#viewList') : $('#viewStats'));
   for(const b of $('#viewswitch').querySelectorAll('.vtab')){
     const an = b.dataset.view === view;
     b.classList.toggle('on', an);
@@ -3621,6 +3798,15 @@ function setView(neu){
   }
   federSetzen();
   if(view === 'stats') renderBoard();
+}
+
+/** Die neue Ansicht läuft kurz ein, damit der Wechsel nicht hart umspringt. */
+function ansichtEinblenden(knoten){
+  if(!knoten || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  knoten.classList.remove('wechsel');
+  void knoten.offsetWidth;                    // Neustart der Bewegung erzwingen
+  knoten.classList.add('wechsel');
+  knoten.addEventListener('animationend', () => knoten.classList.remove('wechsel'), {once:true});
 }
 
 /** Der gleitende Hintergrund des Umschalters folgt dem aktiven Reiter. */
@@ -4584,6 +4770,7 @@ function renderChart(){
 
   const NS = 'http://www.w3.org/2000/svg';
   const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for(const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+  const defs = mk('defs', {});
   const gLinks = mk('g', {class:'links'});
   const gNodes = mk('g', {class:'nodes'});
   const gLabelBg = mk('g', {class:'labelbg'});
@@ -4601,9 +4788,18 @@ function renderChart(){
       `C${x1-cx},${l.ty+th} ${x0+cx},${l.sy+th} ${x0},${l.sy+th}`,
       'Z'
     ].join(' ');
+    // Verlauf von der Farbe der Herkunft zur Farbe des Ziels: das Band erzählt,
+    // wohin es führt, statt einfarbig zu sein.
+    const vonFarbe = cssVar(STAGE[l.sn.stage].color);
+    const zuFarbe = cssVar(STAGE[l.tn.stage].color);
+    const gid = 'fluss' + gLinks.children.length;
+    const verlauf = mk('linearGradient', {id: gid, x1: '0', x2: '1', y1: '0', y2: '0'});
+    verlauf.append(mk('stop', {offset: '0', 'stop-color': vonFarbe}),
+                   mk('stop', {offset: '1', 'stop-color': zuFarbe}));
+    defs.append(verlauf);
     const p = mk('path', {
       class:'link', d,
-      fill: cssVar(STAGE[l.tn.stage].terminal ? STAGE[l.tn.stage].color : STAGE[l.sn.stage].color),
+      fill: `url(#${gid})`,
       'fill-opacity': .42,
     });
     p.addEventListener('pointerenter', ev => {
@@ -4652,7 +4848,7 @@ function renderChart(){
     labels.push(text);
   }
 
-  svg.append(gLinks, gNodes, gLabelBg, gLabels);
+  svg.append(defs, gLinks, gNodes, gLabelBg, gLabels);
 
   // Hinterlegung erst nach dem Einfügen messen
   for(const t of labels){
@@ -4700,8 +4896,34 @@ function renderConversions(){
 
 /* ═══════════════════════════  Konfetti  ═══════════════════════════ */
 
+/** Ein kurzer, heller Dreiklang zur Zusage. Nur hier, weil nur hier etwas zu
+ *  feiern ist: aus Tönen gerechnet, keine Datei, und still bei „weniger Bewegung". */
+function jubelKlang(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  try{
+    const Kontext = window.AudioContext || window.webkitAudioContext;
+    if(!Kontext) return;
+    const ctx = new Kontext();
+    const jetzt = ctx.currentTime + 0.02;
+    [523.25, 659.25, 783.99, 1046.50].forEach((hz, i) => {        // C E G C
+      const ton = ctx.createOscillator(), pegel = ctx.createGain();
+      ton.type = 'sine';
+      ton.frequency.value = hz;
+      const t0 = jetzt + i * 0.082;
+      pegel.gain.setValueAtTime(0.0001, t0);
+      pegel.gain.exponentialRampToValueAtTime(0.11, t0 + 0.025);
+      pegel.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.62);
+      ton.connect(pegel).connect(ctx.destination);
+      ton.start(t0);
+      ton.stop(t0 + 0.66);
+    });
+    setTimeout(() => ctx.close().catch(() => {}), 1600);
+  }catch{}
+}
+
 function celebrate(){
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  jubelKlang();
   const host = el('div','confetti');
   const colors = ['--green','--accent','--orange','--purple','--red'].map(cssVar);
   for(let i = 0; i < 90; i++){
@@ -4789,6 +5011,30 @@ $('#authForm').addEventListener('submit', async e => {
     btn.textContent = gateMode === 'register' ? t('gate.register') : t('gate.login');
   }
 });
+
+/* ─────────── Mitlaufende Kopfleiste ─────────── */
+
+$('#btnNewTop').onclick = () => openForm();
+
+/* Sie erscheint, sobald der große Titel oben verschwunden ist, und verschwindet
+   wieder, wenn er zurückkommt. Der kleine Abstand verhindert Flackern an der Kante. */
+(function kopfleisteFuehren(){
+  const leiste = $('#chrome');
+  const kopf = document.querySelector('header.top');
+  if(!leiste || !kopf) return;
+  let an = false;
+  const pruefen = () => {
+    const schwelle = kopf.offsetTop + kopf.offsetHeight - 12;
+    const soll = scrollY > schwelle + (an ? -24 : 0);
+    if(soll !== an){
+      an = soll;
+      leiste.classList.toggle('an', an);
+    }
+  };
+  addEventListener('scroll', pruefen, {passive:true});
+  addEventListener('resize', pruefen);
+  pruefen();
+})();
 
 /* ─────────── Mehr-Fenster (schmale Fenster) ─────────── */
 
