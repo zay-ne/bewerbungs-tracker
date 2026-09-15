@@ -418,6 +418,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
         setView('stats'); await warte(700);
         stand.statistiken = ueber();
+
+        // Das Tagesraster: Kästchen vorhanden, Klick führt in die Liste
+        const raster = document.querySelector('.heatgrid');
+        if(raster){
+          const tage = raster.querySelectorAll('.heatcell.klick');
+          stand.raster = raster.children.length + ' Kästchen, ' + tage.length + ' Tage';
+          if(tage.length){
+            tage[tage.length - 1].click();
+            await warte(500);
+            const chip = document.querySelector('.fchip.zeit');
+            stand.rasterklick = (chip ? chip.textContent.replace('✕','') : 'kein Chip')
+                              + ' → ' + document.querySelectorAll('#viewList tbody tr').length + ' Zeilen';
+            zeitFilter = null;
+            renderTable();
+            setView('stats');
+            await warte(500);
+          }
+        }else stand.raster = 'fehlt';
         const teilen = document.querySelector('#btnShare');
         if(teilen){ teilen.click(); await warte(900); stand.teilen = ueber(); zu(); await warte(200); }
         setView('list'); await warte(400);

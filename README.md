@@ -53,6 +53,12 @@ und Abmelden in einem Mehr-Fenster; im Kopf bleiben Sprache, Zähler und *Neue B
 Kennzahlen und Filter werden zu schiebbaren Reihen, damit die Liste früh beginnt. Nachgemessen
 wird das im Selbsttest bei 380, 390 und 1280 px – inklusive Suche nach seitlichem Überlauf.
 
+**Bewerbungstage als Raster.** Ein Beitragskalender wie auf GitHub: Spalten sind Wochen,
+Zeilen die Wochentage, die Farbe wächst mit der Zahl der Bewerbungen an diesem Tag. Die
+Spalten wachsen mit der Kartenbreite, bleiben dabei quadratisch und haben eine Obergrenze,
+damit zwanzig Wochen auf einem großen Bildschirm keine Klötze werden. Ein Klick auf ein
+Kästchen filtert die Liste auf diesen Tag.
+
 **Statistiken als Einstieg, nicht als Endstation.** Jede Karte im Dashboard führt in die
 Liste: eine Monatssäule setzt einen Zeitraum-Filter, ein Ort oder Kanal füllt die Suche, ein
 Balken im Ausgang setzt den Statusfilter, ein Sankey-Knoten zeigt alle Bewerbungen, die
