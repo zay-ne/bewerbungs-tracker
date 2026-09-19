@@ -594,6 +594,9 @@ td:first-child,th:first-child{padding-left:22px}
 td:last-child,th:last-child{padding-right:16px}
 .company{font-weight:600;letter-spacing:-.012em;display:flex;align-items:center;gap:7px;min-width:0}
 .company > .cname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Die Kurzzeile gehoert allein zur Kartenansicht. Ohne diese Regel stand sie in
+   breiten Fenstern unformatiert unter dem Firmennamen: "15.09.2026Absage". */
+.kurz{display:none}
 .role{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 td:first-child{max-width:280px}
 .role{color:var(--text-secondary);font-size:13.5px;margin-top:1px}
