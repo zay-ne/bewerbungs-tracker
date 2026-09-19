@@ -532,6 +532,48 @@ svg.cols rect{
 .fchip.zeit .x{font-size:11px;opacity:.8}
 .fchip.zeit:hover{color:#fff;filter:brightness(1.06)}
 
+/* Filter und Sortierung auf dem Handy: zwei Knöpfe, beide 44 px hoch. */
+.filterbtn,.sortbtn{display:none}
+.filterbtn{
+  align-items:center;gap:7px;height:44px;padding:0 15px;border-radius:999px;
+  font-size:15px;font-weight:600;background:var(--bg-sunken);color:var(--text);
+  transition:transform .2s var(--feder);
+}
+.filterbtn svg{width:11px;height:8px;opacity:.5;flex:none}
+.filterbtn .fzahl{
+  min-width:22px;height:22px;padding:0 7px;border-radius:999px;display:grid;place-items:center;
+  font-size:12.5px;font-weight:600;background:var(--accent);color:#fff;font-variant-numeric:tabular-nums;
+}
+.sortbtn{
+  place-items:center;width:44px;height:44px;border-radius:999px;flex:none;
+  background:var(--bg-sunken);color:var(--text-secondary);transition:transform .2s var(--feder);
+}
+.sortbtn svg{width:17px;height:17px}
+.filterbtn:active,.sortbtn:active{transform:scale(.96)}
+
+/* Blatt, das von unten kommt: der übliche Weg auf dem iPhone. */
+.overlay.unten{place-items:end center;padding:0}
+.sheet.blatt{
+  max-width:560px;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom);
+  transform:translateY(100%);max-height:86vh;
+}
+.overlay.unten.show .sheet.blatt{transform:none}
+.griff{display:block;width:38px;height:5px;border-radius:999px;background:var(--separator-strong);margin:9px auto 0}
+.sheet.blatt .sheet-head{border-radius:22px 22px 0 0}
+.blattliste{padding-bottom:14px}
+.blattzeile{
+  display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:0 4px;
+  font-size:16px;text-align:left;border-radius:12px;transition:background .16s;
+}
+.blattzeile:active{background:var(--surface-hover)}
+.blattzeile .bz-zahl{margin-left:auto;font-size:14px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
+.blattzeile .bz-haken{width:20px;flex:none;color:var(--accent);font-size:16px;text-align:center}
+.blattzeile.an{font-weight:600}
+.blatt-titel{
+  padding:16px 4px 6px;font-size:12.5px;font-weight:600;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--text-tertiary);
+}
+
 /* Tarif: Zähler im Kopf und die beiden Zeilen im Fenster */
 .planchip{
   height:30px;padding:0 11px;border-radius:999px;flex:none;
@@ -1045,8 +1087,13 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .card-head h2{flex:1 1 auto}
   .card-head #count{order:2;flex:0 0 auto}
   .searchbox{order:3;flex:1 1 100%;max-width:none}
-  /* Filter in einer Reihe, die sich schieben lässt – statt drei Zeilen Umbruch.
-     flex:1 1 100% bindet die Reihe an die Fensterbreite, sonst wächst sie hinaus. */
+  /* Zwei Knöpfe statt einer schiebbaren Reihe: alle Auswahlmöglichkeiten sind
+     im Blatt sichtbar, nichts versteckt sich außerhalb des Bildrands. */
+  .chips,.sortbox{display:none}
+  .filterbtn{display:inline-flex}
+  .sortbtn{display:grid}
+  .toolbar{gap:10px}
+  /* (bleibt für breitere Fenster erhalten) */
   .chips{flex:1 1 0;min-width:0;max-width:100%;flex-wrap:nowrap;overflow-x:auto;
     scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px;
     /* Weiche Kante rechts: zeigt, dass die Reihe weitergeht, statt hart abzuschneiden */
@@ -1153,6 +1200,16 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
       <span class="muted" id="count" style="font-size:13.5px"></span>
     </div>
     <div class="toolbar" id="toolbarWrap">
+      <!-- Auf dem Handy führen zwei Knöpfe in ein Blatt von unten, statt einer
+           Reihe, die man seitlich schieben muss. -->
+      <button class="filterbtn" id="btnFilter" aria-haspopup="dialog">
+        <span id="filterName">Alle</span>
+        <span class="fzahl" id="filterZahl"></span>
+        <svg viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="sortbtn" id="btnSort" aria-haspopup="dialog" aria-label="Sortieren">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11m0 0L1.8 11.3M4 13.5l2.2-2.2M12 13.5v-11m0 0L9.8 4.7M12 2.5l2.2 2.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
       <div class="chips" id="chips"></div>
       <div class="sortbox">
         <span class="sortlabel" data-i18n="sort.by">Sortieren</span>
@@ -1337,6 +1394,18 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
 </div>
 
 <!-- ── Einladungen ──────────────────────────────────────────── -->
+<!-- ── Filter und Sortierung (Blatt von unten, schmale Fenster) ── -->
+<div class="overlay unten" id="ovFilter">
+  <div class="sheet blatt" role="dialog" aria-modal="true" aria-labelledby="filterTitel">
+    <span class="griff" aria-hidden="true"></span>
+    <div class="sheet-head">
+      <h2 id="filterTitel">Anzeigen</h2>
+      <button class="close" data-close aria-label="Schließen">✕</button>
+    </div>
+    <div class="sheet-body blattliste" id="filterListe"></div>
+  </div>
+</div>
+
 <!-- ── Mehr (nur auf schmalen Fenstern) ─────────────────────── -->
 <div class="overlay" id="ovMore">
   <div class="sheet" style="max-width:380px" role="dialog" aria-modal="true" aria-labelledby="moreTitle">
@@ -2468,7 +2537,7 @@ de:{
   'flt.all':'Alle','flt.planned':'Geplant','flt.applied':'Beworben','flt.talking':'Im Gespräch','flt.accepted':'Zusage','flt.rejected':'Absage','flt.noreply':'Keine Antwort','flt.emptyTitle':'Keine Einträge in dieser Auswahl','flt.emptyText':'Wähle einen anderen Filter oder zeige alle Einträge.','sort.by':'Sortieren','sort.date':'Datum','sort.status':'Status','sort.company':'Firma','sort.salary':'Gehalt','sort.toggle':'Richtung umschalten',
   'demo.tag':'Demo','demo.open':'Ohne Konto ansehen – Demo mit Beispieldaten','demo.note':'Beispieldaten zum Ausprobieren. Änderungen bleiben nur in diesem Tab und werden nicht gespeichert.','demo.reset':'Zurücksetzen','demo.leave':'Zur Anmeldung','demo.subtitle':'Demo mit Beispieldaten – nichts wird gespeichert.',
   'such.ph':'Suchen …','such.label':'Bewerbungen durchsuchen','such.clear':'Suche löschen','such.emptyTitle':'Nichts gefunden zu „{wort}"','such.emptyText':'Gesucht wird in Firma, Rolle, Ort, Kanal und Status.',
-  'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen','heat.title':'Bewerbungstage','heat.hint':'Jedes Kästchen ein Tag, je kräftiger die Farbe, desto mehr Bewerbungen','heat.activeDays':'Tage mit Bewerbungen','heat.bestDay':'Bester Tag: {n}','heat.none':'keine Bewerbung','heat.less':'weniger','heat.more':'mehr','heat.mon':'Mo','heat.wed':'Mi','heat.fri':'Fr','stat.clearTime':'Auswahl aufheben','nav.more':'Mehr','plan.title':'Freier Zugang','plan.titlePro':'Voller Zugang','plan.free':'Frei','plan.freeDesc':'Bis zu {max} Bewerbungen, alle Funktionen, alle Geräte.','plan.pro':'Voll','plan.proDesc':'Unbegrenzt viele Bewerbungen, alle Auswertungen, alle Geräte.','plan.proHint':'Dein Konto hat den vollen Zugang.','plan.left':'Noch {n} von {max} Plätzen frei.','plan.reached':'Die {max} Plätze des freien Zugangs sind belegt.','plan.importBlocked':'Der Import ergäbe {n} Einträge – im freien Zugang sind {max} möglich.','plan.howto':'Einen Einladungscode bekommst du von jemandem, der schon dabei ist.','plan.ok':'Verstanden','plan.chipTip':'Freier Zugang: bis zu {max} Bewerbungen','gate.inviteNote':'Mit Code: voller Zugang. Ohne Code: bis zu 10 Bewerbungen.','stat.showList':'Klick zeigt die Liste','stat.replies':'Antworten','stat.withTalk':'mit Gespräch','stat.ofClosed':'der abgeschlossenen','stat.clearMonth':'Monat aufheben',
+  'view.list':'Übersicht','view.stats':'Statistiken','stat.emptyTitle':'Noch nichts auszuwerten','stat.emptyText':'Sobald Bewerbungen erfasst sind, entstehen hier die Auswertungen.','stat.overTime':'Bewerbungen nach Monat','stat.overTimeHint':'Wann du wie viel verschickt hast','stat.overTimeUnit':'in {n} Monaten','stat.none':'Noch keine Angaben','stat.reply':'Antwortzeit','stat.replyHint':'Vom Verschicken bis zur ersten Reaktion','stat.days':'Tage','stat.medianOf':'Median aus {n} Angaben','stat.week1':'bis 1 Woche','stat.week2':'1–2 Wochen','stat.week4':'2–4 Wochen','stat.later':'über 4 Wochen','stat.noReplyYet':'Noch keine Reaktion erfasst','stat.salary':'Gehaltsspanne','stat.salaryHint':'Auf Jahresgehalt umgerechnet','stat.noSalary':'Noch keine Gehälter eingetragen','stat.places':'Bewerbungen nach Ort','stat.placesHint':'Die häufigsten sieben','stat.noPlaces':'Noch keine Orte eingetragen','stat.channels':'Kanäle','stat.channelsHint':'Anzahl und Anteil mit Gespräch','stat.unknown':'ohne Angabe','stat.outcome':'Ausgang','stat.outcomeHint':'Wie abgeschlossene Vorgänge endeten','stat.noneClosed':'Noch kein Vorgang abgeschlossen','heat.title':'Bewerbungstage','heat.hint':'Jedes Kästchen ein Tag, je kräftiger die Farbe, desto mehr Bewerbungen','heat.activeDays':'Tage mit Bewerbungen','heat.bestDay':'Bester Tag: {n}','heat.none':'keine Bewerbung','heat.less':'weniger','heat.more':'mehr','heat.mon':'Mo','heat.wed':'Mi','heat.fri':'Fr','stat.clearTime':'Auswahl aufheben','flt.show':'Anzeigen','sort.asc':'Aufsteigend','sort.desc':'Absteigend','nav.more':'Mehr','plan.title':'Freier Zugang','plan.titlePro':'Voller Zugang','plan.free':'Frei','plan.freeDesc':'Bis zu {max} Bewerbungen, alle Funktionen, alle Geräte.','plan.pro':'Voll','plan.proDesc':'Unbegrenzt viele Bewerbungen, alle Auswertungen, alle Geräte.','plan.proHint':'Dein Konto hat den vollen Zugang.','plan.left':'Noch {n} von {max} Plätzen frei.','plan.reached':'Die {max} Plätze des freien Zugangs sind belegt.','plan.importBlocked':'Der Import ergäbe {n} Einträge – im freien Zugang sind {max} möglich.','plan.howto':'Einen Einladungscode bekommst du von jemandem, der schon dabei ist.','plan.ok':'Verstanden','plan.chipTip':'Freier Zugang: bis zu {max} Bewerbungen','gate.inviteNote':'Mit Code: voller Zugang. Ohne Code: bis zu 10 Bewerbungen.','stat.showList':'Klick zeigt die Liste','stat.replies':'Antworten','stat.withTalk':'mit Gespräch','stat.ofClosed':'der abgeschlossenen','stat.clearMonth':'Monat aufheben',
   'stat.bestMonth':'Stärkster Monat: {monat} mit {n}',
   'share.button':'Teilen','share.heading':'Statistiken teilen','share.hint':'Ein Bild mit Summen – ohne Firmennamen.','share.portrait':'Hochformat 1080 × 1920','share.landscape':'Querformat 1920 × 1080','share.save':'Bild sichern','share.share':'Teilen','share.title':'Meine Bewerbungen','share.sent':'verschickt','share.rate':'mit Gespräch','share.offers':'Zusagen','share.reply':'bis zur Antwort','share.median':'Median','share.footer':'erstellt mit zapply',
  'misc.close':'Schließen','misc.today':'heute!','misc.inDays':'in {n} Tagen','misc.inDay':'in 1 Tag',
@@ -2548,7 +2617,7 @@ en:{
   'flt.all':'All','flt.planned':'Planned','flt.applied':'Applied','flt.talking':'Interviewing','flt.accepted':'Accepted','flt.rejected':'Rejected','flt.noreply':'No reply','flt.emptyTitle':'Nothing in this selection','flt.emptyText':'Pick another filter or show all entries.','sort.by':'Sort by','sort.date':'Date','sort.status':'Status','sort.company':'Company','sort.salary':'Salary','sort.toggle':'Switch direction',
   'demo.tag':'Demo','demo.open':'Try it without an account – demo with sample data','demo.note':'Sample data to play with. Changes stay in this tab and are never saved.','demo.reset':'Reset','demo.leave':'To sign-in','demo.subtitle':'Demo with sample data – nothing is saved.',
   'such.ph':'Search …','such.label':'Search applications','such.clear':'Clear search','such.emptyTitle':'Nothing found for “{wort}”','such.emptyText':'Searches company, role, location, channel and status.',
-  'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet','heat.title':'Application days','heat.hint':'One square per day, the stronger the colour the more applications','heat.activeDays':'days with applications','heat.bestDay':'Best day: {n}','heat.none':'no application','heat.less':'less','heat.more':'more','heat.mon':'Mon','heat.wed':'Wed','heat.fri':'Fri','stat.clearTime':'Clear selection','nav.more':'More','plan.title':'Free access','plan.titlePro':'Full access','plan.free':'Free','plan.freeDesc':'Up to {max} applications, every feature, every device.','plan.pro':'Full','plan.proDesc':'Unlimited applications, all charts, every device.','plan.proHint':'Your account has full access.','plan.left':'{n} of {max} slots left.','plan.reached':'All {max} slots of the free access are taken.','plan.importBlocked':'The import would make {n} entries – free access allows {max}.','plan.howto':'An invitation code comes from someone who is already on board.','plan.ok':'Got it','plan.chipTip':'Free access: up to {max} applications','gate.inviteNote':'With a code: full access. Without: up to 10 applications.','stat.showList':'Click to see the list','stat.replies':'replies','stat.withTalk':'with interview','stat.ofClosed':'of those closed','stat.clearMonth':'Clear month',
+  'view.list':'Overview','view.stats':'Statistics','stat.emptyTitle':'Nothing to analyse yet','stat.emptyText':'Once applications are recorded, the charts appear here.','stat.overTime':'Applications per month','stat.overTimeHint':'When you sent how many','stat.overTimeUnit':'across {n} months','stat.none':'No data yet','stat.reply':'Response time','stat.replyHint':'From sending to the first reaction','stat.days':'days','stat.medianOf':'median of {n} values','stat.week1':'up to 1 week','stat.week2':'1–2 weeks','stat.week4':'2–4 weeks','stat.later':'over 4 weeks','stat.noReplyYet':'No reaction recorded yet','stat.salary':'Salary range','stat.salaryHint':'Converted to yearly figures','stat.noSalary':'No salaries entered yet','stat.places':'Applications by location','stat.placesHint':'The seven most frequent','stat.noPlaces':'No locations entered yet','stat.channels':'Channels','stat.channelsHint':'Count and share with an interview','stat.unknown':'not stated','stat.outcome':'Outcome','stat.outcomeHint':'How closed processes ended','stat.noneClosed':'No process closed yet','heat.title':'Application days','heat.hint':'One square per day, the stronger the colour the more applications','heat.activeDays':'days with applications','heat.bestDay':'Best day: {n}','heat.none':'no application','heat.less':'less','heat.more':'more','heat.mon':'Mon','heat.wed':'Wed','heat.fri':'Fri','stat.clearTime':'Clear selection','flt.show':'Show','sort.asc':'Ascending','sort.desc':'Descending','nav.more':'More','plan.title':'Free access','plan.titlePro':'Full access','plan.free':'Free','plan.freeDesc':'Up to {max} applications, every feature, every device.','plan.pro':'Full','plan.proDesc':'Unlimited applications, all charts, every device.','plan.proHint':'Your account has full access.','plan.left':'{n} of {max} slots left.','plan.reached':'All {max} slots of the free access are taken.','plan.importBlocked':'The import would make {n} entries – free access allows {max}.','plan.howto':'An invitation code comes from someone who is already on board.','plan.ok':'Got it','plan.chipTip':'Free access: up to {max} applications','gate.inviteNote':'With a code: full access. Without: up to 10 applications.','stat.showList':'Click to see the list','stat.replies':'replies','stat.withTalk':'with interview','stat.ofClosed':'of those closed','stat.clearMonth':'Clear month',
   'stat.bestMonth':'Strongest month: {monat} with {n}',
   'share.button':'Share','share.heading':'Share statistics','share.hint':'An image with totals – no company names.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Landscape 1920 × 1080','share.save':'Save image','share.share':'Share','share.title':'My applications','share.sent':'sent','share.rate':'with interview','share.offers':'offers','share.reply':'to first reply','share.median':'Median','share.footer':'made with zapply',
  'misc.close':'Close','misc.today':'today!','misc.inDays':'in {n} days','misc.inDay':'in 1 day',
@@ -2628,7 +2697,7 @@ fr:{
   'flt.all':'Toutes','flt.planned':'Prévues','flt.applied':'Envoyées','flt.talking':'En entretien','flt.accepted':'Acceptées','flt.rejected':'Refus','flt.noreply':'Sans réponse','flt.emptyTitle':'Rien dans cette sélection','flt.emptyText':'Choisissez un autre filtre ou affichez tout.','sort.by':'Trier par','sort.date':'Date','sort.status':'Statut','sort.company':'Entreprise','sort.salary':'Salaire','sort.toggle':'Inverser le sens',
   'demo.tag':'Démo','demo.open':'Essayer sans compte – démo avec des données d’exemple','demo.note':'Données d’exemple pour essayer. Les modifications restent dans cet onglet et ne sont jamais enregistrées.','demo.reset':'Réinitialiser','demo.leave':'Vers la connexion','demo.subtitle':'Démo avec données d’exemple – rien n’est enregistré.',
   'such.ph':'Rechercher …','such.label':'Rechercher dans les candidatures','such.clear':'Effacer la recherche','such.emptyTitle':'Rien trouvé pour « {wort} »','such.emptyText':'La recherche porte sur l’entreprise, le poste, le lieu, le canal et le statut.',
-  'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos','heat.title':'Jours de candidature','heat.hint':'Un carré par jour, plus la couleur est forte, plus il y a de candidatures','heat.activeDays':'jours avec candidatures','heat.bestDay':'Meilleur jour : {n}','heat.none':'aucune candidature','heat.less':'moins','heat.more':'plus','heat.mon':'Lun','heat.wed':'Mer','heat.fri':'Ven','stat.clearTime':'Retirer la sélection','nav.more':'Plus','plan.title':'Accès libre','plan.titlePro':'Accès complet','plan.free':'Libre','plan.freeDesc':'Jusqu’à {max} candidatures, toutes les fonctions, tous les appareils.','plan.pro':'Complet','plan.proDesc':'Candidatures illimitées, toutes les analyses, tous les appareils.','plan.proHint':'Votre compte a l’accès complet.','plan.left':'Encore {n} places sur {max}.','plan.reached':'Les {max} places de l’accès libre sont prises.','plan.importBlocked':'L’import ferait {n} entrées – l’accès libre en permet {max}.','plan.howto':'Un code d’invitation vient de quelqu’un qui utilise déjà l’app.','plan.ok':'Compris','plan.chipTip':'Accès libre : jusqu’à {max} candidatures','gate.inviteNote':'Avec un code : accès complet. Sans : jusqu’à 10 candidatures.','stat.showList':'Cliquez pour voir la liste','stat.replies':'réponses','stat.withTalk':'avec entretien','stat.ofClosed':'des dossiers clos','stat.clearMonth':'Retirer le mois',
+  'view.list':'Vue d’ensemble','view.stats':'Statistiques','stat.emptyTitle':'Rien à analyser pour l’instant','stat.emptyText':'Dès que des candidatures existent, les graphiques apparaissent ici.','stat.overTime':'Candidatures par mois','stat.overTimeHint':'Quand vous avez envoyé combien','stat.overTimeUnit':'sur {n} mois','stat.none':'Pas encore de données','stat.reply':'Délai de réponse','stat.replyHint':'De l’envoi à la première réaction','stat.days':'jours','stat.medianOf':'médiane de {n} valeurs','stat.week1':'jusqu’à 1 semaine','stat.week2':'1–2 semaines','stat.week4':'2–4 semaines','stat.later':'plus de 4 semaines','stat.noReplyYet':'Aucune réaction enregistrée','stat.salary':'Fourchette de salaire','stat.salaryHint':'Converti en montants annuels','stat.noSalary':'Aucun salaire saisi','stat.places':'Candidatures par lieu','stat.placesHint':'Les sept plus fréquents','stat.noPlaces':'Aucun lieu saisi','stat.channels':'Canaux','stat.channelsHint':'Nombre et part avec entretien','stat.unknown':'non précisé','stat.outcome':'Issue','stat.outcomeHint':'Comment les processus clos se sont terminés','stat.noneClosed':'Aucun processus clos','heat.title':'Jours de candidature','heat.hint':'Un carré par jour, plus la couleur est forte, plus il y a de candidatures','heat.activeDays':'jours avec candidatures','heat.bestDay':'Meilleur jour : {n}','heat.none':'aucune candidature','heat.less':'moins','heat.more':'plus','heat.mon':'Lun','heat.wed':'Mer','heat.fri':'Ven','stat.clearTime':'Retirer la sélection','flt.show':'Afficher','sort.asc':'Croissant','sort.desc':'Décroissant','nav.more':'Plus','plan.title':'Accès libre','plan.titlePro':'Accès complet','plan.free':'Libre','plan.freeDesc':'Jusqu’à {max} candidatures, toutes les fonctions, tous les appareils.','plan.pro':'Complet','plan.proDesc':'Candidatures illimitées, toutes les analyses, tous les appareils.','plan.proHint':'Votre compte a l’accès complet.','plan.left':'Encore {n} places sur {max}.','plan.reached':'Les {max} places de l’accès libre sont prises.','plan.importBlocked':'L’import ferait {n} entrées – l’accès libre en permet {max}.','plan.howto':'Un code d’invitation vient de quelqu’un qui utilise déjà l’app.','plan.ok':'Compris','plan.chipTip':'Accès libre : jusqu’à {max} candidatures','gate.inviteNote':'Avec un code : accès complet. Sans : jusqu’à 10 candidatures.','stat.showList':'Cliquez pour voir la liste','stat.replies':'réponses','stat.withTalk':'avec entretien','stat.ofClosed':'des dossiers clos','stat.clearMonth':'Retirer le mois',
   'stat.bestMonth':'Mois le plus fort : {monat} avec {n}',
   'share.button':'Partager','share.heading':'Partager les statistiques','share.hint':'Une image avec des totaux – sans noms d’entreprise.','share.portrait':'Portrait 1080 × 1920','share.landscape':'Paysage 1920 × 1080','share.save':'Enregistrer l’image','share.share':'Partager','share.title':'Mes candidatures','share.sent':'envoyées','share.rate':'avec entretien','share.offers':'promesses','share.reply':'jusqu’à la réponse','share.median':'Médiane','share.footer':'créé avec zapply',
  'misc.close':'Fermer','misc.today':'aujourd’hui !','misc.inDays':'dans {n} jours','misc.inDay':'dans 1 jour',
@@ -2708,7 +2777,7 @@ ar:{
   'flt.all':'الكل','flt.planned':'مُخطَّط','flt.applied':'تم التقديم','flt.talking':'في المقابلات','flt.accepted':'قبول','flt.rejected':'رفض','flt.noreply':'بلا رد','flt.emptyTitle':'لا نتائج في هذا التصفية','flt.emptyText':'اختر تصفية أخرى أو اعرض كل الطلبات.','sort.by':'ترتيب','sort.date':'التاريخ','sort.status':'الحالة','sort.company':'الشركة','sort.salary':'الراتب','sort.toggle':'عكس الاتجاه',
   'demo.tag':'تجربة','demo.open':'جرّب بدون حساب – عرض ببيانات نموذجية','demo.note':'بيانات نموذجية للتجربة. التغييرات تبقى في هذه النافذة ولا تُحفظ.','demo.reset':'إعادة تعيين','demo.leave':'إلى تسجيل الدخول','demo.subtitle':'عرض ببيانات نموذجية – لا يُحفظ شيء.',
   'such.ph':'بحث …','such.label':'البحث في الطلبات','such.clear':'مسح البحث','such.emptyTitle':'لا نتائج لـ «{wort}»','such.emptyText':'يشمل البحث الشركة والوظيفة والمكان والقناة والحالة.',
-  'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد','heat.title':'أيام التقديم','heat.hint':'كل مربع يوم، وكل ما زاد اللون زاد عدد الطلبات','heat.activeDays':'أيام فيها طلبات','heat.bestDay':'أفضل يوم: {n}','heat.none':'لا طلبات','heat.less':'أقل','heat.more':'أكثر','heat.mon':'إث','heat.wed':'أر','heat.fri':'جم','stat.clearTime':'إلغاء التحديد','nav.more':'المزيد','plan.title':'وصول مجاني','plan.titlePro':'وصول كامل','plan.free':'مجاني','plan.freeDesc':'حتى {max} طلبات، كل الوظائف، كل الأجهزة.','plan.pro':'كامل','plan.proDesc':'طلبات بلا حدود، كل التحليلات، كل الأجهزة.','plan.proHint':'حسابك يملك الوصول الكامل.','plan.left':'بقي {n} من {max}.','plan.reached':'كل الأماكن ({max}) في الوصول المجاني مشغولة.','plan.importBlocked':'الاستيراد سينتج {n} مدخلات – المجاني يسمح بـ {max}.','plan.howto':'تحصل على رمز دعوة من شخص يستخدم التطبيق.','plan.ok':'فهمت','plan.chipTip':'الوصول المجاني: حتى {max} طلبات','gate.inviteNote':'مع رمز: وصول كامل. بدونه: حتى 10 طلبات.','stat.showList':'انقر لعرض القائمة','stat.replies':'ردود','stat.withTalk':'مع مقابلة','stat.ofClosed':'من الطلبات المغلقة','stat.clearMonth':'إلغاء الشهر',
+  'view.list':'نظرة عامة','view.stats':'إحصاءات','stat.emptyTitle':'لا شيء للتحليل بعد','stat.emptyText':'بمجرد تسجيل الطلبات ستظهر الرسوم هنا.','stat.overTime':'الطلبات حسب الشهر','stat.overTimeHint':'متى أرسلت وكم','stat.overTimeUnit':'خلال {n} أشهر','stat.none':'لا بيانات بعد','stat.reply':'زمن الرد','stat.replyHint':'من الإرسال حتى أول رد','stat.days':'يوم','stat.medianOf':'وسيط {n} قيمة','stat.week1':'حتى أسبوع','stat.week2':'أسبوع إلى أسبوعين','stat.week4':'أسبوعان إلى أربعة','stat.later':'أكثر من أربعة أسابيع','stat.noReplyYet':'لم يُسجَّل رد بعد','stat.salary':'نطاق الراتب','stat.salaryHint':'محوَّل إلى قيم سنوية','stat.noSalary':'لم تُدخل رواتب بعد','stat.places':'الطلبات حسب المكان','stat.placesHint':'الأكثر تكرارًا (سبعة)','stat.noPlaces':'لم تُدخل أماكن بعد','stat.channels':'القنوات','stat.channelsHint':'العدد ونسبة من وصل إلى مقابلة','stat.unknown':'غير محدد','stat.outcome':'النتيجة','stat.outcomeHint':'كيف انتهت المسارات المغلقة','stat.noneClosed':'لم يُغلق أي مسار بعد','heat.title':'أيام التقديم','heat.hint':'كل مربع يوم، وكل ما زاد اللون زاد عدد الطلبات','heat.activeDays':'أيام فيها طلبات','heat.bestDay':'أفضل يوم: {n}','heat.none':'لا طلبات','heat.less':'أقل','heat.more':'أكثر','heat.mon':'إث','heat.wed':'أر','heat.fri':'جم','stat.clearTime':'إلغاء التحديد','flt.show':'العرض','sort.asc':'تصاعدي','sort.desc':'تنازلي','nav.more':'المزيد','plan.title':'وصول مجاني','plan.titlePro':'وصول كامل','plan.free':'مجاني','plan.freeDesc':'حتى {max} طلبات، كل الوظائف، كل الأجهزة.','plan.pro':'كامل','plan.proDesc':'طلبات بلا حدود، كل التحليلات، كل الأجهزة.','plan.proHint':'حسابك يملك الوصول الكامل.','plan.left':'بقي {n} من {max}.','plan.reached':'كل الأماكن ({max}) في الوصول المجاني مشغولة.','plan.importBlocked':'الاستيراد سينتج {n} مدخلات – المجاني يسمح بـ {max}.','plan.howto':'تحصل على رمز دعوة من شخص يستخدم التطبيق.','plan.ok':'فهمت','plan.chipTip':'الوصول المجاني: حتى {max} طلبات','gate.inviteNote':'مع رمز: وصول كامل. بدونه: حتى 10 طلبات.','stat.showList':'انقر لعرض القائمة','stat.replies':'ردود','stat.withTalk':'مع مقابلة','stat.ofClosed':'من الطلبات المغلقة','stat.clearMonth':'إلغاء الشهر',
   'stat.bestMonth':'أقوى شهر: {monat} بعدد {n}',
   'share.button':'مشاركة','share.heading':'مشاركة الإحصاءات','share.hint':'صورة بالمجاميع – بدون أسماء شركات.','share.portrait':'طولي 1080 × 1920','share.landscape':'عرضي 1920 × 1080','share.save':'حفظ الصورة','share.share':'مشاركة','share.title':'طلباتي','share.sent':'مُرسلة','share.rate':'مع مقابلة','share.offers':'قبول','share.reply':'حتى الرد','share.median':'الوسيط','share.footer':'أُنشئ بـ zapply',
  'misc.close':'إغلاق','misc.today':'اليوم!','misc.inDays':'بعد {n} أيام','misc.inDay':'بعد يوم',
@@ -3139,6 +3208,7 @@ function zeigeAnzahl(){
 }
 
 function renderChips(){
+  filterKnopfSetzen();
   const host = $('#chips');
   host.innerHTML = '';
   if(zeitFilter){
@@ -5227,6 +5297,66 @@ $('#authForm').addEventListener('submit', async e => {
     btn.textContent = gateMode === 'register' ? t('gate.register') : t('gate.login');
   }
 });
+
+/* ─────────── Filter und Sortierung im Blatt ─────────── */
+
+const SORTNAMEN = {applied: 'Datum', status: 'Status', company: 'Firma', salary: 'Gehalt'};
+
+/** Beschriftet den Filterknopf: was gerade gilt und wie viele Einträge das sind. */
+function filterKnopfSetzen(){
+  const name = zeitFilter ? zeitFilter.titel : t(activeFilter().tk);
+  $('#filterName').textContent = name;
+  $('#filterZahl').textContent = String(filtered().length);
+  $('#btnFilter').setAttribute('aria-label', `${t('flt.show')}: ${name}`);
+}
+
+/** Baut das Blatt. Ein Aufruf, zwei Abschnitte: Anzeigen und Sortieren. */
+function filterBlattOeffnen(){
+  const liste = $('#filterListe');
+  liste.innerHTML = '';
+  $('#filterTitel').textContent = t('flt.show');
+
+  const zeile = ({name, zahl, an, klick}) => {
+    const b = el('button', 'blattzeile' + (an ? ' an' : ''));
+    b.append(el('span', 'bz-haken', an ? '✓' : ''));
+    b.append(el('span', null, name));
+    if(zahl !== undefined) b.append(el('span', 'bz-zahl', String(zahl)));
+    b.onclick = () => { klick(); closeOverlay($('#ovFilter')); renderTable(); };
+    return b;
+  };
+
+  if(zeitFilter){
+    liste.append(zeile({
+      name: `${zeitFilter.titel} · ${t('stat.clearTime')}`, an: true,
+      klick: () => { zeitFilter = null; },
+    }));
+  }
+
+  for(const f of FILTERS){
+    const anzahl = items.filter(passtZeit).filter(passtSuche).filter(f.passt).length;
+    if(f.id !== 'all' && !anzahl) continue;
+    liste.append(zeile({name: t(f.tk), zahl: anzahl, an: f.id === filter, klick: () => setFilter(f.id)}));
+  }
+
+  liste.append(el('div', 'blatt-titel', t('sort.by')));
+  for(const key of ['applied', 'status', 'company', 'salary']){
+    liste.append(zeile({
+      name: t('sort.' + (key === 'applied' ? 'date' : key)),
+      an: sort.key === key,
+      klick: () => { sort = {key, dir: sort.dir}; keepSort(); },
+    }));
+  }
+  liste.append(zeile({
+    name: sort.dir === 1 ? t('sort.asc') : t('sort.desc'),
+    an: false,
+    klick: () => { sort.dir *= -1; keepSort(); },
+  }));
+
+  openOverlay('#ovFilter');
+}
+
+$('#btnFilter').onclick = filterBlattOeffnen;
+$('#btnSort').onclick = filterBlattOeffnen;
 
 /* ─────────── Mitlaufende Kopfleiste ─────────── */
 

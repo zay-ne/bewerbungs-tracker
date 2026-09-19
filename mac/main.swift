@@ -343,6 +343,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           kopfreihen: reihen(document.querySelector('.top-actions')),
           kartenkopf: reihen(document.querySelector('.card-head')),
           filterreihen: reihen(document.querySelector('#chips')),
+          filterknopf: sichtbar('#btnFilter') ? document.querySelector('#filterName')?.textContent : 'aus',
           mehrknopf: sichtbar('#btnMore'),
           export_sichtbar: sichtbar('#btnExport'),
         });
