@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+/* Farben und Maße einmal hier, damit Tailwind-Klassen und eigenes CSS dasselbe nutzen. */
+:root {
+  --bg: #f5f5f7;
+  --karte: #ffffff;
+  --senke: #ececed;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #a1a1a6;
+  --linie: rgba(0, 0, 0, 0.09);
+  --accent: #0089ad;
+  --green: #1d9e4b;
+  --red: #d63a2f;
+  --orange: #c26b00;
+  --purple: #6a4ce0;
+  --gray: #7a7a80;
+  --sand: #8d7333;
+  --schatten: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --kante: inset 0 0 0 0.5px rgba(0, 0, 0, 0.055);
+  --feder: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --karte: #1c1c1e;
+    --senke: #2c2c2e;
+    --text: #f5f5f7;
+    --text2: #98989d;
+    --text3: #6e6e73;
+    --linie: rgba(255, 255, 255, 0.1);
+    --accent: #22b5d8;
+    --green: #30d158;
+    --red: #ff453a;
+    --orange: #ff9f0a;
+    --purple: #bf5af2;
+    --gray: #98989d;
+    --sand: #d0b06a;
+    --schatten: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.4);
+    --kante: inset 0 0 0 0.5px rgba(255, 255, 255, 0.09);
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-karte: var(--karte);
+  --color-senke: var(--senke);
+  --color-text: var(--text);
+  --color-text2: var(--text2);
+  --color-text3: var(--text3);
+  --color-linie: var(--linie);
+  --color-accent: var(--accent);
+}
+
+html {
+  background: var(--bg);
+  /* Kein fest stehender Hintergrund und keine Unschärfe auf scrollenden Flächen:
+     genau das hat auf dem iPhone weiße Blitzer erzeugt. */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font: 400 16px/1.45 -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  /* Sicherer Bereich am unteren Rand für die Leiste in der App */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, select { font: inherit; color: inherit; }
+::selection { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+
+/* Eine Liste, ein Block, Trennlinien dazwischen. */
+.liste { background: var(--karte); border-radius: 20px; box-shadow: var(--schatten), var(--kante); overflow: clip; }
+.zeile { border-top: 1px solid var(--linie); }
+.zeile:first-child { border-top: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
