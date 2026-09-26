@@ -1177,6 +1177,9 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   /* Flacher Untergrund: auf dem Handy stoßen feste Leisten an den Seitenrand,
      und ein Farbverlauf darunter würde an ihrer Kante sichtbar abreißen. */
   html{background:var(--bg)}
+  /* clip statt hidden: schneidet seitlich ab, ohne der Filterleiste das
+     Stehenbleiben beim Scrollen zu nehmen. */
+  html,body{overflow-x:clip}
   body{padding:0 16px calc(86px + env(safe-area-inset-bottom))}
 
   /* ── Kopf: großer Titel, rechts nur Sprache, Tarif und Mehr ── */
@@ -1202,7 +1205,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .chrome-brand{font-size:17px}
 
   /* ── Listenkopf: nur die Suche. Titel steht in der Leiste, die Anzahl im Filter ── */
-  .card-head{padding:2px 0 10px;gap:0}
+  .card-head{padding:2px 0 0;gap:0}
   .card-head h2,.card-head #count{display:none}
   .searchbox{flex:1 1 100%;max-width:none}
   #search{
@@ -1212,7 +1215,9 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .searchicon{left:12px;font-size:16px}
   .searchclear{right:8px;width:24px;height:24px}
   .toolbar{
-    padding:0 0 12px;gap:10px;border-bottom:0;
+    /* Die Polsterung oben gehört zur stehenbleibenden Fläche: bleibt die Zeile
+       unter der Kopfleiste stehen, sitzt sie dadurch nicht an ihr an. */
+    padding:14px 0 12px;gap:10px;border-bottom:0;
     top:calc(48px + env(safe-area-inset-top));background:var(--bg);
   }
 
@@ -1248,7 +1253,11 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     width:100%;max-width:none !important;max-height:92vh;
     border-radius:20px 20px 0 0;transform:translateY(100%);opacity:1;
     transition:transform .42s var(--ease);
+    /* Ein Blatt scrollt nur nach oben und unten. Quer schieben lassen sich auf
+       dem iPhone sonst auch Flächen, die gar nicht breiter sind als das Fenster. */
+    overflow-x:hidden;touch-action:pan-y;
   }
+  .overlay{overflow:hidden}
   .overlay.show .sheet{transform:none}
   .sheet-head{padding:22px 18px 14px;border-radius:20px 20px 0 0}
   .sheet-head::before{

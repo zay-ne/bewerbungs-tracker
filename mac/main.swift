@@ -416,11 +416,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         openForm(); await warte(700);
         stand.formular = ueber();
         {
-          const blatt = document.querySelector('#ovForm .sheet').getBoundingClientRect();
+          const el = document.querySelector('#ovForm .sheet');
+          const blatt = el.getBoundingClientRect();
           stand.blatt_unten = Math.round(innerHeight - blatt.bottom) + ' px Rest, '
                             + Math.round(blatt.width) + ' px breit';
+          // Ein Blatt darf sich nie quer schieben lassen
+          stand.blatt_quer = (el.scrollWidth - el.clientWidth) + ' px';
         }
         zu(); await warte(200);
+
+        // Bleibt die Filterzeile beim Scrollen mit Abstand unter der Kopfleiste?
+        scrollTo(0, 700); await warte(500);
+        {
+          const leiste = document.querySelector('#chrome').getBoundingClientRect();
+          const knopf = document.querySelector('#btnFilter').getBoundingClientRect();
+          stand.filter_abstand = knopf.height
+            ? Math.round(knopf.top - leiste.bottom) + ' px unter der Leiste'
+            : 'Filterknopf aus';
+        }
+        scrollTo(0, 0); await warte(300);
 
         const feld = document.querySelector('#search');
         feld.value = 'Bundesinstitut für Arzneimittel und Medizinprodukte';
