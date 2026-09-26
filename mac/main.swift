@@ -346,6 +346,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
           filterknopf: sichtbar('#btnFilter') ? document.querySelector('#filterName')?.textContent : 'aus',
           mehrknopf: sichtbar('#btnMore'),
           export_sichtbar: sichtbar('#btnExport'),
+          // Leiste unten: Höhe und ob die Liste genug Platz darunter frei lässt
+          leiste: sichtbar('#tabbar')
+            ? Math.round(document.querySelector('#tabbar').getBoundingClientRect().height)
+            : 'aus',
+          platz_unten: parseInt(getComputedStyle(document.body).paddingBottom) || 0,
         });
         """
         web.callAsyncJavaScript(js, in: nil, in: .page) { outcome in
@@ -407,7 +412,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
 
         if(items.length){ openHistory(items[0]); await warte(400); stand.verlauf = ueber(); zu(); await warte(200); }
 
-        openForm(); await warte(400); stand.formular = ueber(); zu(); await warte(200);
+        // Das Formular kommt auf dem Handy von unten: Blatt muss am unteren Rand sitzen
+        openForm(); await warte(700);
+        stand.formular = ueber();
+        {
+          const blatt = document.querySelector('#ovForm .sheet').getBoundingClientRect();
+          stand.blatt_unten = Math.round(innerHeight - blatt.bottom) + ' px Rest, '
+                            + Math.round(blatt.width) + ' px breit';
+        }
+        zu(); await warte(200);
 
         const feld = document.querySelector('#search');
         feld.value = 'Bundesinstitut für Arzneimittel und Medizinprodukte';

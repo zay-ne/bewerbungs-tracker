@@ -119,6 +119,10 @@ body{
   padding-right:max(24px, env(safe-area-inset-right));
 }
 button,input,select{font:inherit;color:inherit;letter-spacing:inherit}
+/* Kein graues Aufblitzen beim Tippen: die eigenen :active-Zustände sind die Rückmeldung.
+   manipulation nimmt außerdem die halbe Sekunde Wartezeit vor dem Klick auf dem iPhone. */
+a,button,label,summary,tr,[role=tab]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button{user-select:none;-webkit-user-select:none}
 button{background:none;border:0;cursor:pointer}
 :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
 
@@ -159,7 +163,7 @@ button{background:none;border:0;cursor:pointer}
 
 header.top{
   display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
-  flex-wrap:wrap; padding:56px 4px 28px;
+  flex-wrap:wrap; padding:56px 0 28px;
 }
 h1{
   font-size:40px;line-height:1.08;font-weight:700;letter-spacing:-.028em;
@@ -303,8 +307,12 @@ h1{
 .table-scroll{overflow-x:auto}
 
 /* ─────────────────────────  Ansichtswechsel  ───────────────────────── */
+/* Gleiche Randlinie wie Kopf und Karten: der Umschalter beginnt unter der
+   Wortmarke, die Aktion endet unter dem Hauptknopf. */
+.viewbar{display:flex;align-items:center;gap:14px;margin:0 0 22px}
+.viewacts{margin-left:auto;display:flex;align-items:center;gap:8px}
 .viewswitch{
-  position:relative;display:inline-flex;gap:2px;padding:4px;margin:0 0 22px;
+  position:relative;display:inline-flex;gap:2px;padding:4px;margin:0;
   background:var(--bg-sunken);border-radius:999px;
 }
 .vspring{
@@ -321,7 +329,6 @@ h1{
 .vtab:active{transform:scale(.97)}
 
 /* ─────────────────────────  Statistik-Karten  ───────────────────────── */
-.boardbar{display:flex;justify-content:flex-end;margin:-6px 0 14px}
 .board{
   display:grid;gap:16px;
   grid-template-columns:repeat(auto-fit,minmax(310px,1fr));
@@ -335,6 +342,9 @@ h1{
   animation:kartenAuf .5s var(--ease) forwards;
   transition:box-shadow .3s var(--ruhig);
   display:flex;flex-direction:column;
+  /* Ohne das dehnt breiter Inhalt die Karte über das Raster hinaus,
+     statt in sich schiebbar zu bleiben. */
+  min-width:0;
 }
 /* Was auf einer Grundlinie steht, gehört nach unten. Listen dagegen schließen
    direkt an die Überschrift an, sonst klafft in der Mitte eine Lücke. */
@@ -582,8 +592,16 @@ svg.cols rect{
   transition:background .16s,color .16s,transform .16s var(--ease);
 }
 .planchip:hover{color:var(--text)}
-/* Der Mehr-Knopf erscheint erst, wenn der Platz knapp wird */
-.more{display:none;font-size:17px;line-height:1;padding:0 12px}
+/* Konto und Randfunktionen wohnen im Mehr-Menü. So trägt der Kopf nur noch,
+   was man oft braucht, statt acht Textknöpfen nebeneinander.
+   !important, weil paintSync diese Knöpfe je nach Konto direkt am Knoten schaltet. */
+.top-actions #btnInvite,.top-actions #btnPass,.top-actions #btnLogout,
+.account .mail{display:none !important}
+.more{display:inline-flex;font-size:17px;line-height:1;padding:0 12px}
+.moremail{
+  font-size:13px;color:var(--text-secondary);padding:0 12px 10px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
 .morelist{display:flex;flex-direction:column;gap:2px}
 .moreitem{
   display:flex;align-items:center;gap:12px;height:46px;padding:0 12px;border-radius:12px;
@@ -772,6 +790,7 @@ tr:hover .addlink{opacity:1}
 .overlay.show{opacity:1;pointer-events:auto}
 .sheet{
   width:100%;max-width:520px;max-height:calc(100vh - 48px);overflow:auto;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
   background:var(--bg-elevated);border-radius:var(--r-xl);
   box-shadow:var(--shadow-sheet),var(--kante);
   transform:translateY(18px) scale(.96);opacity:.5;
@@ -1125,6 +1144,135 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   .top-actions .btn.quiet{padding:0 11px}
   .addlink{opacity:1}
 }
+
+/* Die Leiste selbst bleibt deckend: durchscheinendes Material über einer
+   scrollenden Fläche blitzt auf dem iPhone weiß auf. */
+.tabbar{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:45;
+  grid-template-columns:repeat(3,1fr);align-items:end;justify-items:center;
+  padding:7px 10px calc(6px + env(safe-area-inset-bottom));
+  background:var(--bg-elevated);border-top:1px solid var(--separator);
+}
+.tabitem{
+  display:grid;justify-items:center;gap:3px;width:100%;padding:4px 0 2px;border-radius:14px;
+  font-size:10.5px;font-weight:600;letter-spacing:.01em;color:var(--text-tertiary);
+  transition:color .22s var(--ruhig),transform .26s var(--feder);
+}
+.tabitem svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+.tabitem.on{color:var(--accent)}
+.tabitem:active{transform:scale(.9)}
+.tabitem.neu{gap:0;padding:0}
+.tabitem.neu .kreis{
+  display:grid;place-items:center;width:52px;height:40px;border-radius:14px;
+  background:var(--accent);color:#fff;font-size:24px;line-height:1;font-weight:400;
+  box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 45%,transparent);
+}
+
+/* ═════════════════  Handy: eigene Schale im Stil einer App  ═════════════════
+   Unter 760 px ist das hier nicht die verkleinerte Webseite, sondern eine App:
+   großer Titel oben, feste Leiste unten, jedes Fenster kommt von unten herein.
+   Steht bewusst am Ende, damit es die Regeln der Webansicht überschreibt. */
+@media (max-width:760px){
+  /* Flacher Untergrund: auf dem Handy stoßen feste Leisten an den Seitenrand,
+     und ein Farbverlauf darunter würde an ihrer Kante sichtbar abreißen. */
+  html{background:var(--bg)}
+  body{padding:0 16px calc(86px + env(safe-area-inset-bottom))}
+
+  /* ── Kopf: großer Titel, rechts nur Sprache, Tarif und Mehr ── */
+  header.top{
+    padding:calc(env(safe-area-inset-top) + 16px) 0 8px;
+    align-items:center;gap:10px;flex-wrap:nowrap;
+  }
+  header.top > div:first-child{min-width:0;flex:1 1 auto}
+  h1{font-size:34px;letter-spacing:-.042em}
+  .subtitle{display:none}
+  .top-actions{width:auto;flex:0 0 auto;gap:8px;flex-wrap:nowrap}
+  .top-actions .btn.primary{display:none}      /* das Plus sitzt in der Leiste unten */
+  .top-actions .more{
+    display:grid;place-items:center;width:36px;height:36px;padding:0;border-radius:50%;
+    background:var(--bg-elevated);box-shadow:0 1px 2px rgba(0,0,0,.08);color:var(--text-secondary);
+  }
+  .planchip{height:32px}
+
+  /* Umschalter und Zweitknopf oben entfallen: beides steckt in der Leiste unten */
+  .viewswitch{display:none}
+  .chrome-new{display:none}
+  .chrome-inner{justify-content:center;height:48px}
+  .chrome-brand{font-size:17px}
+
+  /* ── Listenkopf: nur die Suche. Titel steht in der Leiste, die Anzahl im Filter ── */
+  .card-head{padding:2px 0 10px;gap:0}
+  .card-head h2,.card-head #count{display:none}
+  .searchbox{flex:1 1 100%;max-width:none}
+  #search{
+    height:40px;border-radius:12px;padding:0 34px;font-size:16px;
+    background:var(--bg-sunken);border-color:transparent;
+  }
+  .searchicon{left:12px;font-size:16px}
+  .searchclear{right:8px;width:24px;height:24px}
+  .toolbar{
+    padding:0 0 12px;gap:10px;border-bottom:0;
+    top:calc(48px + env(safe-area-inset-top));background:var(--bg);
+  }
+
+  /* Eingabefelder unter dem Daumen: höher, weicher, mit mehr Luft */
+  input[type=text],input[type=number],input[type=date],input[type=email],input[type=password],select{
+    height:46px;border-radius:12px;padding:0 15px;
+  }
+  select{padding-right:36px;background-position:calc(100% - 19px) 21px,calc(100% - 14px) 21px}
+  .tl input[type=date]{height:36px;padding:0 10px}
+  .seg label{padding:11px 4px;font-size:14.5px}
+  .gatebtn{height:50px;font-size:16px}
+  .gateswitch,.gatedemo{padding:12px 8px}
+
+  /* ── Liste: ein gruppierter Block, jede Zeile mindestens 44 px hoch ── */
+  tbody{border-radius:16px}
+  tbody tr{padding:11px 16px}
+  .firm{min-height:44px;gap:12px}
+  .mark{width:34px;height:34px;border-radius:10px}
+  .mark .mono{font-size:13px}
+  .company{font-size:16px}
+  .role{font-size:13.5px}
+  .kurz{margin-left:46px}
+  .aufklapp{background:none;width:22px;height:22px;font-size:19px;color:var(--text-tertiary)}
+  tbody tr:active{background:var(--surface-hover)}
+
+  /* ── Jedes Fenster kommt von unten, mit Griff und sicherem Rand ── */
+  /* !important schlägt die max-width, die einzelne Fenster direkt am Knoten tragen */
+  .overlay{place-items:end center;padding:0}
+  .sheet{
+    width:100%;max-width:none !important;max-height:92vh;
+    border-radius:20px 20px 0 0;transform:translateY(100%);opacity:1;
+    transition:transform .42s var(--ease);
+  }
+  .overlay.show .sheet{transform:none}
+  .sheet-head{padding:22px 18px 14px;border-radius:20px 20px 0 0}
+  .sheet-head::before{
+    content:'';position:absolute;top:8px;left:50%;margin-left:-19px;
+    width:38px;height:5px;border-radius:999px;background:var(--separator-strong);
+  }
+  .sheet.blatt .sheet-head::before{display:none}   /* trägt den Griff schon selbst */
+  .sheet-head h2{font-size:18px}
+  .sheet-body{padding:16px 18px 20px}
+  .sheet-foot{padding:12px 18px calc(14px + env(safe-area-inset-bottom))}
+  .sheet-foot .btn{flex:1 1 0;justify-content:center;height:46px;font-size:16px}
+  .close{width:32px;height:32px}
+
+  /* Der Fluss braucht seine 520 px Breite: hineingequetscht überlagern sich die
+     Beschriftungen. Also in voller Größe zeichnen und seitlich schiebbar machen. */
+  .chart-wrap{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .chart-wrap::-webkit-scrollbar{display:none}
+  svg.sankey{min-width:520px}
+  .boardbar .btn{height:40px}
+
+  /* Der Kopf eines Blattes gehört dem Finger: von hier zieht man es weg. */
+  .sheet-head,.griff{touch-action:none}
+
+  /* ── Feste Leiste unten: Übersicht, Neu, Statistiken ── */
+  .tabbar{display:grid}
+}
+
 </style>
 </head>
 <body>
@@ -1179,11 +1327,17 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
     </div>
   </section>
 
-  <nav class="viewswitch" id="viewswitch" role="tablist">
-    <span class="vspring" id="vspring" aria-hidden="true"></span>
-    <button class="vtab on" data-view="list" role="tab" data-i18n="view.list">Übersicht</button>
-    <button class="vtab" data-view="stats" role="tab" data-i18n="view.stats">Statistiken</button>
-  </nav>
+  <!-- Umschalter und die Aktion zur Ansicht stehen auf einer Linie, nicht versetzt -->
+  <div class="viewbar" id="viewbar">
+    <nav class="viewswitch" id="viewswitch" role="tablist">
+      <span class="vspring" id="vspring" aria-hidden="true"></span>
+      <button class="vtab on" data-view="list" role="tab" data-i18n="view.list">Übersicht</button>
+      <button class="vtab" data-view="stats" role="tab" data-i18n="view.stats">Statistiken</button>
+    </nav>
+    <div class="viewacts">
+      <button class="btn" id="btnShare" hidden><span class="ico">↗</span><span data-i18n="share.button">Teilen</span></button>
+    </div>
+  </div>
 
   <div id="viewList">
   <section class="stats" id="stats"></section>
@@ -1222,12 +1376,24 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
   </div>
 
   <div id="viewStats" hidden>
-    <div class="boardbar">
-      <button class="btn" id="btnShare"><span class="ico">↗</span><span data-i18n="share.button">Teilen</span></button>
-    </div>
     <div class="board" id="board"></div>
   </div>
 </div>
+
+<!-- ── Leiste unten (nur auf dem Handy): Übersicht, Neu, Statistiken ────── -->
+<nav class="tabbar" id="tabbar" role="tablist" aria-label="zapply">
+  <button class="tabitem on" data-tab="list" role="tab" aria-selected="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+    <span data-i18n="view.list">Übersicht</span>
+  </button>
+  <button class="tabitem neu" data-tab="new" data-i18n-aria="nav.new" aria-label="Neue Bewerbung">
+    <span class="kreis" aria-hidden="true">+</span>
+  </button>
+  <button class="tabitem" data-tab="stats" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11m7 9V4m7 16v-6"/></svg>
+    <span data-i18n="view.stats">Statistiken</span>
+  </button>
+</nav>
 
 <!-- ── Form sheet ───────────────────────────────────────────── -->
 <div class="overlay" id="ovForm">
@@ -1414,6 +1580,7 @@ svg.sankey{display:block;width:100%;height:440px;overflow:visible}
       <button class="close" data-close data-i18n-aria="misc.close">✕</button>
     </div>
     <div class="sheet-body morelist">
+      <div class="moremail" id="moreMail"></div>
       <button class="moreitem" id="moreExport"><span class="ico">↓</span><span data-i18n="nav.export">Export</span></button>
       <button class="moreitem" id="moreImport"><span class="ico">↑</span><span data-i18n="nav.import">Import</span></button>
       <button class="moreitem" id="moreInvite" style="display:none"><span class="ico">✉</span><span data-i18n="inv.short">Einladen</span></button>
@@ -3962,6 +4129,16 @@ function setView(neu){
     b.classList.toggle('on', an);
     b.setAttribute('aria-selected', an ? 'true' : 'false');
   }
+  // Teilen gehört zur Statistik. Auf dem Handy trägt der Umschalter nichts,
+  // dort verschwindet die ganze Reihe, wenn sie nichts zu zeigen hat.
+  $('#btnShare').hidden = view !== 'stats';
+  $('#viewbar').hidden = view === 'list' && matchMedia('(max-width:760px)').matches;
+  for(const b of document.querySelectorAll('.tabitem[data-tab]')){
+    if(b.dataset.tab === 'new') continue;
+    const an = b.dataset.tab === view;
+    b.classList.toggle('on', an);
+    b.setAttribute('aria-selected', an ? 'true' : 'false');
+  }
   federSetzen();
   if(view === 'stats') renderBoard();
 }
@@ -4911,6 +5088,14 @@ $('#shareFormat').addEventListener('change', e => { posterFormat = e.target.valu
 $('#shareSave').onclick = posterSichern;
 $('#shareGo').onclick = posterTeilen;
 
+/* Die Leiste unten nutzt dieselben Wege wie der Umschalter oben: eine Wahrheit. */
+$('#tabbar').addEventListener('click', e => {
+  const b = e.target.closest('.tabitem');
+  if(!b) return;
+  if(b.dataset.tab === 'new'){ openForm(); return; }
+  setView(b.dataset.tab);
+});
+
 $('#viewswitch').addEventListener('click', e => {
   const tab = e.target.closest('.vtab');
   if(tab) setView(tab.dataset.view);
@@ -5358,6 +5543,39 @@ function filterBlattOeffnen(){
 $('#btnFilter').onclick = filterBlattOeffnen;
 $('#btnSort').onclick = filterBlattOeffnen;
 
+/* ─────────── Blatt nach unten wegziehen (Handy) ───────────
+   Der Griff ist keine Attrappe: am Kopf ziehen schließt das Blatt, ein kurzer
+   Zug federt zurück. Nur dort, wo die Blätter von unten kommen. */
+(function blattZiehen(){
+  let ziel = null, start = 0, weg = 0, zeit = 0;
+  const handy = () => matchMedia('(max-width:760px)').matches;
+  addEventListener('pointerdown', e => {
+    if(!handy() || ziel) return;
+    const kopf = e.target.closest('.sheet-head, .griff');
+    if(!kopf || e.target.closest('button,input,select,textarea,a')) return;
+    const blatt = kopf.closest('.sheet');
+    const ov = blatt && blatt.closest('.overlay.show');
+    if(!ov) return;
+    ziel = {blatt, ov}; start = e.clientY; weg = 0; zeit = performance.now();
+    blatt.style.transition = 'none';
+  });
+  addEventListener('pointermove', e => {
+    if(!ziel) return;
+    weg = Math.max(0, e.clientY - start);
+    ziel.blatt.style.transform = 'translateY(' + weg + 'px)';
+  });
+  const loslassen = () => {
+    if(!ziel) return;
+    const {blatt, ov} = ziel; ziel = null;
+    blatt.style.transition = '';
+    blatt.style.transform = '';
+    // Weit genug gezogen oder mit Schwung: zu. Sonst federt es zurück.
+    if(weg > 110 || (weg > 40 && performance.now() - zeit < 320)) closeOverlay(ov);
+  };
+  addEventListener('pointerup', loslassen);
+  addEventListener('pointercancel', loslassen);
+})();
+
 /* ─────────── Mitlaufende Kopfleiste ─────────── */
 
 $('#btnNewTop').onclick = () => openForm();
@@ -5386,6 +5604,7 @@ $('#btnNewTop').onclick = () => openForm();
 
 /* Die Einträge lösen dieselben Knöpfe aus, damit es nur eine Wahrheit gibt. */
 $('#btnMore').onclick = () => {
+  $('#moreMail').textContent = account?.email || '';
   $('#moreInvite').style.display = account?.admin && !demo ? '' : 'none';
   $('#morePass').style.display = account && !demo ? '' : 'none';
   $('#moreLogout').style.display = account ? '' : 'none';
@@ -5610,5 +5829,7 @@ applyLabels();
 initLang();
 boot();
 </script>
+
+
 </body>
 </html>
